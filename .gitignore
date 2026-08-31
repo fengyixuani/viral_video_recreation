@@ -1,3 +1,9 @@
+# 本地私密配置（密钥、内网网关地址），只有 conf/config.env 入库
+viral_video_recreation/conf/config.local.env
+
+# 测试用例本地维护，不入库
+viral_video_recreation/tests/
+
 # Virtualenv
 /.venv/
 /venv/

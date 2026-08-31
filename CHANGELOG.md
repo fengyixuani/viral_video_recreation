@@ -7,9 +7,13 @@ Changelog
 [Unreleased]
 ---
 ### Added
-- 这里记录新添加的内容
+- 基础层：配置加载（`config.py`）、模型网关调用（`llm.py`）、BOS 存储（`storage.py`）、
+  ffmpeg 媒体工具（`media.py`）、任务目录（`task_store.py`）、流水线骨架（`pipeline.py`，
+  含 ingest 步骤、阶段并行与断点续跑）
+- CLI 子命令：`doctor` / `new` / `run` / `list`
+- 单测覆盖配置、任务目录、媒体工具、流水线与 CLI
 ### Changed
-- 这里记录变更的内容
+- 移除脚手架的 hello world demo，`cmdline` 换成复刻任务入口
 
 0.1.0 - 2026-08-31
 ---
