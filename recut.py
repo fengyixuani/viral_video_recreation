@@ -73,6 +73,7 @@ BAR_LEVEL = 0.18              # 行/列平均亮度低于峰值这个比例的�
 
 _POP = np.unpackbits(np.arange(256, dtype=np.uint8)[:, None], axis=1).sum(1).astype(np.int16)
 
+
 # ---------------- 指纹 ----------------
 def _hamming(hashes: np.ndarray, query: np.ndarray) -> np.ndarray:
     """一批 hash 与一个 hash 的汉明距离。hash 都是 (n, 8) uint8。"""
@@ -278,6 +279,7 @@ def soft_cut_at(shot: tuple, times: np.ndarray, hashes: np.ndarray, fps: float):
     if cut - start < MIN_SHOT_SEC or end - cut < MIN_SHOT_SEC:
         return None
     return cut
+
 
 # ---------------- 步骤 3：逐镜定位回素材 ----------------
 def _align(query: np.ndarray, offsets: np.ndarray, idx_hashes: np.ndarray) -> tuple:
@@ -487,7 +489,6 @@ def locate_by_asr(shot: tuple, query: str, mat: dict, win: tuple) -> dict:
             "_src": mat["file"], "_silent": mat["silent"]}
 
 
-
 def asr_stream(video: str, dur: float, cache_dir: str, tag: str = "") -> list:
     """整片词级 ASR，返回 [{ch, t}]（t 是绝对秒）。分块跑，每块单独落盘缓存。
 
@@ -657,7 +658,6 @@ def locate_by_vlm(shot: tuple, ref: str, mat: dict, win: tuple, work: str) -> di
             "_src": mat["file"], "_silent": mat["silent"]}
 
 
-
 # ---------------- 步骤 3d：三层都对不上才 AIGC 生成 ----------------
 def gen_piece(shot: tuple, ref: str, dst: str, work: str) -> dict:
     """三层定位全失败的镜头，用 AIGC 补一段。返回 {} 表示补不出来。
@@ -750,6 +750,7 @@ def cut_piece(src: str, start: float, dur: float, dst: str, silent: bool,
         raise RuntimeError("裁剪失败：%s" % ret.stderr[-300:])
     return {"文件": dst, "时长秒": round(pv._duration(dst), 2)}
 
+
 # ---------------- 步骤 5：拼接 ----------------
 def concat(files: list, outdir: str) -> str:
     """流复制拼接。各片都是 cut_piece 出的同参数片，不需要再归一化一遍。
@@ -772,6 +773,12 @@ def concat(files: list, outdir: str) -> str:
 def recut(ref: str, materials: list, outdir: str, mute: bool = False,
           cache_dir: str = "", use_asr: bool = True, use_vlm: bool = True,
           use_aigc: bool = False) -> dict:
+    """纯重剪主流程：拆爆款镜头 → 素材指纹定位 → 裁剪拼接成片。
+
+    ref 是爆款参考片，materials 是用户素材（可多条）；定位三层兜底：
+    hash 窗口对齐 → ASR 锚点 → VLM 校验，都失败且开 use_aigc 才生成补片。
+    返回统计与逐镜明细的 dict，供 to_markdown 渲染。
+    """
     os.makedirs(os.path.join(outdir, "pieces"), exist_ok=True)
     clock = time.time()
 
@@ -987,6 +994,7 @@ def recut(ref: str, materials: list, outdir: str, mute: bool = False,
 
 
 def to_markdown(result: dict) -> str:
+    """把 recut() 返回的结果渲染成 Markdown 报告（概览 + 逐镜明细表）。"""
     lines = ["# 纯重剪：%s" % result["爆款"], "",
              "- 素材：%s" % "、".join(result["素材"]),
              "- 爆款 %.1fs / %d 镜，命中 %d 镜（%.0f%%），覆盖时长 %.0f%%"
@@ -1014,6 +1022,7 @@ def to_markdown(result: dict) -> str:
 
 
 def main(argv=None) -> int:
+    """命令行入口：解析参数并调用 recut()，返回进程退出码。"""
     ap = argparse.ArgumentParser(description="纯重剪：用用户素材还原爆款的剪辑，零模型调用")
     ap.add_argument("reference", help="爆款参考片")
     ap.add_argument("materials", nargs="+", help="用户素材（可多条，会一起建指纹索引）")
