@@ -398,7 +398,16 @@ def _asr_transcribe(video: str, start: float, dur: float, cache_dir: str) -> lis
     start, dur = max(0.0, start), max(0.4, dur)
     work = os.path.join(cache_dir or "/tmp", "asr")
     os.makedirs(work, exist_ok=True)
-    key = "%s-%.2f-%.2f" % (os.path.basename(video), start, dur)
+    # 缓存键带上 size+mtime（与 decode_hashes 的键口径一致）：只用 basename 时，
+    # 爆款与素材、或两条素材恰好同名（都叫 final.mp4 / with_audio.mp4，只是目录不同）
+    # 就会串用转写结果——asr_stream 对两边用的是同一个 cache 目录、同样的分块起点，键完全相同。
+    # 串了之后 anchor_map 拿两份相同文本做对齐，锚点退化成恒等映射，窗口指向爆款自己的时间轴。
+    try:
+        st = os.stat(video)
+        stamp = "%d-%d" % (st.st_size, int(st.st_mtime))
+    except OSError:
+        stamp = "0-0"
+    key = "%s-%s-%.2f-%.2f" % (os.path.basename(video), stamp, start, dur)
     raw = os.path.join(work, key + ".json")
     if os.path.isfile(raw):
         try:
@@ -443,8 +452,14 @@ def _asr_chars(items: list, origin: float = 0.0) -> list:
         tok = _asr_clean(str(it.get("text") or ""))
         if not tok:
             continue
-        t0 = origin + float(it.get("start_time") or it.get("start") or 0.0)
-        t1 = origin + float(it.get("end_time") or it.get("end") or t0)
+        # 相对值先算完再统一加 origin：`or t0` 那种兜底会把 origin 加两遍
+        # （t1 = 2*origin + rel_start，step = origin/字数），而 asr_stream 是按 30s 分块调的，
+        # origin 就是块起点，于是这一个 token 的字会被铺到几十秒的假区间上，
+        # 直接污染 anchor_map 的投票和 locate_by_asr 的命中时间。
+        rel0 = float(it.get("start_time") or it.get("start") or 0.0)
+        rel1 = float(it.get("end_time") or it.get("end") or 0.0)
+        t0 = origin + rel0
+        t1 = origin + (rel1 if rel1 > rel0 else rel0)
         if len(tok) == 1:
             out.append({"ch": tok, "t": t0})
             continue
@@ -471,10 +486,13 @@ def _ngram_hits(query: str, hay: list, n: int = 4) -> list:
     return sorted(votes, key=lambda t: (-votes[t], t))
 
 
-def locate_by_asr(shot: tuple, query: str, mat: dict, win: tuple) -> dict:
-    """在素材 [win0, win1] 里用台词 n-gram 定位一镜。命中时返回与 locate() 同形的 dict。"""
-    start, end = shot
-    dur = max(0.0, end - start)
+def locate_by_asr(shot: tuple, query: str, mat: dict, win: tuple, lead: float = 0.0) -> dict:
+    """在素材 [win0, win1] 里用台词 n-gram 定位一镜。命中时返回与 locate() 同形的 dict。
+
+    lead = 这句台词在**爆款镜内**的起始秒（镜头开头的静音/前摇）。hits[0] 是台词首字在
+    素材里的时刻，不是镜头起点：不减掉 lead 的话，cut_piece 会从台词首字处往后裁 dur 秒，
+    素材侧比真实对应位置晚了「镜内前置静音」那么多秒，尾部同样多切出等量画面。
+    """
     lo, hi = max(0.0, win[0]), max(win[0], win[1])
     if hi - lo > ASR_MAX_WIN:                 # 邻镜对不上、窗口被撑成整段时放弃，交给 VLM
         return {}
@@ -482,9 +500,9 @@ def locate_by_asr(shot: tuple, query: str, mat: dict, win: tuple) -> dict:
     hits = _ngram_hits(query, _asr_chars(items, lo))
     if not hits:
         return {}
-    origin = max(0.0, hits[0])
+    origin = max(0.0, hits[0] - max(0.0, lead))
     return {"命中": True, "源起点": round(origin, 2), "平均距离": 0.0,
-            "取样帧": 0, "变速": 1.0, "定位": "asr",
+            "取样帧": 0, "变速": 1.0, "定位": "asr", "镜内念白起点": round(lead, 2),
             "源文件": os.path.basename(mat["file"]),
             "_src": mat["file"], "_silent": mat["silent"]}
 
@@ -506,6 +524,17 @@ def asr_stream(video: str, dur: float, cache_dir: str, tag: str = "") -> list:
             print("  %s ASR %.0f/%.0fs → %d 字（%.0fs）"
                   % (tag, t, dur, len(chars), time.time() - clock), flush=True)
     return chars
+
+
+def _anchor_bucket(t: float) -> float:
+    """把时间归到 0.5s 网格上，给 anchor_map 的投票用。
+
+    桶必须比字间隔粗：中文语速 0.15~0.25s/字，用 0.1s 的桶时同一段连续台词的相邻
+    n-gram 会各占一个桶、每桶只有 1 票，`v >= ANCHOR_MIN_VOTES` 把全部锚点滤光，
+    锚点表恒空——白跑一遍素材整片 ASR，每镜还是退回全片搜。
+    锚点本来也不需要更细的精度：它只负责把搜索范围缩到 ±ANCHOR_PAD 秒。
+    """
+    return round(t * 2) / 2
 
 
 def anchor_map(ref_chars: list, src_chars: list) -> list:
@@ -535,8 +564,8 @@ def anchor_map(ref_chars: list, src_chars: list) -> list:
             continue
         rt = ref_chars[i]["t"]
         for st in hits:
-            votes.setdefault((round(rt, 1), round(st, 1)), 0)
-            votes[(round(rt, 1), round(st, 1))] += 1
+            key = (_anchor_bucket(rt), _anchor_bucket(st))
+            votes[key] = votes.get(key, 0) + 1
     pairs = sorted(k for k, v in votes.items() if v >= ANCHOR_MIN_VOTES)
     if not pairs:
         return []
@@ -880,19 +909,25 @@ def recut(ref: str, materials: list, outdir: str, mute: bool = False,
 
     def rescue(shot, hashed):
         """哈希对不上：先按台词直接定位，再让 VLM 校验候选窗。"""
-        query = ""
+        query, lead = "", 0.0
         if use_asr and _asr_ready():
             q_items = _asr_transcribe(ref, shot[0], max(0.4, shot[1] - shot[0]), asr_cache)
             query = _asr_clean("".join(str(it.get("text") or "") for it in q_items))
+            # 这句台词在镜内是第几秒开始的：q_items 的时间戳是相对镜头起点的，
+            # locate_by_asr 要拿它把「台词首字位置」换算回「镜头起点位置」。
+            for it in q_items or []:
+                if _asr_clean(str(it.get("text") or "")):
+                    lead = max(0.0, float(it.get("start_time") or it.get("start") or 0.0))
+                    break
             if query:
-                print("  ASR 查询「%s」" % query[:24], flush=True)
+                print("  ASR 查询「%s」（镜内念白起点 %.2fs）" % (query[:24], lead), flush=True)
         for mat in index:
             # 窗口来源两条：台词锚点（全局，最可靠）和已命中的邻镜（局部）
             win = anchor_window(mat.get("anchors") or [], shot) or neighbor_win(shot, mat)
             if win is None:
                 continue
             if use_asr and len(query) >= ASR_MIN_CHARS:
-                got = locate_by_asr(shot, query, mat, win)
+                got = locate_by_asr(shot, query, mat, win, lead)
                 if got:
                     return got
             if use_vlm and rescue.vlm_left > 0:

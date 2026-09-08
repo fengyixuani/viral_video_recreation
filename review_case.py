@@ -189,6 +189,18 @@ def review(task_id):
     if str(audit.get("状态") or "").startswith("审查失败"):
         report["问题"].append("剧本商品状态审查未执行成功（%s）" % audit.get("状态"))
 
+    # 整片叙事连贯性对账：逐镜门禁全绿、整片却各讲各的，只有这一层反映得出来
+    # （老任务没有该字段，不误报）
+    tale = (built.get("剧本") or {}).get("叙事连贯审查") or {}
+    if tale:
+        report["叙事连贯审查"] = "%s（可理解性 %s）" % (tale.get("状态"),
+                                                       tale.get("可理解性", "-"))
+    if tale.get("状态") == "可理解性不足":
+        report["问题"].append("整片叙事看不懂：可理解性 %s 分，盲测看成「%s」"
+                              % (tale.get("可理解性", "-"), tale.get("盲测概要") or "-"))
+    if str(tale.get("状态") or "").startswith("审查失败"):
+        report["问题"].append("整片叙事连贯审查未执行成功（%s）" % tale.get("状态"))
+
     # 门禁对账（实测门禁范式，见 gates.py）：产物里「通过=False 却 使用=True」都是缺陷；
     # 新加门禁自动被这里覆盖，不用改复核器
     audited = []

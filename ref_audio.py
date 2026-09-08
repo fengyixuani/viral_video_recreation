@@ -14,7 +14,7 @@ import gates  # pyright: ignore[reportImplicitRelativeImport]
 import produce_video  # pyright: ignore[reportImplicitRelativeImport]
 import rules  # pyright: ignore[reportImplicitRelativeImport]
 import write_script  # pyright: ignore[reportImplicitRelativeImport]
-from media import _ffmpeg, _yn, extract_audio
+from media import _ffmpeg, _probe, _yn, extract_audio
 from task_store import _p, _rel, log
 
 
@@ -186,12 +186,39 @@ def _reference_audio_facts(rec: dict, full: str) -> dict:
         return _classify_audio_by_script(analysis)
 
 
+def _has_audio_track(rec: dict) -> bool:
+    """参考片到底有没有音频流。
+
+    ingest 已经探过并写进 assets/registry.json（media._probe 的 has_audio），先读它；
+    读不到（老任务、registry 被留档）就现场再探一次。
+    """
+    try:
+        with open(_p(rec["task_id"], "assets", "registry.json"), encoding="utf-8") as fh:
+            got = ((json.load(fh) or {}).get("reference_video") or {}).get("has_audio")
+        if got is not None:
+            return bool(got)
+    except (OSError, ValueError, AttributeError):
+        pass
+    return bool(_probe(rec["inputs"]["reference_video"]).get("has_audio"))
+
+
 def step_audio(rec: dict) -> dict:
     """按「参考片音轨」规则表判定，并准备好要贴回成片的 BGM 文件。"""
     tid = rec["task_id"]
-    full = extract_audio(rec["inputs"]["reference_video"], _p(tid, "audio", "reference.m4a"))
-    info = _reference_audio_facts(rec, full)
     user_bgm = rec["inputs"].get("bgm")
+    # 参考片是纯视频流（录屏、GIF 转码、已剥音轨的素材）时不能直接调 extract_audio：
+    # ffmpeg 会以「Output file does not contain any stream」失败，media.extract_audio 抛
+    # RuntimeError，而 step_audio 在 STAGES 的第三阶段，异常会让整条流水线停在这里——
+    # 可这本来就是规则表「参考片没有 BGM，有没有口播都不贴回来」的正常情形，能照常出片。
+    has_track = _has_audio_track(rec)
+    if has_track:
+        full = extract_audio(rec["inputs"]["reference_video"], _p(tid, "audio", "reference.m4a"))
+        info = _reference_audio_facts(rec, full)
+    else:
+        full = ""
+        info = {"有背景音乐": False, "有人声口播": False, "音乐说明": "无", "人声说明": "无",
+                "判定来源": "参考片没有音频流，按无 BGM、无口播处理"}
+        log(rec, "参考片没有音频流，跳过音轨提取（用户单独上传的 BGM 仍然照用）")
 
     # 复刻口径：参考片背景音只是零星音效/环境声（不是音乐）就不复用。先把将要贴的
     # 那条轨备出来（有口播先分离伴奏），对它判音乐性，结果作为事实进表。

@@ -20,9 +20,13 @@ import os
 import sys
 import time
 
-import config  # pyright: ignore[reportImplicitRelativeImport]
+import config  # noqa: F401  先 import 它把 config.env 灌进环境，TASKS_DIR 才读得到 VF_TASKS_DIR
+# 任务根目录必须跟 task_store 走同一份：Web 服务用 VF_TASKS_DIR 指到 output/web/tasks，
+# 这里自己拼 output/tasks 的话所有 Web 任务都找不到目录，报告会静默出不来
+# （pipeline._build_report 把异常吞成一行 print）。task_store 只依赖 stdlib + config，
+# 不会把 pipeline 的循环依赖带进来。
+from task_store import TASK_ROOTS, TASKS_DIR  # noqa: E402
 
-TASKS_DIR = os.path.join(config.OUTPUT_DIR, "tasks")
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
 # 与 pipeline.WHITE_BG_PROMPT 保持一致，仅用于老任务（没记录 白底图明细）时重建 prompt 展示
@@ -98,12 +102,22 @@ def _same(flag) -> str:
     return "一致" if flag is True else ("不一致" if flag is False else "判不出")
 
 
+def _task_dir(task_id: str) -> str:
+    """找任务目录。Web 与命令行任务分在两个根下（TASK_ROOTS），两边都翻一遍。
+    都找不到就返回默认根下的路径，让 build() 报一个带真实路径的错。"""
+    for root in TASK_ROOTS:
+        path = os.path.join(root, task_id)
+        if os.path.isdir(path):
+            return path
+    return os.path.join(TASKS_DIR, task_id)
+
+
 class _Ctx:
     """一次报告用到的全部产物与索引。"""
 
     def __init__(self, task_id: str):
         self.tid = task_id
-        self.tdir = os.path.join(TASKS_DIR, task_id)
+        self.tdir = _task_dir(task_id)
         j = lambda *p: os.path.join(self.tdir, *p)  # noqa: E731
         self.rec = _load(j("task.json")) or {}
         self.fact = _load(j("product", "fact_card.json")) or {}
@@ -175,6 +189,65 @@ def _sec_head(ctx: _Ctx) -> list:
     if steps:
         lines += ["- 步骤：" + " → ".join("%s(%s)" % (k, (v or {}).get("status"))
                                           for k, v in steps.items())]
+    return lines
+
+
+def _sec_script_audit(ctx: _Ctx) -> list:
+    """剧本层两道门禁的结论：逐镜的商品状态审查 + 整片的叙事连贯审查。
+
+    整片这一层单独成节，是因为它回答的是别处都回答不了的问题——每一镜都合规、
+    连起来却不知道在讲什么。盲测概要是核心证据：模型只看画面台词看出来的那句话，
+    与「一句话概要」差得远就说明观众也看不出来。
+    """
+    sc = ctx.script.get("剧本") or {}
+    audit, tale = sc.get("商品状态审查") or {}, sc.get("叙事连贯审查") or {}
+    warns = sc.get("剧本告警") or []
+    if not (audit or tale or warns):
+        return []
+    lines = ["", "## 二之二、剧本门禁", ""]
+    if sc.get("一句话概要"):
+        lines += ["- 剧本自述意图：%s" % sc["一句话概要"]]
+    if tale:
+        lines += ["", "### 整片叙事连贯审查（%s）" % (tale.get("状态") or "?"), "",
+                  "- 可理解性：%s / 100（低于 %s 视为普通观众看不懂）"
+                  % (tale.get("可理解性", "-"), 60),
+                  "- 盲测概要（只看画面台词看出来的）：%s" % (tale.get("盲测概要") or "-"),
+                  "- 意图兑现：%s" % (tale.get("意图兑现") or "-")]
+        if tale.get("总体问题"):
+            lines += ["- 主要问题：%s" % tale["总体问题"]]
+        first, fix = tale.get("首轮") or {}, tale.get("修补") or {}
+        if fix:
+            lines += ["",
+                      "- 自动修补：%s（%s）" % (fix.get("状态") or "?", fix.get("说明") or ""),
+                      "- 首轮 %s 分 → 复审 %s 分%s"
+                      % (first.get("可理解性", "-"),
+                         (tale.get("复审") or {}).get("可理解性", "-"),
+                         "，" + tale["复审说明"] if tale.get("复审说明") else "")]
+            for d in fix.get("已改") or []:
+                lines += ["", "  - 镜%s「%s」：%s" % (d.get("序号"), d.get("字段"),
+                                                     d.get("理由") or ""),
+                          "    - 原文：%s" % str(d.get("原文") or "")[:200],
+                          "    - 改写：%s" % str(d.get("改写") or "")[:200]]
+            for d in fix.get("未采纳") or []:
+                lines += ["  - 未采纳 镜%s「%s」：%s" % (d.get("序号"), d.get("字段"),
+                                                       d.get("未采纳原因") or "")]
+        for key, head in (("理解断点", "理解断点（观众到这里跟不上）"),
+                          ("孤立镜", "孤立镜（删掉不影响理解）"),
+                          ("缺失交代", "缺失交代（相邻两镜之间少一环）"),
+                          ("结构未兑现", "结构未兑现")):
+            items = tale.get(key) or []
+            if items:
+                lines += ["", "%s：" % head, ""]
+                lines += ["- %s" % json.dumps(x, ensure_ascii=False) for x in items]
+    if audit:
+        lines += ["", "### 逐镜商品状态审查（%s）" % (audit.get("状态") or "?"), ""]
+        for v in audit.get("违规") or []:
+            lines += ["- 镜%s %s（%s）：%s" % (v.get("序号"), v.get("类型") or "",
+                                              v.get("字段") or "", v.get("问题") or "")]
+        if audit.get("未修复"):
+            lines += ["", "> 未修复 %d 处，会原样进生成端" % len(audit["未修复"])]
+    if warns:
+        lines += ["", "### 剧本告警", ""] + ["- %s" % w for w in warns]
     return lines
 
 
@@ -252,6 +325,8 @@ def _sec_product_images(ctx: _Ctx) -> list:
         lines += ["### 参考图选图（只读结构化理解，不再看图）", ""]
         if sel.get("说明"):
             lines += ["- %s" % sel["说明"], ""]
+        if sel.get("主锚点换位"):
+            lines += ["- 主锚点换位（多款同框的图不能当 @图片1）：%s" % sel["主锚点换位"], ""]
         for i, c in enumerate(sel.get("选中") or [], 1):
             lines += ["- @图片%d ← 编号 %s `%s`：%s（%s）"
                       % (i, c.get("编号"), _disp(ctx.tdir, c.get("文件")),
@@ -328,7 +403,10 @@ def _sec_product_images(ctx: _Ctx) -> list:
     elif harvest.get("白底图"):
         # 老任务没记录明细：prompt 按当时的模板重建展示
         desc = judge.get("商品") or ctx.fact.get("name") or "该商品"
-        wants = [w.get("要表现什么") or "商品正面全貌" for w in (judge.get("白底图") or [{}])]
+        # 元素可能是裸字符串（模型把单字段对象简写了）或 null：报告只是展示，
+        # 不能因为这个把整份报告的生成弄崩。product_images 那边有同样的归一。
+        wants = [(w.get("要表现什么") if isinstance(w, dict) else w) or "商品正面全貌"
+                 for w in (judge.get("白底图") or [{}])]
         lines += ["", "### 白底图生成（seedream 图生图，原帧进 ref_images；prompt 按模板重建）", ""]
         for i, p in enumerate(harvest.get("白底图") or [], 1):
             want = wants[i - 1] if i <= len(wants) else "商品正面全貌"
@@ -433,6 +511,12 @@ def _piece_gen(ctx: _Ctx, p: dict) -> list:
         lines += ["  - 关键状态（视频模型一次画不准，先用图像编辑锁死）：%s"
                   % (c.get("关键状态") or mid.get("关键状态") or ""),
                   "  - 中间状态图：%s" % (mid.get("来源") or "未生成")]
+        man = mid.get("装配清单") or {}
+        if man:
+            lines += ["  - %s序列第 %s/%s 步，基于商品图%s 减部件生成；应有：%s；应无：%s"
+                      % (man.get("叙事类型") or "装配", man.get("序号"), man.get("共几步"),
+                         man.get("基准编号"), "、".join(man.get("应有") or []),
+                         "、".join(man.get("应无") or []) or "（无）")]
         if mid.get("prompt"):
             lines += ["", "  编辑指令（基于商品图%s）：" % mid.get("基准编号"),
                       _code(mid.get("prompt")), ""]
@@ -526,15 +610,29 @@ def _sec_final(ctx: _Ctx) -> list:
 
 
 def build(task_id: str) -> str:
-    """生成 report.md，返回绝对路径。产物缺什么章节就少什么，不抛异常打断流水线。"""
-    ctx = _Ctx(task_id)
+    """生成 report.md，返回绝对路径。产物缺什么章节就少什么，不抛异常打断流水线。
+
+    单章节容错本来就有，但最容易失败的两件事恰好在保护范围外：读任务目录（_Ctx 里每个
+    产物 json 的顶层类型都可能与预期不符）和写 report.md（目录可能压根不存在）。
+    这两处也兜住，才对得起「跑了一半失败的任务也能出报告」这句承诺。
+    """
+    try:
+        ctx = _Ctx(task_id)
+    except Exception as exc:  # noqa: BLE001
+        tdir = _task_dir(task_id)
+        os.makedirs(tdir, exist_ok=True)
+        out = os.path.join(tdir, "report.md")
+        with open(out, "w", encoding="utf-8") as fh:
+            fh.write("# 任务报告 %s\n\n> 读取任务产物失败：%s\n" % (task_id, str(exc)[:300]))
+        return out
     lines = []
-    for sec in (_sec_head, _sec_inputs, _sec_product_images, _sec_assets,
+    for sec in (_sec_head, _sec_inputs, _sec_product_images, _sec_script_audit, _sec_assets,
                 _sec_match, _sec_segments, _sec_audio, _sec_final):
         try:
             lines += sec(ctx)
         except Exception as exc:  # noqa: BLE001  单章失败不拖垮整份报告
             lines += ["", "> （%s 章节生成失败：%s）" % (sec.__name__, str(exc)[:160])]
+    os.makedirs(ctx.tdir, exist_ok=True)
     out = os.path.join(ctx.tdir, "report.md")
     with open(out, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines).rstrip() + "\n")
@@ -546,7 +644,9 @@ def main() -> int:
     if len(sys.argv) > 1:
         tid = sys.argv[1]
     else:
-        tasks = sorted(glob.glob(os.path.join(TASKS_DIR, "*", "task.json")), reverse=True)
+        tasks = sorted((p for root in TASK_ROOTS
+                        for p in glob.glob(os.path.join(root, "*", "task.json"))),
+                       key=os.path.getmtime, reverse=True)
         if not tasks:
             print("没有任务")
             return 1
