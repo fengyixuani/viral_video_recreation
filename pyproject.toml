@@ -54,7 +54,7 @@ Homepage = "http://icode.baidu.com/repos/baidu/wk-strategy/viral_video_recreatio
 [tool.setuptools]
 py-modules = [
     "aigc", "analyze_materials", "analyze_reference", "compose_video",
-    "config", "_fix_sys_tmp", "gates", "line_art", "media", "pipeline",
+    "config", "gates", "line_art", "media", "pipeline",
     "produce_video", "product_facts", "product_images", "recut", "ref_audio",
     "report", "review_case", "rules", "segment_build", "server", "shot_match",
     "storage", "task_store", "voice_dub", "write_script"

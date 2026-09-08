@@ -1,0 +1,13 @@
+{
+  "extraPaths": ["."],
+  "typeCheckingMode": "basic",
+  "reportImplicitRelativeImport": "none",
+  "reportPrivateUsage": "none",
+  "reportArgumentType": "none",
+  "reportMissingTypeStubs": "none",
+  "executionEnvironments": [
+    {
+      "root": "."
+    }
+  ]
+}
