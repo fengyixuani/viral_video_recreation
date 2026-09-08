@@ -214,8 +214,6 @@ def lines_from_stream(stream, max_gap=None, max_chars=None, quiet=False):
         print("[captions_clone] 按停顿切句: {} 句(间隔>{}s 或 >{}字断句)".format(
             len(lines), max_gap, max_chars), flush=True)
     return lines
-
-
 def _uncovered_runs(stream, used, busy, min_chars, min_dur):
     """逐字流里既没被 plan 行吃掉、也不落在已有字幕时间窗内的连续段。"""
     runs, cur = [], []
@@ -392,4 +390,3 @@ def build_lines(tts_items, stream, mute_spans=None):
     for i, ln in enumerate(lines, 1):
         ln["id"] = i
     return lines
-

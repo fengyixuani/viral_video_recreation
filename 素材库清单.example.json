@@ -1,0 +1,51 @@
+{
+  "hot_videos": [
+    {
+      "title": "iPhone 17 Pro · 夜景人像广告",
+      "file": "iphone-17-pro-night.mp4"
+    },
+    {
+      "title": "经典格纹流苏围巾 · 秋冬穿搭短片",
+      "file": "scarf-autumn-style.mp4"
+    }
+  ],
+  "reference_groups": [
+    {
+      "name": "XIAOMI 17 Ultra",
+      "description": "商品主图、细节图与实拍素材，一键导入后可直接开始复刻。",
+      "materials": [
+        {
+          "title": "XIAOMI 17 Ultra · 商品主图",
+          "file": "reference-materials/xiaomi-17-ultra/main.jpg",
+          "kind": "product_images"
+        },
+        {
+          "title": "XIAOMI 17 Ultra · 镜头模组细节",
+          "file": "reference-materials/xiaomi-17-ultra/camera-detail.jpg",
+          "kind": "product_images"
+        },
+        {
+          "title": "XIAOMI 17 Ultra · 产品实拍素材",
+          "file": "reference-materials/xiaomi-17-ultra/product-demo.mp4",
+          "kind": "user_videos"
+        }
+      ]
+    },
+    {
+      "name": "经典格纹流苏围巾",
+      "description": "围巾主图、纹理细节与上身素材。",
+      "materials": [
+        {
+          "title": "经典格纹流苏围巾 · 商品主图",
+          "file": "reference-materials/classic-tartan-scarf/main.jpg",
+          "kind": "product_images"
+        },
+        {
+          "title": "经典格纹流苏围巾 · 上身展示",
+          "file": "reference-materials/classic-tartan-scarf/lookbook.mp4",
+          "kind": "user_videos"
+        }
+      ]
+    }
+  ]
+}
