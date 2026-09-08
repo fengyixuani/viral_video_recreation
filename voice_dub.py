@@ -86,8 +86,14 @@ def _purify_voice_base(rec: dict, wav: str, src: dict, pool: dict) -> dict:
     """基准原声提纯：来源切片带 BGM（或标注缺失）就分离出纯人声再当基准。
 
     克隆/参考对参考音很敏感，混着 BGM 的基准会把伴奏「克」进配音里（表二
-    「用户视频-原声」的口径就是纯净人声）。分离失败或分离后近乎无声（说明人声
+    「用户视频-原声」的口径就是纯净人声）。分离失败或分离后达不到克隆门槛（说明人声
     被一起滤掉了）就保留原样，原因写进 voice_plan，不静默。
+
+    判「提纯是不是白干了」必须用 VOICE_MIN_DB 而不是更松的 SILENT_DB：
+    调用方紧接着就拿 gates.check("克隆基准音") 按 VOICE_MIN_DB 卡这个文件，
+    响度落在 (SILENT_DB, VOICE_MIN_DB] 这一段时，这里认为分离成功、os.replace 覆盖掉
+    原始的混音基准（原始可能有 -20dB、完全够用），下一行门禁又按 -38 判它「近乎无声」
+    把整条候选弃用——一个本来可用的第一优先级候选被自己的提纯步骤毁掉，且不可回退。
     """
     facts = pool.get(src.get("片段ID")) or {}
     if rules.as_bool(facts.get("有BGM")) is False:
@@ -100,10 +106,12 @@ def _purify_voice_base(rec: dict, wav: str, src: dict, pool: dict) -> dict:
                                  "-c:a", "pcm_s16le", pure])
         if ret.returncode != 0 or not os.path.isfile(pure):
             return {"基准音处理": "分离后转码失败，保留原声：%s" % ret.stderr[-120:]}
-        if _mean_db(pure) <= SILENT_DB:
-            return {"基准音处理": "分离后近乎无声（人声被一起滤掉），保留原声"}
+        pure_db, raw_db = _mean_db(pure), _mean_db(wav)
+        if pure_db <= VOICE_MIN_DB and pure_db < raw_db:
+            return {"基准音处理": "分离后 %.1f dB 达不到克隆门槛 %.0f（人声被一起滤掉），"
+                                  "保留原声 %.1f dB" % (pure_db, VOICE_MIN_DB, raw_db)}
         os.replace(pure, wav)
-        return {"基准音处理": "已分离纯人声（%s）" % got["method"]}
+        return {"基准音处理": "已分离纯人声（%s，%.1f dB）" % (got["method"], pure_db)}
     except Exception as exc:  # noqa: BLE001
         return {"基准音处理": "分离失败，保留原声：%s" % str(exc)[:120]}
 
@@ -183,6 +191,16 @@ def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None) -> 
         if ret.returncode != 0 or not os.path.isfile(dst):
             rejected.append({"片段": src.get("片段ID"), "原因": "抽取失败：%s" % ret.stderr[-100:]})
             continue
+        # 真实产出时长也要卡下限：take 只是 ffmpeg 的 -t，素材本身只有 0.8s 时输出还是 0.8s。
+        # 门禁只量响度不量长度，于是这条过短的基准音会被上传成 seedance 的 reference_audio，
+        # 每个 AI 块都先撞一次 41000000 再靠 _audio_rejected 丢参考音重生成（白花额度 +
+        # 音色退化），本地克隆也拿到一段过短的 prompt。
+        got_sec = produce_video._duration(dst)
+        if got_sec < VOICE_BASE_MIN - 0.05:
+            rejected.append({"片段": src.get("片段ID"),
+                             "原因": "只有 %.2fs，短于参考音下限 %.1fs"
+                                     % (got_sec, VOICE_BASE_MIN)})
+            continue
         deal = _purify_voice_base(rec, dst, src, pool or {})
         gate = gates.check("克隆基准音", dst)
         if not gates.ok(gate):
@@ -222,6 +240,8 @@ def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None) -> 
 
 DUB_MAX_TEMPO = 1.4          # 配音比画面长时最多加速多少倍（再快就明显失真）
 DUB_MAX_STRETCH = 1.5        # 画面最多按计划时长放长多少倍（再长就压掉后面段落的节奏）
+DUB_MIN_TEMPO = 0.85         # 配音比画面短时最多放慢多少倍（再慢就念成慢动作朗读）
+DUB_GAP_MAX = 0.25           # 念白尾部允许留多长空档：超过它就先放慢念白去填
 # 本机没有 GPU，VoxCPM2 单条合成就吃满 ~30 核（实测 4s 音频 131s）。并发跑三条会互相
 # 拖到 600s 超时全灭，所以配音一次只跑一条；段内出片的并发交给网络端的生成任务去用。
 _TTS_LOCK = threading.Lock()
@@ -269,7 +289,13 @@ def _dub_scale(dub: float, planned: float) -> float:
 
 
 def _paste_dub(rec: dict, piece: dict, dub: dict) -> dict:
-    """把念白贴回这一片：短了补静音，长了先加速（上限 DUB_MAX_TEMPO）再截断。"""
+    """把念白贴回这一片：长了先加速（上限 DUB_MAX_TEMPO）再截断，短了先放慢再补静音。
+
+    短的那一头以前是直接 apad 补静音，成片里就是「画面在动、口播卡住」——9399 实测
+    段1 念白 5.12s / 画面 5.62s、段2 13.12s / 13.86s，两处各留出 0.8~0.9s 空档，
+    BGM 只有 -32dB 撑不住。所以先把念白放慢到画面长度（放慢 15% 以内听不出来），
+    放慢到顶还差的那点才补静音。
+    """
     info = dict(dub.get("info") or {})
     wav, need = dub.get("wav") or "", float(dub.get("dur") or 0)
     if not wav:
@@ -281,10 +307,16 @@ def _paste_dub(rec: dict, piece: dict, dub: dict) -> dict:
         info["配音变速"] = round(tempo, 3)
         if need / tempo > vid + 0.3:
             info["配音截断秒"] = round(need / tempo - vid, 2)
+    elif vid > 0.2 and need > 0.2 and need < vid - DUB_GAP_MAX:
+        tempo = max(DUB_MIN_TEMPO, need / vid)
+        info["配音变速"] = round(tempo, 3)
+        left = vid - need / tempo
+        if left > DUB_GAP_MAX:
+            info["尾部补静音秒"] = round(left, 2)
     # 音轨长度必须自己 atrim 到画面长度：apad + -shortest 会让 ffmpeg 挂死
     # （apad 是无限流，配 -c:v copy 时 -shortest 收不住，实测跑 5 分钟不结束）
     chain = "[1:a]%sapad,atrim=0:%.3f,asetpts=N/SR/TB[a]" % (
-        ("atempo=%.4f," % tempo) if tempo > 1.0 else "", max(0.2, vid))
+        ("atempo=%.4f," % tempo) if abs(tempo - 1.0) > 0.001 else "", max(0.2, vid))
     tmp = os.path.splitext(piece["file"])[0] + "_dub.mp4"
     ret = produce_video._run([_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
                              "-i", piece["file"], "-i", wav, "-filter_complex", chain,
@@ -315,11 +347,16 @@ def _fill_silent_dub(rec: dict, piece: dict, block: dict, shots: dict,
     """
     if not any(_shot_text(shots.get(n)) for n in block["镜头"]):
         return                          # 这一片本来就没台词，静音是分镜设计
-    db = _mean_db(piece["file"])
-    if db > SILENT_DB:
+    # 走 gates.check 而不是内联比阈值：这样这条静音判定会产出标准门禁报告，
+    # review_case 的 gates.violations() 对账才看得见它（gates.py 第 5 条范式）。
+    gate = gates.check("有声内容", piece["file"])
+    if gates.ok(gate):
         return
+    db = (gate.get("指标") or {}).get("平均响度dB")
     dub = _dub_wav(rec, block, shots, plan, tag)
     piece.update(_paste_dub(rec, piece, dub))
-    piece["补配音"] = "补片音量 %.0f dB，视为没有人声" % db
-    log(rec, "  %s 补片没有人声（%.0f dB），用克隆音色补上：%s"
-        % (label, db, piece.get("配音") or "未补上"))
+    piece["补配音"] = "补片%s，视为没有人声" % (gate.get("判据") or gate.get("原因") or "")
+    piece["有声内容门禁"] = dict(gate, 使用=True)
+    log(rec, "  %s 补片没有人声（%s），用克隆音色补上：%s"
+        % (label, "%.0f dB" % db if isinstance(db, (int, float)) else "判不出",
+           piece.get("配音") or "未补上"))

@@ -19,11 +19,17 @@ if [ "${1:-}" = "stop" ]; then
   exit 0
 fi
 
-# 端口占用检查：占用了就直接报出占用进程，避免起了个假服务
+# 端口被自己的旧进程占着就先收掉：对外链接必须每次都是同一个，不能因为占用而换端口
 if command -v ss >/dev/null && ss -ltnp 2>/dev/null | grep -q ":${PORT} "; then
-  echo "端口 ${PORT} 已被占用："
+  if pgrep -f "python3 server.py" >/dev/null 2>&1; then
+    echo "端口 ${PORT} 被旧的服务占着，先停掉它"
+    pkill -f "python3 server.py" || true
+    sleep 2
+  fi
+fi
+if command -v ss >/dev/null && ss -ltnp 2>/dev/null | grep -q ":${PORT} "; then
+  echo "端口 ${PORT} 被别的程序占用，链接会变，请先处理："
   ss -ltnp 2>/dev/null | grep ":${PORT} "
-  echo "换端口：VF_WEB_PORT=8421 $0 ${1:-}"
   exit 1
 fi
 

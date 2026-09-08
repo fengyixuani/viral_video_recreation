@@ -6,187 +6,576 @@
 <title>ViralForge · 爆款复刻</title>
 <style>
 :root{
-  --bg:#f6f7fb; --panel:#fff; --line:#e7e9f2; --text:#1b1e2b; --muted:#77809a;
-  --accent:#5b6cff; --accent-soft:#eef0ff; --ok:#12b981; --warn:#f59e0b; --err:#ef4444;
-  --radius:14px; --shadow:0 1px 2px rgba(20,24,50,.04),0 8px 24px rgba(20,24,50,.06);
+  --bg:#07080d; --panel:rgba(20,22,34,.66); --panel-solid:#161825;
+  --line:rgba(255,255,255,.07); --line-strong:rgba(255,255,255,.14);
+  --text:#eceef6; --muted:#7d859c; --dim:#565e75;
+  --accent:#7b8cff; --accent-2:#c072ff; --accent-soft:rgba(123,140,255,.13);
+  --ok:#2ee6a8; --warn:#ffb84d; --err:#ff6b6b;
+  --radius:18px; --shadow:0 1px 0 rgba(255,255,255,.035) inset, 0 20px 56px rgba(0,0,0,.42);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,
-  "Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;
+  display:flex;flex-direction:column;
+  font:13px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",
+  "Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;
+  -webkit-user-select:text;user-select:text}
 a{color:var(--accent);text-decoration:none}
-header{position:sticky;top:0;z-index:9;background:rgba(246,247,251,.86);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;gap:16px}
-header h1{margin:0;font-size:16px;letter-spacing:.3px}
-header h1 span{color:var(--muted);font-weight:400;margin-left:8px;font-size:13px}
+::selection{background:rgba(123,140,255,.32)}
+
+/* ---- 动态背景：三团缓慢漂移的极光 + 一层网格，纯 CSS，不依赖任何外部资源 ---- */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background:
+  radial-gradient(120% 80% at 50% -20%,#141a33 0%,#07080d 60%)}
+.bg i{position:absolute;display:block;border-radius:50%;filter:blur(70px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform}
+.bg i:nth-child(1){width:52vw;height:52vw;left:-8vw;top:-14vw;
+  background:radial-gradient(circle,#4a5cff 0%,transparent 66%);animation:drift1 34s ease-in-out infinite}
+.bg i:nth-child(2){width:46vw;height:46vw;right:-10vw;top:4vw;
+  background:radial-gradient(circle,#a94dff 0%,transparent 66%);animation:drift2 42s ease-in-out infinite}
+.bg i:nth-child(3){width:44vw;height:44vw;left:26vw;bottom:-20vw;
+  background:radial-gradient(circle,#00d4c8 0%,transparent 66%);animation:drift3 38s ease-in-out infinite}
+.bg b{position:absolute;inset:0;display:block;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(120% 70% at 50% 0%,#000 20%,transparent 78%)}
+@keyframes drift1{50%{transform:translate3d(12vw,8vh,0) scale(1.18)}}
+@keyframes drift2{50%{transform:translate3d(-14vw,12vh,0) scale(.86)}}
+@keyframes drift3{50%{transform:translate3d(9vw,-11vh,0) scale(1.12)}}
+/* 用户开了「减少动态效果」就停掉漂移，别硬塞动画 */
+@media(prefers-reduced-motion:reduce){.bg i{animation:none}}
+
+/* 动态背景视频：用自家跑出来的成片，内网拉不到外部素材，也不用额外塞资源进仓库。
+   重度模糊 + 压暗 + 慢速缩放，读起来是「有东西在动的氛围」而不是干扰内容的画面。 */
+.bgv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:blur(30px) saturate(1.35) brightness(.46);transform:scale(1.16);
+  opacity:0;transition:opacity 1.8s ease;animation:breathe 26s ease-in-out infinite}
+.bgv.on{opacity:.85}
+@keyframes breathe{50%{transform:scale(1.26) translate3d(0,-2%,0)}}
+@media(prefers-reduced-motion:reduce){.bgv{animation:none}}
+/* 压一层暗角+顶部渐变，保证卡片上的字始终够对比度 */
+.bg u{position:absolute;inset:0;display:block;background:
+  radial-gradient(130% 90% at 50% 0%,transparent 20%,rgba(5,6,11,.72) 78%),
+  linear-gradient(180deg,rgba(5,6,11,.62) 0%,rgba(5,6,11,.3) 34%,rgba(5,6,11,.78) 100%)}
+#btnBg{padding:8px 11px;font-size:13px;line-height:1}
+#btnBg.off{opacity:.45}
+/* ---- 布局 ---- */
+header{flex:0 0 auto;z-index:20;padding:0 18px;height:52px;display:flex;align-items:center;gap:10px;
+  background:rgba(9,10,16,.6);backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--line)}
+header .brand{margin:0;font-size:14.5px;font-weight:600;letter-spacing:.6px;
+  background:linear-gradient(96deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
 .grow{flex:1}
-main{max-width:1240px;margin:24px auto;padding:0 24px 64px;display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px}
-@media(max-width:980px){main{grid-template-columns:1fr}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px}
-.card h2{margin:0 0 4px;font-size:14px}
-.card p.hint{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+main{flex:1;min-height:0;padding:12px 14px;display:grid;
+  grid-template-columns:352px minmax(0,1fr);gap:12px;overflow:hidden}
+/* 窄屏没法一屏塞两栏，这时才允许整页滚动，否则什么都看不清 */
+@media(max-width:900px){body{height:auto;overflow:auto}
+  main{grid-template-columns:1fr;overflow:visible}
+  .card.fill{flex:none}.scroll{overflow:visible}}
+
+/* 一屏收口：整页不滚，只有面板内部滚。卡片撑满各自的格子。 */
+.rail,.work{min-height:0;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);backdrop-filter:blur(20px) saturate(1.2);
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:14px 16px;margin:0;min-height:0;display:flex;flex-direction:column}
+.card.fill{flex:1}
+/* 面板内部才滚：负 margin + padding 让滚动条贴到卡片边缘，不切掉内容 */
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0 -16px -14px;
+  padding:2px 16px 14px}
+.scroll::-webkit-scrollbar{width:7px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+.scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+.foot{display:flex;gap:8px;align-items:center;padding-top:11px;border-top:1px solid var(--line)}
+.foot button{flex:1}
+p.hint{margin:0 0 12px;color:var(--muted);font-size:12px}
+
+/* ---- 表单控件：标签只留必要的，说明一律进 title 提示 ---- */
 label.field,.field{display:block;margin-bottom:12px}
-label.field>span,.field>span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
-input[type=text],textarea,select{width:100%;padding:9px 11px;border:1px solid var(--line);
-  border-radius:10px;background:#fbfbfe;font:inherit;color:inherit;outline:none;transition:.15s}
-input[type=text]:focus,textarea:focus,select:focus{border-color:var(--accent);background:#fff;
-  box-shadow:0 0 0 3px var(--accent-soft)}
-textarea{resize:vertical;min-height:76px}
-button{font:inherit;border:1px solid var(--line);background:#fff;color:var(--text);
-  padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s}
-button:hover{border-color:#cfd4e8}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button.primary:hover{filter:brightness(1.06)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.drop{border:1.5px dashed #d6dae9;border-radius:12px;padding:14px;text-align:center;color:var(--muted);
-  cursor:pointer;transition:.15s;background:#fbfbfe;font-size:12.5px}
-.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-.files{list-style:none;margin:8px 0 0;padding:0;font-size:12.5px}
-.files li{display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--line);
-  border-radius:8px;margin-bottom:6px;background:#fbfbfe}
-.files li b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.files li em{color:var(--muted);font-style:normal;font-size:11.5px}
-.files li button{padding:2px 8px;border-radius:6px;font-size:11.5px;color:var(--muted)}
-.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
-.opt:first-of-type{border-top:none}
-.opt .txt{flex:1}
-.opt .txt b{font-weight:500;font-size:13px}
-.opt .txt i{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:2px}
-.switch{position:relative;width:40px;height:22px;flex:0 0 40px;margin-top:2px}
+label.field>span,.field>span{display:block;font-size:11.5px;color:var(--dim);margin-bottom:5px;
+  letter-spacing:.2px}
+input[type=text],textarea,select{width:100%;padding:8px 11px;border:1px solid var(--line);
+  border-radius:10px;background:rgba(255,255,255,.035);font:inherit;color:inherit;outline:none;
+  transition:.16s;-webkit-user-select:text;user-select:text;pointer-events:auto}
+input[type=text]::placeholder,textarea::placeholder{color:var(--dim)}
+input[type=text]:focus,textarea:focus,select:focus{border-color:rgba(123,140,255,.55);
+  background:rgba(255,255,255,.06);box-shadow:0 0 0 3px var(--accent-soft)}
+select option{background:var(--panel-solid);color:var(--text)}
+textarea{resize:vertical;min-height:64px}
+button{font:inherit;border:1px solid var(--line-strong);background:rgba(255,255,255,.045);
+  color:var(--text);padding:7px 13px;border-radius:10px;cursor:pointer;transition:.16s;
+  -webkit-user-select:none;user-select:none}
+button:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.24)}
+button.primary{background:linear-gradient(96deg,var(--accent),var(--accent-2));border-color:transparent;
+  color:#fff;font-weight:500;box-shadow:0 8px 22px rgba(123,140,255,.26)}
+button.primary:hover{filter:brightness(1.1)}
+button.danger{color:var(--err);border-color:rgba(255,107,107,.28)}
+button.danger:hover{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.45)}
+/* 幽灵按钮：工具栏里的次要动作，平时几乎看不见，hover 才浮出来 */
+button.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:6px 9px}
+button.ghost:hover{background:rgba(255,255,255,.07);color:var(--text);border-color:transparent}
+button:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* ---- 上传区与素材缩略图 ---- */
+.drop{border:1.5px dashed rgba(255,255,255,.18);border-radius:13px;padding:16px;text-align:center;
+  color:var(--muted);cursor:pointer;transition:.16s;background:rgba(255,255,255,.025);font-size:12.5px}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:#c3cbff}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;margin-top:10px}
+/* ---- 素材槽位：一行标题 + 缩略图，没有虚线框也没有说明文字 ---- */
+.slot{padding:9px 0;border-top:1px solid var(--line);transition:.16s}
+.slot:first-child{border-top:none;padding-top:0}
+.slot.over{background:var(--accent-soft);box-shadow:0 0 0 8px var(--accent-soft)}
+.slot-h{display:flex;align-items:center;gap:2px;font-size:11.5px;color:var(--muted)}
+.slot-h span{flex:1;letter-spacing:.2px}
+.slot-h button{padding:3px 7px;font-size:11.5px;line-height:1.3}
+.slot .thumbs{margin-top:7px}
+.slot .thumbs:empty{display:none}
+/* 参考片和商品图是复刻的两个依据，给它们更大的画面，竖版视频也能看清主体 */
+.slot .thumbs[data-list="reference_video"],
+.slot .thumbs[data-list="product_images"]{
+  grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+.slot .thumbs[data-list="reference_video"] .thumb,
+.slot .thumbs[data-list="product_images"] .thumb{aspect-ratio:3/4}
+.thumb{position:relative;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:#0c0e17;aspect-ratio:1/1;cursor:zoom-in}
+.thumb img,.thumb video{width:100%;height:100%;object-fit:cover;display:block}
+/* 视频缩略图平时显示首帧图，hover 时才换成正在播放的 video */
+.thumb video{display:none}
+.thumb.playing video{display:block}
+.thumb.playing img.poster{display:none}
+.thumb .ph{display:flex;align-items:center;justify-content:center;height:100%;font-size:22px;
+  color:var(--dim)}
+.thumb .cap{position:absolute;left:0;right:0;bottom:0;padding:4px 6px;font-size:10.5px;
+  background:linear-gradient(transparent,rgba(0,0,0,.86));color:#dfe3f2;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.thumb .x{position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;line-height:18px;
+  border-radius:50%;font-size:12px;background:rgba(0,0,0,.6);border-color:transparent;color:#fff}
+.thumb .x:hover{background:var(--err)}
+.thumb .tag{position:absolute;top:4px;left:4px;padding:1px 6px;border-radius:6px;font-size:10px;
+  background:rgba(0,0,0,.6);color:#cfd6ee}
+/* 「贴合」角标：让用户知道这条为什么排在前面，而不是感觉顺序被随机打乱 */
+.fit{padding:1px 7px;border-radius:6px;font-size:10px;color:#fff;
+  background:linear-gradient(96deg,var(--accent),var(--accent-2))}
+.thumb .fit{position:absolute;top:4px;left:44px}
+.lib-group-t .fit{font-size:10.5px}
+
+/* ---- 开关与分段控件：说明文字全部收进 title，一行只留名字 ---- */
+.opt{display:flex;align-items:center;gap:10px;padding:7px 0}
+.opt .txt{flex:1;font-size:12.5px;color:#d3d8e8}
+.switch{position:relative;width:34px;height:19px;flex:0 0 34px}
 .switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-.switch i{position:absolute;inset:0;background:#dfe3f0;border-radius:22px;transition:.2s;pointer-events:none}
-.switch i::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;
-  background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.switch input:checked + i{background:var(--accent)}
-.switch input:checked + i::after{transform:translateX(18px)}
-.seg{display:flex;gap:6px;background:#f1f2f8;padding:4px;border-radius:10px}
-.seg button{flex:1;border:none;background:transparent;border-radius:8px;padding:7px 10px;font-size:13px;color:var(--muted)}
-.seg button.on{background:#fff;color:var(--text);box-shadow:var(--shadow)}
-.steps{list-style:none;margin:0;padding:0}
-.steps li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed var(--line)}
-.steps li:first-child{border-top:none}
-.dot{width:9px;height:9px;border-radius:50%;background:#d7dbe9;margin-top:7px;flex:0 0 9px}
-.dot.run{background:var(--accent);animation:pulse 1.1s infinite}
-.dot.done{background:var(--ok)}.dot.fail{background:var(--err)}
-@keyframes pulse{50%{opacity:.35}}
-.steps b{font-weight:500;font-size:13px}
-.steps em{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px}
-.steps .msg{color:var(--err);font-size:12px;margin-top:2px;word-break:break-all}
-pre.log{margin:0;background:#141827;color:#c9d2f0;border-radius:12px;padding:12px 14px;font-size:12px;
-  max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all}
-.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;background:var(--accent-soft);
-  color:var(--accent)}
-.badge.ok{background:#e6f9f1;color:var(--ok)}.badge.err{background:#fdecec;color:var(--err)}
-.badge.idle{background:#f1f2f8;color:var(--muted)}
-video{width:100%;border-radius:12px;background:#000;display:block}
-.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:12.5px}
-.links a{border:1px solid var(--line);padding:6px 11px;border-radius:9px;background:#fbfbfe}
-.links a:hover{border-color:var(--accent);background:var(--accent-soft)}
+.switch i{position:absolute;inset:0;background:rgba(255,255,255,.12);border-radius:19px;
+  transition:.2s;pointer-events:none}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:13px;height:13px;
+  border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.switch input:checked + i{background:linear-gradient(96deg,var(--accent),var(--accent-2))}
+.switch input:checked + i::after{transform:translateX(15px)}
+.seg{display:flex;gap:4px;background:rgba(255,255,255,.04);padding:3px;border-radius:11px;
+  border:1px solid var(--line)}
+.seg button{flex:1;border:none;background:transparent;border-radius:8px;padding:6px 9px;
+  font-size:12px;color:var(--muted)}
+.seg button.on{background:rgba(255,255,255,.09);color:var(--text);border:1px solid var(--line)}
+
+/* ---- 步骤：只呈现用户需要关注的复刻阶段；入库校验不占进度轨 ---- */
+/* 只读任务的说明条：平时不占位，选中跑过的任务时才出现 */
+.mat-note{display:none;margin:0 0 11px;padding:7px 10px;border-radius:10px;font-size:11.5px;
+  color:#c3cbff;background:var(--accent-soft);border:1px solid rgba(123,140,255,.22)}
+.mat-note.on{display:block}
+.steps{list-style:none;margin:11px 0 0;padding:0;display:flex;gap:0;align-items:flex-start}
+.steps li{position:relative;flex:1;min-width:0;cursor:pointer;padding-right:8px}
+.steps li:not(:last-child)::after{content:"";position:absolute;top:8px;left:18px;right:0;height:2px;
+  background:rgba(255,255,255,.09);z-index:0}
+.steps li>i{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:18px;
+  height:18px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid #171927;transition:.2s}
+.steps li>i::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.steps li>.nm{display:block;margin-top:6px;font-size:11px;color:var(--dim);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+/* 耗时紧跟步骤名，小一号、暗一点，不再单独占一行 */
+.steps li>.nm em{font-style:normal;margin-left:4px;font-size:10px;opacity:.75;
+  font-variant-numeric:tabular-nums}
+.steps li.done>i{background:var(--ok);border-color:rgba(46,230,168,.35)}
+.steps li.done>i::after{width:6px;height:3px;border-radius:0;background:transparent;border-left:1.5px solid #07120e;
+  border-bottom:1.5px solid #07120e;transform:rotate(-45deg) translate(1px,-1px)}
+.steps li.done:not(:last-child)::after{background:rgba(46,230,168,.55)}
+.steps li.done>.nm{color:var(--muted)}
+.steps li.fail>i{background:var(--err);border-color:rgba(255,107,107,.35)}
+.steps li.fail>i::after{background:#2e0f13}
+.steps li.fail>.nm{color:var(--err)}
+.steps li.run>i{width:22px;height:22px;margin:-2px 0 -2px -2px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-color:rgba(255,255,255,.45);box-shadow:0 0 0 5px var(--accent-soft);animation:pulse 1.3s infinite}
+.steps li.run>i::after{background:#fff}
+.steps li.run>.nm{color:var(--text)}
+.steps li:hover>.nm{color:var(--text)}
+/* 点开某一步：名字高亮，详情显示在下面那一行 */
+.steps li.sel>.nm{color:var(--accent)}
+.steps li.sel>i{box-shadow:0 0 0 4px var(--accent-soft)}
+@keyframes pulse{50%{opacity:.4}}
+/* 状态行：呼吸灯 + 步骤名 + 这步的结论，耗时和进度收到同一行右端 */
+.stepnow{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-top:8px}
+.stepnow b{color:var(--text);font-weight:500}
+.stepnow .si{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stepnow .tail{margin-left:auto;color:var(--dim);font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.stepnow .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex:0 0 6px}
+.stepnow .dot.run{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+  animation:pulse 1.2s infinite}
+.stepnow .dot.done{background:var(--ok)}.stepnow .dot.fail{background:var(--err)}
+.errline{color:var(--err);font-size:12px;margin-top:7px;word-break:break-all}
+/* 日志归属：标出这是哪条任务的日志，避免误以为混进了上一条任务的记录 */
+.log-head{margin:0 0 8px;font-size:11.5px;color:var(--dim);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+pre.log{margin:0;background:rgba(0,0,0,.38);color:#b9c4e8;border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;font-size:11.5px;line-height:1.7;overflow:auto;
+  white-space:pre-wrap;word-break:break-all;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;
+  background:var(--accent-soft);color:#b7c1ff;border:1px solid rgba(123,140,255,.28)}
+.badge.ok{background:rgba(46,230,168,.13);color:var(--ok);border-color:rgba(46,230,168,.3)}
+.badge.err{background:rgba(255,107,107,.13);color:var(--err);border-color:rgba(255,107,107,.3)}
+.badge.idle{background:rgba(255,255,255,.06);color:var(--muted);border-color:var(--line)}
+video{width:100%;border-radius:13px;background:#000;display:block}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:12.5px;justify-content:center}
+/* 成片下面只留一行：左边一句话摘要，右边下载按钮，细节放 title */
+.result-bar{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11.5px;
+  color:var(--muted)}
+.result-bar .rm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  cursor:help}
+/* 下载成片：成片区最主要的动作，给它主色底，别混在灰色链接里 */
+.btn-dl{border:none;padding:5px 14px;border-radius:9px;font-size:12px;
+  background:linear-gradient(96deg,var(--accent),var(--accent-2));
+  color:#fff;text-decoration:none;white-space:nowrap}
+.btn-dl:hover{filter:brightness(1.08)}
+.links a,.links button{border:1px solid var(--line);padding:6px 12px;border-radius:10px;
+  background:rgba(255,255,255,.04);color:#c8cfe8;font-size:12.5px;line-height:1.5}
+.links a:hover,.links button:hover{border-color:var(--accent);background:var(--accent-soft);
+  color:#fff}
 .kv{font-size:12.5px;color:var(--muted)}
 .kv b{color:var(--text);font-weight:500}
-.toast{position:fixed;right:20px;bottom:20px;background:#141827;color:#fff;padding:11px 16px;
-  border-radius:10px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
-  transition:.2s;pointer-events:none;max-width:420px}
+.toast{position:fixed;right:22px;bottom:22px;z-index:60;background:rgba(18,20,32,.94);
+  backdrop-filter:blur(12px);border:1px solid var(--line-strong);color:#fff;padding:12px 17px;
+  border-radius:12px;font-size:13px;box-shadow:0 16px 40px rgba(0,0,0,.5);opacity:0;
+  transform:translateY(10px);transition:.2s;pointer-events:none;max-width:440px}
 .toast.show{opacity:1;transform:none}
+/* ---- 关键信息：标签页 + 无框卡片 + 时间线 ---- */
+.tabs{display:flex;gap:2px;align-items:center;flex-wrap:wrap;margin-bottom:12px;
+  border-bottom:1px solid var(--line)}
+.tabs button{border:none;background:transparent;color:var(--dim);border-radius:0;padding:7px 11px;
+  font-size:12.5px;border-bottom:1.5px solid transparent;margin-bottom:-1px}
+.tabs button:hover{background:transparent;color:var(--muted)}
+.tabs button.on{color:var(--text);border-bottom-color:var(--accent)}
+.pane{display:none}.pane.on{display:block}
+.empty{color:var(--dim);font-size:12.5px;padding:44px 0;text-align:center}
+/* 事实/剧本字段：不画框，用极小的标签 + 内容对齐，靠留白分组而不是靠边框 */
+.facts{display:grid;gap:15px}
+.fact h4{margin:0 0 4px;font-size:10.5px;color:var(--dim);font-weight:500;letter-spacing:.8px;
+  text-transform:uppercase}
+/* 正文行高和字号都往上提一档：这些字段动辄两三行长句，太密就只能一个字一个字读 */
+.fact>div{font-size:13px;line-height:1.72;white-space:pre-wrap;word-break:break-word;
+  color:#d8dcea}
+/* ---- 商品事实卡：真的做成一张卡。标题区 → 卖点 → 人群/场景/外观 → 商品图 → 来源脚注，
+   分区之间用细分隔线断开，比一列小标签更好读 ---- */
+.pcard{border:1px solid var(--line-strong);border-radius:16px;padding:17px 18px 16px;
+  background:linear-gradient(180deg,rgba(123,140,255,.07),rgba(255,255,255,.015));
+  box-shadow:var(--shadow)}
+.pcard-h{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pcard-h h3{margin:0;font-size:17px;font-weight:600;letter-spacing:.3px}
+.pcard-h em{font-style:normal;padding:2px 9px;border-radius:999px;font-size:11px;
+  background:var(--accent-soft);color:#c3cbff;border:1px solid rgba(123,140,255,.24)}
+/* 一句话文案是这张卡的主张，给它渐变竖条，和下面的字段区分开 */
+.pcard-copy{margin:11px 0 0;padding-left:11px;font-size:13.5px;color:#e4e7f4;line-height:1.65;
+  border-left:2px solid;border-image:linear-gradient(180deg,var(--accent),var(--accent-2)) 1}
+.pcard-sec{margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}
+.pcard-sec>h4{margin:0 0 9px;font-size:10.5px;color:var(--dim);font-weight:500;
+  letter-spacing:.8px;text-transform:uppercase}
+.plist{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.plist li{position:relative;padding-left:16px;font-size:13px;line-height:1.7;color:#d8dcea}
+.plist li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;
+  border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+/* 一行至少留出 ~30 个汉字的宽度再分栏：minmax 给小值会分出四五栏，每行只剩几个字，
+   长句读起来全是折行。窄屏时 min(100%,…) 自动退回单栏。 */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));
+  gap:16px 26px}
+.pcard .imgwall{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+/* @图片N 角标：生成端按这个顺序引用参考图，编号要能直接对上 */
+.refno{position:absolute;left:5px;top:5px;padding:1px 6px;border-radius:6px;font-size:10px;
+  color:#fff;background:rgba(8,9,15,.66);backdrop-filter:blur(4px)}
+/* 「改造」角标：这张不是原图，是体检后重画过的那张 */
+.refno.fix{left:auto;right:5px;background:linear-gradient(96deg,var(--accent),var(--accent-2))}
+/* ---- 拆解卡：摘要胶囊 + 结构时间轴 + 情绪柱 + 镜头骨架 ---- */
+.sumbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.sumbar span{padding:2px 9px;border-radius:999px;font-size:11.5px;color:#c4cbe0;
+  background:rgba(255,255,255,.05);border:1px solid var(--line)}
+/* 结构：名称和时间区间同一行当小标题，作用另起一行占满宽度——三列并排会把作用挤成
+   每行几个字 */
+.tlsteps{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.tlsteps li{font-size:13px;line-height:1.7;color:#d8dcea}
+.tlsteps .hd{display:flex;align-items:baseline;gap:9px;margin-bottom:1px}
+.tlsteps b{font-weight:500;color:#c3cbff}
+.tlsteps .rg{color:var(--dim);font-size:11.5px;font-variant-numeric:tabular-nums}
+/* 情绪曲线：强度当柱高，比一行「00:02 好奇 2」的键值对好认得多 */
+.mood{display:flex;align-items:flex-end;gap:10px;height:84px}
+.mood .mb{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:center;gap:4px}
+.mood .mb i{width:100%;max-width:32px;min-height:3px;border-radius:5px 5px 2px 2px;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));opacity:.85}
+.mood .mb em{font-style:normal;font-size:11px;color:#c8cfe8;white-space:nowrap}
+.mood .mb u{text-decoration:none;font-size:10.5px;color:var(--dim);
+  font-variant-numeric:tabular-nums}
+.skel{display:grid;gap:9px}
+.skel .row{display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.7;
+  color:#d8dcea}
+.skel .row .k{flex:0 0 50px;text-align:center;padding:1px 0;border-radius:6px;font-size:10.5px;
+  color:#a8b3ff;background:var(--accent-soft)}
+.skel .row .d{flex:0 0 30px;color:var(--dim);font-size:11.5px;font-variant-numeric:tabular-nums}
+.skel .row em{font-style:normal;color:var(--muted);font-size:12px}
+/* 分镜行：头行只放序号/时间/叙事功能，画面正文和细节各自成行 */
+.shot-h{display:flex;align-items:baseline;gap:8px}
+.shot-h .t{margin-left:0}
+.shot-h .role{margin-left:auto;padding:1px 8px;border-radius:999px;font-size:10.5px;
+  color:#c3cbff;background:var(--accent-soft);white-space:nowrap}
+.shot .pic{margin-top:6px;font-size:13px;line-height:1.72;color:#e0e4f1}
+.shot .kvline{margin-top:5px}
+.pfoot{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:11.5px;
+  color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:2px 8px;border-radius:7px;font-size:11.5px;background:rgba(255,255,255,.05);
+  color:#c4cbe0}
+.shots{display:grid;gap:1px;background:var(--line);border-radius:12px;overflow:hidden;
+  margin-top:16px}
+.shot{background:#12141f;padding:12px 15px;font-size:13px}
+.shot .no{display:inline-block;min-width:19px;text-align:center;border-radius:5px;font-size:10.5px;
+  margin-right:8px;color:#a8b3ff;background:var(--accent-soft)}
+.shot .t{color:var(--dim);font-size:11px;margin-left:6px}
+.shot p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.7}
+.shot .say{margin-top:6px;padding-left:9px;border-left:1.5px solid rgba(123,140,255,.45);
+  color:#c6ccdf;line-height:1.7}
+.shot .chips{margin-top:6px;opacity:.7}
+/* 片段时间线：横向滚动，按段号顺序排 */
+.timeline{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px}
+.timeline::-webkit-scrollbar{height:6px}
+.timeline::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+.tl-item{flex:0 0 148px;border-radius:12px;overflow:hidden;background:#12141f;cursor:pointer;
+  transition:.16s}
+.tl-item:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.tl-item.bad{outline:1px solid rgba(255,107,107,.4)}
+.tl-item video{border-radius:0;aspect-ratio:9/16;object-fit:cover}
+.tl-item .miss{aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;
+  color:var(--err);font-size:11.5px;text-align:center;padding:10px;background:rgba(255,107,107,.06)}
+.tl-item .meta{padding:7px 9px;font-size:11px;color:var(--dim)}
+.tl-item .meta b{display:block;color:var(--text);font-size:12px;font-weight:500;margin-bottom:1px}
+
+/* ---- 弹窗：素材库 / 预览 ---- */
+.mask{position:fixed;inset:0;z-index:40;background:rgba(4,5,9,.72);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:28px}
+.mask.on{display:flex}
+.modal{width:min(1040px,100%);max-height:86vh;display:flex;flex-direction:column;
+  background:rgba(20,22,34,.96);border:1px solid var(--line-strong);border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden}
+.modal .top{display:flex;align-items:center;gap:12px;padding:16px 20px;
+  border-bottom:1px solid var(--line)}
+.modal .top h3{margin:0;font-size:14px}
+.modal .body{display:grid;grid-template-columns:196px minmax(0,1fr);min-height:0;flex:1}
+@media(max-width:760px){.modal .body{grid-template-columns:1fr}}
+.cats{border-right:1px solid var(--line);overflow:auto;padding:10px}
+.cats button{display:block;width:100%;text-align:left;border:none;background:transparent;
+  padding:9px 11px;border-radius:10px;font-size:12.5px;color:var(--muted);margin-bottom:2px}
+.cats button.on,.cats button:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.cats button em{font-style:normal;float:right;color:var(--dim);font-size:11px}
+.picker{overflow:auto;padding:14px 16px}
+.picker .thumbs{margin-top:0;grid-template-columns:repeat(auto-fill,minmax(158px,1fr))}
+.picker .thumb{cursor:pointer;aspect-ratio:3/4}
+.picker .thumb:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+/* ---- 参考素材库：每个商品/主题独立成卡，避免多组素材糊成一片 ---- */
+.lib-group{padding:13px 14px 14px;border:1px solid var(--line-strong);border-radius:16px;
+  background:rgba(255,255,255,.03)}
+.lib-group+.lib-group{margin-top:14px}
+.lib-group-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.lib-group-t{display:flex;align-items:center;gap:8px;position:relative;padding-left:11px;
+  font-size:13.5px;color:var(--text)}
+/* 组名左侧的渐变竖条：扫一眼就知道从哪里开始是新的一组 */
+.lib-group-t::before{content:"";position:absolute;left:0;top:1px;bottom:1px;width:3px;
+  border-radius:2px;background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+.lib-group-t em{font-style:normal;padding:1px 8px;border-radius:999px;font-size:11px;
+  background:var(--accent-soft);color:#c3cbff}
+.lib-group-d{flex:1;min-width:140px;margin:0;font-size:11.5px;color:var(--muted)}
+.lib-group-h button{margin-left:auto}
+/* .modal 自带 overflow:hidden，预览这层必须放开，否则贴边的关闭按钮会被裁掉 */
+.lightbox{max-width:min(88vw,1100px);max-height:86vh;overflow:visible}
+.lightbox img,.lightbox video{max-width:100%;max-height:78vh;width:auto;border-radius:14px;
+  display:block;margin:0 auto;background:#000}
+#pvBody{position:relative;display:flex;justify-content:center}
+/* 关闭按钮压在画面右上角内侧：放到外侧会被上层容器裁成一小块 */
+.pv-x{position:absolute;top:10px;right:10px;width:34px;height:34px;padding:0;line-height:30px;
+  border-radius:50%;font-size:19px;background:rgba(12,14,23,.78);border:1px solid var(--line-strong);
+  color:#fff;backdrop-filter:blur(6px);z-index:2}
+.pv-x:hover{background:var(--err);border-color:transparent}
+/* 浏览器把预览压成静音时才出现：点它就是一次干净的用户手势，声音一定能开 */
+.pv-sound{display:none;position:absolute;left:50%;bottom:66px;transform:translateX(-50%);
+  padding:8px 16px;border-radius:999px;font-size:12.5px;z-index:2;
+  background:linear-gradient(96deg,var(--accent),var(--accent-2));border:none;color:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.pv-sound.on{display:block}
+/* 中间产物字段值：嵌套对象/对象数组降解成可读的行 */
+.rows{display:grid;gap:5px}
+.sub{border-left:2px solid rgba(123,140,255,.35);padding-left:9px}
+.kvline{display:flex;gap:9px;align-items:baseline;font-size:13px;line-height:1.7}
+.kvline>span:last-child{flex:1;min-width:0;color:#d5daea}
+.sk{flex:0 0 62px;color:var(--dim);font-size:11.5px}
+.imgwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+
+/* 左栏更紧凑：一屏之内挤三块内容，间距和字号都要收 */
+.rail .field{margin-bottom:11px}
+.rail .field>span{margin-bottom:5px;font-size:12px}
+.rail textarea{min-height:62px}
+.rail .opt{padding:9px 0}
+.rail .thumbs{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.rail p.hint{margin-bottom:11px;font-size:12px}
+
 </style>
 </head>
 <body>
+<div class="bg">
+  <video class="bgv" id="bgv" muted loop playsinline preload="metadata"></video>
+  <i></i><i></i><i></i><b></b><u></u>
+</div>
+
 <header>
-  <h1>ViralForge<span>通用爆款复刻</span></h1>
+  <h1 class="brand">ViralForge</h1>
   <div class="grow"></div>
-  <select id="taskPick" style="width:260px"><option value="">— 新建任务 —</option></select>
-  <input type="text" id="token" placeholder="访问口令（未设置可留空）" style="width:180px" />
-  <button id="btnNew">新建任务</button>
+  <select id="taskPick" style="width:250px"><option value="">新建任务</option></select>
+  <button class="ghost" id="btnNew" title="新建任务">＋</button>
+  <button class="ghost" id="btnBg" title="动态背景">✦</button>
 </header>
 
 <main>
-  <section>
-    <div class="card">
-      <h2>1 · 素材上传</h2>
-      <p class="hint">爆款参考视频必填；商品图、卖点、自有素材越全，成片越贴合。</p>
-      <div id="uploads"></div>
-    </div>
-
-    <div class="card">
-      <h2>2 · 商品信息</h2>
-      <p class="hint">留空的字段会由模型看图补全，用户填写的内容不会被改写。</p>
-      <label class="field"><span>商品名称</span><input type="text" id="pName" placeholder="例：格力锅铲" /></label>
-      <label class="field"><span>品类</span><input type="text" id="pCat" placeholder="例：厨房用具 / 锅铲" /></label>
-      <label class="field"><span>卖点（一行一条）</span><textarea id="pPoints"
-        placeholder="柔韧铲头不伤不粘锅涂层&#10;铲面镂空顺手滤油"></textarea></label>
-      <label class="field"><span>补充说明</span><textarea id="pDesc" style="min-height:56px"
-        placeholder="人群、使用场景、必须提到或必须避免的说法"></textarea></label>
-    </div>
-
-    <div class="card">
-      <h2>3 · 复刻参数</h2>
-      <p class="hint">复刻强度决定大模型能不能改剧本；音轨与字幕由后处理统一控制。</p>
-      <label class="field"><span>复刻强度</span>
-        <div class="seg" id="modeSeg">
-          <button data-v="strict" class="on">严格复刻 · 只换人物/商品/场景</button>
-          <button data-v="creative">创意仿写 · 大模型改写剧本</button>
+  <aside class="rail">
+    <div class="card fill">
+      <div class="tabs" id="inTabs">
+        <button data-p="mat" class="on">素材与商品</button>
+        <button data-p="cfg">参数</button>
+      </div>
+      <div class="scroll">
+        <div class="pane on" id="pane-mat">
+          <p class="mat-note" id="matNote"></p>
+          <div id="uploads"></div>
+          <label class="field"><span>商品名</span><input type="text" id="pName" placeholder="例如：XIAOMI 17 Ultra" /></label>
+          <label class="field"><span>卖点</span><textarea id="pPoints"
+            placeholder="一行一条"></textarea></label>
         </div>
-      </label>
-      <div id="opts"></div>
-      <div class="row" style="margin-top:16px">
-        <button class="primary" id="btnRun">保存并开始复刻</button>
-        <button id="btnSave">仅保存</button>
-        <span class="kv" id="fontHint"></span>
+        <div class="pane" id="pane-cfg">
+          <label class="field"><span>复刻强度</span>
+            <div class="seg" id="modeSeg">
+              <button data-v="creative" class="on" title="允许大模型改写剧本">创意仿写</button>
+              <button data-v="strict" title="只替换人物、商品、场景">严格复刻</button>
+            </div>
+          </label>
+          <div id="opts"></div>
+          <div class="kv" id="fontHint" style="margin-top:14px;font-size:11.5px"></div>
+        </div>
+      </div>
+      <div class="foot">
+        <button class="primary" id="btnRun">开始复刻</button>
       </div>
     </div>
-  </section>
-
-  <section>
+  </aside>
+  <section class="work">
     <div class="card">
-      <div class="row"><h2 style="margin:0">运行状态</h2><div class="grow"></div>
-        <span class="badge idle" id="status">未开始</span></div>
-      <p class="hint" id="taskMeta" style="margin-top:6px">先新建任务并上传参考视频。</p>
+      <div class="row">
+        <input type="text" id="taskTitle" style="flex:1;min-width:160px"
+               placeholder="任务名称" title="改完回车生效；清空回到「时间戳 · 商品名」" />
+        <span class="badge idle" id="status">未开始</span>
+        <select id="resetStep" style="width:auto" title="选一步重跑"></select>
+        <button class="ghost" id="btnReset" title="从所选步骤重跑">↻</button>
+        <button class="ghost danger" id="btnDelete" title="删除任务">✕</button>
+      </div>
       <ul class="steps" id="steps"></ul>
-      <div class="row" style="margin-top:12px">
-        <select id="resetStep" style="width:200px"></select>
-        <button id="btnReset">从该步骤重跑</button>
+      <div class="stepnow" id="stepNow"></div>
+      <div class="errline" id="errLine"></div>
+    </div>
+
+    <div class="card fill">
+      <div class="tabs" id="ovTabs">
+        <button data-p="final" class="on">成片</button>
+        <button data-p="ref">拆解</button>
+        <button data-p="product">事实卡</button>
+        <button data-p="script">剧本</button>
+        <button data-p="clips">片段</button>
+        <button data-p="log">日志</button>
+        <div class="grow"></div>
+        <button class="ghost" id="btnOverview" title="刷新">↻</button>
       </div>
-    </div>
-
-    <div class="card" id="resultCard" style="display:none">
-      <h2>成片</h2>
-      <p class="hint" id="resultMeta"></p>
-      <video id="player" controls preload="metadata"></video>
-      <div class="links" id="links"></div>
-    </div>
-
-    <div class="card">
-      <h2>日志</h2>
-      <p class="hint">每步的模型链路、降级、失败原因都会记录在任务目录的 task.json 里。</p>
-      <pre class="log" id="log">等待任务…</pre>
+      <div class="scroll">
+        <div class="pane on" id="pane-final">
+          <div id="resultBox"></div>
+        </div>
+        <div class="pane" id="pane-ref"></div>
+        <div class="pane" id="pane-product"></div>
+        <div class="pane" id="pane-script"></div>
+        <div class="pane" id="pane-clips"></div>
+        <div class="pane" id="pane-log">
+          <p class="log-head" id="logHead"></p>
+          <pre class="log" id="log">等待任务…</pre>
+        </div>
+      </div>
     </div>
   </section>
 </main>
+<div class="mask" id="libMask">
+  <div class="modal">
+    <div class="top">
+      <h3 id="libTitle">素材库</h3>
+      <span class="kv" id="libHint"></span>
+      <div class="grow"></div>
+      <button id="libClose">关闭</button>
+    </div>
+    <div class="body">
+      <div class="cats" id="libCats"></div>
+      <div class="picker" id="libFiles"></div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="pvMask">
+  <div class="modal lightbox" style="background:transparent;border:none;box-shadow:none">
+    <div id="pvBody"></div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 <script>
+// label 只留最短的名字，要求和说明进 title——版面上不再堆解释性文字
 const KINDS = [
-  {key:"reference_video", label:"爆款参考视频", tip:"必填，单个 mp4/mov", multiple:false},
-  {key:"product_images", label:"商品图", tip:"可多张，第一张作为主图；不传会自动从素材视频里抽商品帧并生成白底图", multiple:true},
-  {key:"user_videos", label:"自有素材视频", tip:"可多条，会被切片后优先复用", multiple:true},
-  {key:"bgm", label:"背景音乐（可选）", tip:"上传后优先于参考片音轨", multiple:false},
+  {key:"reference_video", label:"爆款参考视频 *", tip:"必填，单个 mp4/mov", multiple:false, media:"video"},
+  {key:"product_images", label:"商品图", tip:"可多张，第一张作为主图；不传就从商品视频里抽帧补齐", multiple:true, media:"image"},
+  {key:"user_videos", label:"商品视频", tip:"可多条，会被切片后优先复用；没有商品图时用它抽帧补齐", multiple:true, media:"video"},
 ];
 const OPTS = [
-  {key:"copy_bgm", label:"复刻 BGM", tip:"只有BGM则整轨复用；BGM+口播则分离伴奏；没有BGM则不使用（默认开）"},
-  {key:"copy_reference_audio", label:"复刻参考视频原声", tip:"成片音轨整体换成参考片原声（默认关）"},
-  {key:"copy_subtitles", label:"复刻字幕", tip:"按剧本台词生成 SRT 并烧进画面（默认关）"},
-  {key:"use_user_materials", label:"优先使用我的素材", tip:"有素材时先检索复用，缺口才生成"},
+  {key:"copy_bgm", label:"复刻 BGM", tip:"只有BGM则整轨复用；BGM+口播则分离伴奏；没有BGM则不使用"},
+  {key:"copy_subtitles", label:"复刻字幕", tri:true,
+   tip:"跟随参考片：参考片画面有字才烧；参考片没字就不叠字。关掉则一律不烧"},
 ];
-let meta = null, task = null, timer = null, mode = "strict";
+let meta = null, task = null, timer = null, productSaveTimer = null;
+let taskLoadSeq = 0;
+let mode = "creative", accessToken = "";
+// libCat 有两种取值：品类筛选用字符串（""=推荐/全部），旧的历史素材分类页用下标
+let lib = null, libKind = "", libCat = "", overview = null;
+let stepPick = "";   // 用户点开了哪一步的信息；空=跟随当前步骤
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// 耗时统一成 8.2s / 2m18s：811.9 这种秒数直接摆出来没人读得快
+function fmtSec(s){
+  const n = Number(s);
+  if(!isFinite(n)) return "";
+  if(n < 60) return (n < 10 ? n.toFixed(1) : String(Math.round(n))) + "s";
+  return Math.floor(n / 60) + "m" + String(Math.round(n % 60)).padStart(2, "0") + "s";
+}
 
 function toast(msg, ms=2600){
   const t = $("toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("show"), ms);
 }
-function token(){ return $("token").value.trim(); }
+function token(){ return accessToken; }
 async function api(path, opts={}){
   const headers = Object.assign({}, opts.headers||{});
   if(token()) headers["Authorization"] = "Bearer " + token();
@@ -196,94 +585,667 @@ async function api(path, opts={}){
   if(!res.ok) throw new Error(data.error || ("HTTP " + res.status));
   return data;
 }
+const tokenQS = () => token() ? "&token=" + encodeURIComponent(token()) : "";
+// 任务目录内的产物
 function fileUrl(path){
-  const q = token() ? "&token=" + encodeURIComponent(token()) : "";
-  return "/api/tasks/" + task.task_id + "/file?path=" + encodeURIComponent(path) + q;
+  return "/api/tasks/" + task.task_id + "/file?path=" + encodeURIComponent(path) + tokenQS();
+}
+// 素材库/历史任务里的素材：不在当前任务目录下，走单独的预览接口
+function libUrl(abs){
+  return "/api/library/file?path=" + encodeURIComponent(abs) + tokenQS();
+}
+// 视频首帧图：列表里几十条视频，直接塞 <video> 会把整段都拉下来
+function posterUrl(abs){
+  return "/api/library/poster?path=" + encodeURIComponent(abs) + tokenQS();
+}
+// 视频缩略图：先只显示首帧图，鼠标移上去才把视频加载进来播（见 wireHoverPlay）
+function videoThumbHtml(abs){
+  return `<img class="poster" src="${posterUrl(abs)}" loading="lazy" alt="" />
+    <video preload="none" data-src="${libUrl(abs)}" muted loop playsinline></video>`;
+}
+// 已登记的素材可能在任务目录内（上传的）也可能在外面（复用的），统一用 libUrl 取
+const mediaOf = (name) => /\.(mp4|mov|mkv|webm|avi|m4v)$/i.test(name) ? "video"
+  : /\.(jpe?g|png|webp|bmp)$/i.test(name) ? "image"
+  : /\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(name) ? "audio" : "";
+/* ---------- 动态背景 ---------- */
+function bgWanted(){ return localStorage.getItem("vf_bg") !== "off"; }
+function applyBg(){
+  const v = $("bgv"), on = bgWanted();
+  $("btnBg").classList.toggle("off", !on);
+  if(!on){ v.classList.remove("on"); v.pause(); return; }
+  const src = meta && meta.bg_video && meta.bg_video.task_id
+    ? `/api/tasks/${meta.bg_video.task_id}/file?path=` +
+      encodeURIComponent(meta.bg_video.path) + tokenQS() : "";
+  if(!src) return;                       // 还没跑出成片，就只留 CSS 极光
+  if(v.dataset.src !== src){
+    v.dataset.src = src; v.src = src;
+    // 等能播了再淡入，否则先闪一帧黑
+    v.oncanplay = () => v.classList.add("on");
+  }else{ v.classList.add("on"); }
+  v.play().catch(()=>{});               // 自动播放被拦就算了，静音的一般不会
+}
+$("btnBg").onclick = () => {
+  localStorage.setItem("vf_bg", bgWanted() ? "off" : "on");
+  applyBg();
+  toast(bgWanted() ? "动态背景已开" : "动态背景已关");
+};
+
+/* ---------- 预览弹窗 ---------- */
+function preview(url, name){
+  const kind = mediaOf(name);
+  // 不写 autoplay：属性自动播放和脚本播放会各走一条路，浏览器拦掉带声那条之后
+  // 往往留下一个静音在放的播放器。统一由下面在点击的同步栈里 play()，才能带声音。
+  $("pvBody").innerHTML = (kind === "video"
+    ? `<video id="pvVideo" src="${url}" controls playsinline></video>`
+    : kind === "audio" ? `<audio id="pvAudio" src="${url}" controls
+        style="width:min(78vw,560px)"></audio>`
+    : `<img src="${url}" alt="${esc(name)}" />`)
+    + `<button type="button" class="pv-x" id="pvClose" title="关闭（Esc）">×</button>`
+    + (kind === "video" || kind === "audio"
+      ? `<button type="button" class="pv-sound" id="pvSound">点这里打开声音</button>` : "");
+  $("pvClose").onclick = (e) => { e.stopPropagation(); closePreview(); };
+  $("pvMask").classList.add("on");
+  const player = $("pvVideo") || $("pvAudio");
+  if(!player) return;
+  const unmute = () => { player.muted = false; player.volume = 1; };
+  // 浏览器可能在真正开始播的那一刻才把这次播放判成自动播放并静音，所以除了
+  // 播放前设一次，播放开始后还要再设一次。
+  player.addEventListener("playing", () => {
+    unmute();
+    // 仍然被压成静音时不再让用户自己去找音量键：给一个明确的按钮，点一下就是
+    // 一次干净的用户手势，浏览器一定放行。
+    $("pvSound").classList.toggle("on", player.muted || player.volume === 0);
+  });
+  $("pvSound").onclick = (e) => {
+    e.stopPropagation();
+    unmute();
+    player.play().catch(()=>{});
+    $("pvSound").classList.remove("on");
+  };
+  player.onloadedmetadata = () => {
+    // 素材本身没有音轨时要说清楚，否则用户只会觉得「又没声音」
+    const tracks = player.audioTracks ? player.audioTracks.length : null;
+    if(tracks === 0 || player.mozHasAudio === false){
+      toast("这条素材没有音轨", 3000);
+      $("pvSound").classList.remove("on");
+    }
+  };
+  unmute();
+  player.play().catch(() => {
+    player.muted = true;                 // 带声被拦就先静音放起来，别让画面卡住
+    player.play().catch(()=>{});
+    $("pvSound").classList.add("on");
+  });
+}
+function closePreview(){
+  $("pvMask").classList.remove("on");
+  $("pvBody").innerHTML = "";      // 清空才会停掉正在播的视频/音频
+}
+// 只点蒙层本身才关：点到视频、控制条上不该把预览收掉。Esc 关闭统一在末尾的键盘监听里
+$("pvMask").onclick = (e) => { if(e.target === $("pvMask")) closePreview(); };
+// 缩略图默认只显示首帧图；鼠标移上去才把视频加载进来静音循环播放，指针离开就换回
+// 首帧图。挑参考片时扫一遍就知道每条片子讲什么，同时几十条视频也不会一起开始下载。
+function wireHoverPlay(box){
+  if(!box || box.dataset.hoverPlay) return;
+  box.dataset.hoverPlay = "1";
+  const videoOf = (e) => {
+    const holder = e.target.closest && e.target.closest(".thumb");
+    return holder ? {holder, video: holder.querySelector("video")} : null;
+  };
+  box.addEventListener("mouseover", (e) => {
+    const hit = videoOf(e);
+    if(!hit || !hit.video) return;
+    const v = hit.video;
+    if(!v.getAttribute("src") && v.dataset.src) v.src = v.dataset.src;
+    v.muted = true; v.loop = true;
+    hit.holder.classList.add("playing");
+    v.play().catch(() => hit.holder.classList.remove("playing"));
+  });
+  box.addEventListener("mouseout", (e) => {
+    const hit = videoOf(e);
+    if(!hit || !hit.video) return;
+    if(hit.holder.contains(e.relatedTarget)) return;   // 还在同一张缩略图内部
+    hit.holder.classList.remove("playing");
+    hit.video.pause(); hit.video.currentTime = 0;
+  });
 }
 
+/* ---------- 上传区 ---------- */
 function renderUploads(){
   // 不能用 <label> 包住 file input：label 会把区域内任何点击都转发给 input，
   // 和显式 input.click() 撞在一起会让文件选择框开两次，选中的文件反而丢掉。
   $("uploads").innerHTML = KINDS.map(k => `
-    <div class="field"><span>${k.label} · ${k.tip}</span>
-      <div class="drop" data-kind="${k.key}">点击选择，或把文件拖到这里</div>
+    <div class="slot" tabindex="${k.key === "product_images" ? "0" : "-1"}"
+      title="${esc(k.tip + (k.key === "product_images" ? "；点击此区域后可直接粘贴商品图" : ""))}">
+      <div class="slot-h"><span>${k.label}</span>
+        <button type="button" class="ghost" data-clear="${k.key}" title="清空这一栏素材"
+          hidden>清空</button>
+        <button type="button" class="ghost" data-lib="${k.key}" title="从素材库挑">库</button>
+        <button type="button" class="ghost" data-kind="${k.key}" title="上传">＋</button>
+      </div>
       <input type="file" hidden data-input="${k.key}" ${k.multiple?"multiple":""} />
-      <ul class="files" data-list="${k.key}"></ul>
+      <div class="thumbs" data-list="${k.key}"></div>
     </div>`).join("");
   KINDS.forEach(k => {
-    const drop = document.querySelector(`.drop[data-kind="${k.key}"]`);
+    const slot = document.querySelector(`.slot [data-kind="${k.key}"]`).closest(".slot");
     const input = document.querySelector(`input[data-input="${k.key}"]`);
-    drop.onclick = () => input.click();
-    input.onchange = () => { if(input.files.length) send(k.key, input.files); input.value=""; };
-    drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
-    drop.ondragleave = () => drop.classList.remove("over");
-    drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over");
-      if(e.dataTransfer.files.length) send(k.key, e.dataTransfer.files); };
+    document.querySelector(`button[data-kind="${k.key}"]`).onclick = () => input.click();
+    document.querySelector(`button[data-lib="${k.key}"]`).onclick = () => openLibrary(k.key);
+    // 清空整栏：一张张点 × 太累，尤其商品图动辄挑十张。不弹确认——素材文件还在，
+    // 重新挑一遍的成本远小于每次都被拦一下。逐条调 /remove，服务端不必先更新。
+    document.querySelector(`button[data-clear="${k.key}"]`).onclick = async () => {
+      const list = task ? [].concat(task.inputs[k.key] || []).filter(Boolean) : [];
+      if(!list.length) return;
+      try{
+        for(const path of list){
+          await api(`/tasks/${task.task_id}/remove`,
+            {method:"POST", json:{kind:k.key, path:path}});
+        }
+        await refresh();
+        toast(`已清空${k.label}（${list.length} 项）`);
+      }catch(err){ toast("清空失败：" + err.message, 5000); }
+    };
+    // 必须先把 FileList 拷成数组再清 input.value：input.files 是活引用，清空 value
+    // 就会把它清空。send() 第一个 await 之后才真正读文件，那时拿到的会是空列表，
+    // 后端只能报「没有收到文件」400。
+    input.onchange = () => {
+      const picked = [...input.files];
+      input.value = "";
+      if(picked.length) send(k.key, picked);
+    };
+    // 整个槽位都是拖放区，不再画一个占版面的虚线框
+    slot.ondragover = e => { e.preventDefault(); slot.classList.add("over"); };
+    slot.ondragleave = () => slot.classList.remove("over");
+    slot.ondrop = e => { e.preventDefault(); slot.classList.remove("over");
+      const picked = [...e.dataTransfer.files];
+      if(picked.length) send(k.key, picked); };
+    if(k.key === "product_images"){
+      slot.onpaste = e => {
+        const items = e.clipboardData && e.clipboardData.items;
+        if(!items) return;
+        const pasted = [];
+        [...items].forEach((item, i) => {
+          if(!item.type.startsWith("image/")) return;
+          const source = item.getAsFile();
+          if(!source) return;
+          const ext = (source.type.split("/")[1] || "png").replace("jpeg", "jpg");
+          const name = source.name && source.name.includes(".")
+            ? source.name : `pasted-product-${i + 1}.${ext}`;
+          pasted.push(new File([source], name, {type: source.type}));
+        });
+        if(pasted.length){
+          e.preventDefault();
+          send(k.key, pasted);
+        }
+      };
+    }
   });
 }
-
+function thumbHtml(abs, kindKey){
+  const name = abs.split("/").pop(), m = mediaOf(name);
+  const inner = m === "image" ? `<img src="${libUrl(abs)}" loading="lazy" alt="${esc(name)}" />`
+    : m === "video" ? videoThumbHtml(abs)
+    : `<div class="ph">♪</div>`;
+  // 跑过的任务不给移除按钮：那一次复刻用了哪些素材是记录，不该事后删改
+  return `<div class="thumb" data-pv="${esc(abs)}" title="${esc(name)}">
+    ${inner}<span class="tag">${m === "video" ? "视频" : m === "audio" ? "音频" : "图"}</span>
+    ${editable() ? `<button class="x" data-del="${kindKey}" data-path="${esc(abs)}"
+      title="移除">×</button>` : ""}
+    <span class="cap">${esc(name)}</span></div>`;
+}
 function renderFiles(){
   KINDS.forEach(k => {
-    const box = document.querySelector(`ul[data-list="${k.key}"]`);
+    const box = document.querySelector(`div[data-list="${k.key}"]`);
+    if(!box) return;
     const cur = task ? task.inputs[k.key] : (k.multiple ? [] : "");
     const list = k.multiple ? (cur||[]) : (cur ? [cur] : []);
-    box.innerHTML = list.map(p => `<li><b>${p.split("/").pop()}</b><span class="grow"></span>
-      <button data-del="${k.key}" data-path="${p}">移除</button></li>`).join("");
+    box.innerHTML = list.map(p => thumbHtml(p, k.key)).join("");
+    // 一项的时候单独一个 × 就够了，两项起才值得给「清空」；只读任务不给
+    const clear = document.querySelector(`button[data-clear="${k.key}"]`);
+    if(clear) clear.hidden = !(editable() && list.length > 1);
+    wireHoverPlay(box);
+    box.querySelectorAll("[data-pv]").forEach(el => el.onclick = (e) => {
+      if(e.target.dataset.del !== undefined) return;   // 点的是移除按钮
+      const abs = el.dataset.pv;
+      preview(libUrl(abs), abs.split("/").pop());
+    });
     box.querySelectorAll("button[data-del]").forEach(b => b.onclick = async (e) => {
       e.preventDefault(); e.stopPropagation();
-      await api(`/tasks/${task.task_id}/remove`, {method:"POST",
-        json:{kind:b.dataset.del, path:b.dataset.path}});
-      await refresh();
+      try{
+        await api(`/tasks/${task.task_id}/remove`, {method:"POST",
+          json:{kind:b.dataset.del, path:b.dataset.path}});
+        await refresh();
+      }catch(err){ toast("移除失败：" + err.message, 5000); }
     });
   });
+  // 只读任务在素材区顶上说明一句，否则用户会以为上传按钮坏了
+  const note = $("matNote");
+  if(note){
+    const readonly = !!task && !editable();
+    note.textContent = readonly
+      ? "这次复刻已经跑过，素材和商品信息只读；上传或修改会自动另开一条草稿任务"
+      : "";
+    note.classList.toggle("on", readonly);
+  }
 }
 function renderOpts(){
   $("opts").innerHTML = OPTS.map(o => `
-    <div class="opt"><div class="txt"><b>${o.label}</b><i>${o.tip}</i></div>
+    <div class="opt" title="${esc(o.tip)}"><div class="txt">${o.label}</div>
       <label class="switch"><input type="checkbox" data-opt="${o.key}" /><i></i></label></div>`).join("");
   const src = task ? task.options : (meta ? meta.default_options : {});
   OPTS.forEach(o => { const el = document.querySelector(`input[data-opt="${o.key}"]`);
-    el.checked = !!src[o.key]; el.onchange = () => { if(task) save(); }; });
+    // 三态项（字幕）只有 false 才算关：null 是「跟随参考片」，照样显示勾上
+    el.checked = o.tri ? src[o.key] !== false : !!src[o.key];
+    el.onchange = () => { if(task) save(); }; });
 }
 function currentOptions(){
   const out = {rewrite_mode: mode};
-  OPTS.forEach(o => out[o.key] = document.querySelector(`input[data-opt="${o.key}"]`).checked);
+  OPTS.forEach(o => {
+    const on = document.querySelector(`input[data-opt="${o.key}"]`).checked;
+    // 字幕勾选传 null（跟随参考片），不勾传 false（完全不烧）
+    out[o.key] = o.tri ? (on ? null : false) : on;
+  });
   return out;
 }
 function currentProduct(){
-  return {name:$("pName").value.trim(), category:$("pCat").value.trim(),
-    description:$("pDesc").value.trim(),
+  return {name:$("pName").value.trim(), category:(task && task.product.category) || "",
+    description:(task && task.product.description) || "",
     selling_points:$("pPoints").value.split("\n").map(s=>s.trim()).filter(Boolean)};
 }
+// 空串是有意义的取值：后端收到空串会按 created_at + 商品名重算默认名
+function currentTitle(){ return $("taskTitle").value.trim(); }
 function setMode(v){
   mode = v;
   document.querySelectorAll("#modeSeg button").forEach(b =>
     b.classList.toggle("on", b.dataset.v === v));
 }
+/* ---------- 素材库弹窗 ---------- */
+async function openLibrary(kind){
+  libKind = kind; libCat = "";
+  const k = KINDS.find(x => x.key === kind);
+  $("libTitle").textContent = kind === "reference_video" ? "爆款视频库" : "参考素材库 · 选" + k.label;
+  $("libHint").textContent = "";
+  $("libCats").innerHTML = ""; $("libFiles").innerHTML = `<div class="empty">读取中…</div>`;
+  $("libMask").classList.add("on");
+  try{
+    lib = kind === "reference_video" ? await loadHotVideos() : await api("/library");
+    renderLibrary();
+  }catch(e){ $("libFiles").innerHTML = `<div class="empty">读取失败：${esc(e.message)}</div>`; }
+}
+// 爆款视频库有独立接口，但服务端可能还跑着没有这个接口的旧版本；那时回退到整库清单，
+// 至少让爆款视频可选，而不是弹窗里只剩一句 404。
+async function loadHotVideos(){
+  try{
+    const res = await api("/library/hot-videos");
+    return {hot_videos: res.files || []};
+  }catch(e){
+    if(!/\b404\b/.test(e.message)) throw e;
+    const all = await api("/library");
+    return {hot_videos: all.hot_videos || []};
+  }
+}
+function renderLibrary(){
+  if(libKind === "reference_video"){
+    renderHotVideos();
+    return;
+  }
+  renderReferenceGroups((lib.reference_groups||[]).filter(group =>
+    (group.materials||[]).some(item => item.kind === libKind)));
+}
+function mediaThumb(item){
+  return item.media === "image" ? `<img src="${libUrl(item.path)}" loading="lazy" alt="" />`
+    : item.media === "video" ? videoThumbHtml(item.path)
+    : `<div class="ph">♪</div>`;
+}
+// 品类关键词表：从商品名和卖点里认出品类，用来把同品类的参考片顶上来。
+// 复刻时商品是被替换进去的，真正能复用的是卖点表达方式（品类决定）和分镜结构（形态决定）。
+const CATEGORY_WORDS = {
+  "3C数码": ["手机","耳机","耳塞","笔记本","电脑","平板","相机","充电","数码","音箱","音响",
+    "键盘","鼠标","屏幕","手表","智能"],
+  "服饰配饰": ["裙","上衣","衬衫","裤","外套","卫衣","鞋","靴","包","背包","围巾","项链","帽",
+    "袜","穿搭","配饰","服装","女装","男装","套装"],
+  "食品饮料": ["饮","茶","奶","咖啡","果汁","零食","糖","酒","水","饼","肉","食品","汤","粉",
+    "面","米","坚果"],
+  "美妆个护": ["霜","乳","精华","面膜","牙刷","牙膏","洗","护","彩妆","口红","唇","眼霜","洁面",
+    "洗发","护发","香水","泥膜","防晒","个护"],
+  "家居厨房": ["锅","铲","刀","碗","杯","插排","插座","灯","桌","椅","收纳","清洁","家居","厨房",
+    "床","被","毛巾"],
+  "出行交通": ["汽车","摩托","电动车","自行车","轮胎","头盔","骑行","车"],
+};
+// 同品类内的次序：纯商品展示片分镜最容易直接套用，剧情植入改造成本最高
+const FORM_RANK = {"商品展示": 0, "卡点特效": 1, "剧情植入": 2};
 
+function guessCategory(){
+  const text = ($("pName").value + " " + $("pPoints").value).toLowerCase();
+  if(!text.trim()) return "";
+  let best = "", hits = 0;
+  Object.entries(CATEGORY_WORDS).forEach(([cat, words]) => {
+    const n = words.filter(w => text.includes(w.toLowerCase())).length;
+    if(n > hits){ hits = n; best = cat; }
+  });
+  return best;
+}
+function renderHotVideos(){
+  const files = lib.hot_videos || [];
+  const want = guessCategory();
+  $("libHint").textContent = want
+    ? `已按「${want}」把贴合的参考片排在前面；选中后会自动带上最贴合的一组商品素材`
+    : "填写商品名后会自动把同品类的参考片排在前面；选中后会自动带上最贴合的一组商品素材";
+  if(!files.length){
+    $("libCats").innerHTML = "";
+    $("libFiles").innerHTML = `<div class="empty">爆款视频库暂无内容<br/><br/>
+      请在素材库清单中为视频填写简短准确的中文描述</div>`;
+    return;
+  }
+  // 左侧按品类收敛：33 条里同品类通常只有几条，点一下就不用在整库里翻
+  const cats = [...new Set(files.map(f => f.category).filter(Boolean))];
+  cats.sort((a, b) => (a === want ? -1 : b === want ? 1 : a.localeCompare(b, "zh")));
+  const picked = typeof libCat === "string" ? libCat : "";
+  $("libCats").innerHTML = [`<button data-cat="" class="${picked ? "" : "on"}">
+      ${want ? "推荐排序" : "全部"}<em>${files.length}</em></button>`]
+    .concat(cats.map(c => `<button data-cat="${esc(c)}" class="${picked === c ? "on" : ""}">
+      ${esc(c)}<em>${files.filter(f => f.category === c).length}</em></button>`)).join("");
+  $("libCats").querySelectorAll("button").forEach(b => b.onclick = () => {
+    libCat = b.dataset.cat; renderHotVideos();
+  });
+  const shown = files.map((file, index) => ({file, index}))
+    .filter(x => !picked || x.file.category === picked);
+  if(!picked && want){
+    shown.sort((a, b) => (b.file.category === want) - (a.file.category === want)
+      || (FORM_RANK[a.file.form] ?? 9) - (FORM_RANK[b.file.form] ?? 9)
+      || a.index - b.index);
+  }
+  $("libFiles").innerHTML = `<div class="thumbs">` + shown.map(({file, index}) =>
+    `<div class="thumb" data-use-hot="${index}" title="${esc(file.name)}">${mediaThumb(file)}
+      ${!picked && want && file.category === want ? `<span class="fit">贴合</span>` : ""}
+      <button class="x" data-zoom-hot="${index}" title="预览">⤢</button>
+      <span class="cap">${esc(file.name)}${file.form ? ` · ${esc(file.form)}` : ""}</span>
+      </div>`).join("") + `</div>`;
+  wireHoverPlay($("libFiles"));
+  $("libFiles").querySelectorAll("[data-use-hot]").forEach(el => el.onclick = async e => {
+    const file = files[Number(el.dataset.useHot)];
+    if(e.target.dataset.zoomHot !== undefined){ preview(libUrl(file.path), file.name); return; }
+    await usePicked(file, "reference_video");
+    await autofillMaterials(file);
+  });
+}
+// 选中爆款视频时顺手把最贴合的一组商品素材填进去：选完片就能直接开跑，不用再翻一遍素材库。
+// 打分口径：商品名跟素材包名对得上最重（用户已经说清楚要做什么了），其次是商品名推断出的
+// 品类，最后才是参考片自己的品类。一个信号都没有就不填，别乱塞。
+function scoreGroup(group, hot, name){
+  const gn = (group.name || "").toLowerCase().replace(/\s+/g, "");
+  let s = 0;
+  if(name && gn){
+    if(gn.includes(name) || name.includes(gn)) s += 100;
+    else{
+      // 名字对不上整段时按字面重合比例给分：「小米17 Pro Max」对「xiaomi 17 Pro Max」
+      // 中文名和英文名混着写，只有数字和字母能对上，按比例才压得住品类那点分数
+      const chars = [...new Set(gn.replace(/[^0-9a-z\u4e00-\u9fa5]/g, ""))];
+      if(chars.length){
+        s += Math.round(chars.filter(ch => name.includes(ch)).length / chars.length * 60);
+      }
+    }
+  }
+  const want = guessCategory();
+  if(want && group.category === want) s += 30;
+  if(hot.category && group.category === hot.category) s += 10;
+  return s;
+}
+async function autofillMaterials(hot){
+  // 参考片没登记成功（比如 usePicked 报错）就别接着填；素材位已经有东西也不覆盖用户的选择
+  if(!task || !editable() || task.inputs.reference_video !== hot.path) return;
+  if(["product_images", "user_videos"].some(k =>
+    [].concat(task.inputs[k] || []).filter(Boolean).length)) return;
+  let groups = [];
+  try{
+    // 爆款视频库走的是独立接口，手上没有参考素材包，这里单独取一次整库
+    groups = ((await api("/library")).reference_groups || []).filter(g =>
+      (g.materials || []).some(m => m.kind === "product_images"));
+  }catch(e){ return; }
+  const name = ($("pName").value || "").trim().toLowerCase().replace(/\s+/g, "");
+  const best = groups.map(g => ({g, s: scoreGroup(g, hot, name)}))
+    .sort((a, b) => b.s - a.s)[0];
+  if(!best || best.s <= 0) return;
+  const items = best.g.materials.filter(m =>
+    m.kind === "product_images" || m.kind === "user_videos");
+  if(!items.length) return;
+  try{
+    for(const item of items){
+      await api(`/tasks/${task.task_id}/pick`,
+        {method:"POST", json:{kind:item.kind, path:item.path}});
+    }
+    await refresh();
+    const imgs = items.filter(x => x.kind === "product_images").length;
+    const vids = items.length - imgs;
+    toast(`已按「${best.g.name}」自动填入 ${imgs} 张商品图${
+      vids ? ` + ${vids} 个视频素材` : ""}，不合适点素材栏的「清空」`, 6000);
+  }catch(e){ toast("自动填素材失败：" + e.message, 5000); }
+}
+function renderReferenceGroups(all){
+  const want = guessCategory();
+  const picked = typeof libCat === "string" ? libCat : "";
+  const cats = [...new Set(all.map(g => g.category).filter(Boolean))];
+  cats.sort((a, b) => (a === want ? -1 : b === want ? 1 : a.localeCompare(b, "zh")));
+  $("libCats").innerHTML = all.length ? [`<button data-cat="" class="${picked ? "" : "on"}">
+      ${want ? "推荐排序" : "全部"}<em>${all.length}</em></button>`]
+    .concat(cats.map(c => `<button data-cat="${esc(c)}" class="${picked === c ? "on" : ""}">
+      ${esc(c)}<em>${all.filter(g => g.category === c).length}</em></button>`)).join("") : "";
+  $("libCats").querySelectorAll("button").forEach(b => b.onclick = () => {
+    libCat = b.dataset.cat; renderLibrary();
+  });
+  const groups = all.filter(g => !picked || g.category === picked);
+  if(!picked && want){
+    groups.sort((a, b) => (b.category === want) - (a.category === want));
+  }
+  $("libHint").textContent = want
+    ? `已把「${want}」的素材排在前面；“一键导入”会把本组素材放入对应素材位`
+    : "按商品/主题整理；“一键导入”会把本组全部素材放入对应素材位";
+  if(!groups.length){
+    $("libFiles").innerHTML = `<div class="empty">暂无已整理的中文参考素材</div>`;
+    return;
+  }
+  $("libFiles").innerHTML = groups.map((group, groupIndex) => {
+    const matching = group.materials.filter(item => item.kind === libKind);
+    return `<section class="lib-group">
+      <header class="lib-group-h">
+        <div class="lib-group-t"><b>${esc(group.name)}</b><em>${matching.length} 项</em>${
+          !picked && want && group.category === want ? `<span class="fit">贴合</span>` : ""}</div>
+        ${group.description ? `<p class="lib-group-d">${esc(group.description)}</p>` : ""}
+        <button type="button" class="ghost" data-use-group="${groupIndex}">一键导入本组</button>
+      </header>
+      <div class="thumbs">` + matching.map((item, itemIndex) =>
+        `<div class="thumb" data-use-group-item="${groupIndex}:${itemIndex}"
+          title="${esc(item.name)}">${mediaThumb(item)}
+          <button class="x" data-zoom-group-item="${groupIndex}:${itemIndex}" title="预览">⤢</button>
+          <span class="cap">${esc(item.name)}</span></div>`).join("") + `</div></section>`;
+  }).join("");
+  wireHoverPlay($("libFiles"));
+  $("libFiles").querySelectorAll("[data-use-group]").forEach(button => button.onclick = () =>
+    useGroup(groups[Number(button.dataset.useGroup)]));
+  $("libFiles").querySelectorAll("[data-use-group-item]").forEach(el => el.onclick = e => {
+    const [groupIndex, itemIndex] = el.dataset.useGroupItem.split(":").map(Number);
+    const item = groups[groupIndex].materials.filter(x => x.kind === libKind)[itemIndex];
+    if(e.target.dataset.zoomGroupItem !== undefined){ preview(libUrl(item.path), item.name); return; }
+    usePicked(item, item.kind);
+  });
+}
+async function usePicked(f, kind = libKind){
+  try{
+    await ensureTask();
+    await api(`/tasks/${task.task_id}/pick`, {method:"POST", json:{kind:kind, path:f.path}});
+    await refresh();
+    toast("已复用：" + f.name);
+    // 单选的素材位（参考片、BGM）选完就关，多选的留着继续挑
+    if(!(KINDS.find(k => k.key === libKind) || {}).multiple) $("libMask").classList.remove("on");
+  }catch(e){ toast("复用失败：" + e.message, 6000); }
+}
+async function useGroup(group){
+  try{
+    await ensureTask();
+    for(const item of group.materials){
+      await api(`/tasks/${task.task_id}/pick`,
+        {method:"POST", json:{kind:item.kind, path:item.path}});
+    }
+    await refresh();
+    toast("已导入：" + group.name);
+    $("libMask").classList.remove("on");
+  }catch(e){ toast("导入失败：" + e.message, 6000); }
+}
+$("libClose").onclick = () => $("libMask").classList.remove("on");
+$("libMask").onclick = (e) => { if(e.target === $("libMask")) $("libMask").classList.remove("on"); };
+
+/* ---------- 任务读写 ---------- */
+// 只有还没跑过的草稿任务才允许被改。跑过的任务是一次复刻的完整记录：素材、商品信息、
+// 成片必须对得上，往里面塞新素材或改商品名会让记录和产物对不上。
+function editable(){
+  return !!task && task.status === "draft" && !task.running;
+}
+// 开一条全新任务：商品信息取页面当前值，素材沿用 source 里已登记的那几个文件（只登记
+// 路径不复制），source 自己连一个字段都不改，产物和日志保持原样。
+async function spawnTask(source){
+  const inputs = source ? KINDS.map(k => {
+    const value = source.inputs[k.key];
+    return {kind:k.key, paths:k.multiple ? (value || []) : (value ? [value] : [])};
+  }) : [];
+  // 自动名里嵌着老任务建任务的时刻，照搬过去新任务显示的还是老时间（比如凌晨改的还写
+  // 着前一天 23:37）。所以只把用户手起的名字带过去，自动名一律置空让后端按新任务重算。
+  const keepTitle = !source || source.title_auto === false;
+  const fresh = await api("/tasks", {method:"POST", json:{product: currentProduct(),
+    options: currentOptions(), title: keepTitle ? currentTitle() : ""}});
+  const prev = task;
+  task = fresh;
+  try{
+    for(const group of inputs){
+      for(const path of group.paths){
+        await api(`/tasks/${task.task_id}/pick`,
+          {method:"POST", json:{kind:group.kind, path:path}});
+      }
+    }
+    await loadTaskList();
+    $("taskPick").value = task.task_id;
+    task = await api(`/tasks/${task.task_id}`);
+    overview = null;
+    stepPick = "";
+    fillForm(); render(); renderOverview();
+    return task;
+  }catch(e){
+    task = prev;
+    await loadTaskList();
+    $("taskPick").value = prev ? prev.task_id : "";
+    throw e;
+  }
+}
 async function ensureTask(){
-  if(task) return task;
-  task = await api("/tasks", {method:"POST", json:{product: currentProduct(),
-    options: currentOptions(), title: currentProduct().name || "未命名复刻任务"}});
-  await loadTaskList();
-  $("taskPick").value = task.task_id;
-  render();
-  return task;
+  if(editable()) return task;
+  return spawnTask(task);
+}
+// 跑过的任务是只读记录。用户一改东西就先分叉出一条草稿（素材照搬过来），改动落在草稿上，
+// 老任务的素材、商品信息、产物一个字都不动。并发的输入事件共用同一次分叉。
+let forking = null;
+async function forkIfNeeded(){
+  if(editable()) return task;
+  if(!forking){
+    forking = spawnTask(task).then(fresh => {
+      toast("已另开一条草稿任务，之前那次复刻保持原样", 4000);
+      return fresh;
+    }).finally(() => { forking = null; });
+  }
+  return forking;
+}
+const MD5_SHIFT = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
+  5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
+  4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
+  6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+const MD5_K = Array.from({length:64}, (_, i) =>
+  Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) | 0);
+function md5Block(state, data, offset){
+  const rotate = (value, bits) => (value << bits) | (value >>> (32 - bits));
+  const words = Array.from({length:16}, (_, i) => data[offset + i * 4] |
+    (data[offset + i * 4 + 1] << 8) | (data[offset + i * 4 + 2] << 16) |
+    (data[offset + i * 4 + 3] << 24));
+  let [a, b, c, d] = state;
+  for(let i = 0; i < 64; i++){
+    let f, g;
+    if(i < 16){ f = (b & c) | (~b & d); g = i; }
+    else if(i < 32){ f = (d & b) | (~d & c); g = (5 * i + 1) % 16; }
+    else if(i < 48){ f = b ^ c ^ d; g = (3 * i + 5) % 16; }
+    else{ f = c ^ (b | ~d); g = (7 * i) % 16; }
+    const next = (b + rotate((a + f + MD5_K[i] + words[g]) | 0, MD5_SHIFT[i])) | 0;
+    a = d; d = c; c = b; b = next;
+  }
+  state[0] = (state[0] + a) | 0; state[1] = (state[1] + b) | 0;
+  state[2] = (state[2] + c) | 0; state[3] = (state[3] + d) | 0;
+}
+function md5Finish(state, rest, totalSize){
+  const tail = new Uint8Array(rest.length < 56 ? 64 : 128);
+  tail.set(rest); tail[rest.length] = 0x80;
+  const view = new DataView(tail.buffer);
+  view.setUint32(tail.length - 8, (totalSize * 8) >>> 0, true);
+  view.setUint32(tail.length - 4, Math.floor(totalSize / 0x20000000), true);
+  for(let i = 0; i < tail.length; i += 64) md5Block(state, tail, i);
+  return state.map(value => [0,8,16,24].map(shift =>
+    ((value >>> shift) & 255).toString(16).padStart(2, "0")).join("")).join("");
+}
+async function fileMd5(file){
+  toast("正在校验素材：" + file.name, 3000);
+  const state = [0x67452301, -271733879, -1732584194, 0x10325476];
+  const chunkSize = 4 << 20;
+  let rest = new Uint8Array(0);
+  for(let offset = 0; offset < file.size; offset += chunkSize){
+    const chunk = new Uint8Array(await file.slice(offset, offset + chunkSize).arrayBuffer());
+    const data = new Uint8Array(rest.length + chunk.length);
+    data.set(rest); data.set(chunk, rest.length);
+    const complete = data.length - data.length % 64;
+    for(let pos = 0; pos < complete; pos += 64) md5Block(state, data, pos);
+    rest = data.slice(complete);
+  }
+  return md5Finish(state, rest, file.size);
 }
 async function send(kind, files){
   await ensureTask();
-  const names = [...files].map(f=>f.name).join("、");
+  const picked = [...files], names = picked.map(f=>f.name).join("、");
   try{
-    await upload(kind, files);
+    let reused = 0;
+    const media = (KINDS.find(item => item.key === kind) || {}).media;
+    if((media === "video" || media === "image") && meta && meta.md5_dedupe){
+      for(const file of picked){
+        const md5 = await fileMd5(file);
+        let hit = {found:false};
+        try{
+          const checkPath = media === "video" ? "video-by-md5" : "file-by-md5";
+          const query = `?md5=${md5}&size=${file.size}` +
+            (media === "video" ? "" : `&media=${media}`);
+          hit = await api(`/library/${checkPath}${query}`);
+        }catch(e){
+          // 兼容尚未重启的旧服务：旧服务没有 MD5 查询接口，仍允许正常上传。
+          if(!/HTTP 404|返回不是 JSON/.test(e.message)) throw e;
+        }
+        if(hit.found){
+          await api(`/tasks/${task.task_id}/pick`,
+            {method:"POST", json:{kind:kind, path:hit.path}});
+          reused += 1;
+        }else{
+          await upload(kind, [file], {md5:md5, size:file.size});
+        }
+      }
+    }else{
+      // 旧服务没有 MD5 能力时直接走原始上传，避免为多文件请求复用错误的指纹。
+      await upload(kind, picked);
+    }
     await refresh();
-    toast("已上传：" + names);
+    toast(reused === picked.length ? "素材已存在，已直接复用：" + names
+      : reused ? `已上传并复用（${reused} 个素材已存在）` : "已上传：" + names);
   }catch(e){ toast("上传失败：" + e.message, 6000); }
 }
 // 视频动辄上百 MB，用 XHR 才能给上传进度，fetch 没有 upload 事件
-function upload(kind, files){
+function upload(kind, files, fingerprint=null){
   return new Promise((resolve, reject) => {
     const fd = new FormData();
     fd.append("kind", kind);
+    if(fingerprint){
+      fd.append("md5", fingerprint.md5);
+      fd.append("size", fingerprint.size);
+    }
     [...files].forEach(f => fd.append("file", f));
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `/api/tasks/${task.task_id}/upload`);
@@ -298,46 +1260,99 @@ function upload(kind, files){
     xhr.send(fd);
   });
 }
-
 async function save(){
+  // 跑过的任务只读：先分叉出草稿，改动写到草稿上，老任务保持原样
+  if(task && !editable()) await forkIfNeeded();
   await ensureTask();
   task = await api(`/tasks/${task.task_id}`, {method:"PATCH",
-    json:{product: currentProduct(), options: currentOptions(),
-          title: currentProduct().name || task.title}});
+    json:{product: currentProduct(), options: currentOptions(), title: currentTitle()}});
+  $("taskTitle").value = task.title || "";   // 清空后后端重算了默认名，回填让用户看见
+  await loadTaskList();
   render();
+  return task;
 }
 async function refresh(){
   if(!task) return null;
-  task = await api(`/tasks/${task.task_id}`);
+  const taskId = task.task_id;
+  const fresh = await api(`/tasks/${taskId}`);
+  // 任务切换后，旧任务的轮询请求可能才返回；不能让它覆盖当前页面。
+  if(!task || task.task_id !== taskId || $("taskPick").value !== taskId) return null;
+  task = fresh;
   render();
   return task;
 }
 function statusBadge(){
-  const el = $("status"), s = task ? task.status : "idle";
-  const map = {draft:["idle","待运行"], running:["", "运行中"], completed:["ok","已完成"],
-               failed:["err","失败"]};
-  const [cls, text] = map[s] || ["idle", s];
-  el.className = "badge " + cls;
-  el.textContent = task && task.running ? "运行中" : text;
+  const el = $("status");
+  el.className = "badge " + statusClass(task);
+  el.textContent = statusText(task);
 }
 function render(){
   renderFiles(); statusBadge();
-  if(!task){ $("steps").innerHTML = ""; return; }
-  $("taskMeta").textContent = `${task.task_id} ｜ 建于 ${task.created_at} ｜ 复刻强度 ` +
+  if(!task){
+    $("steps").innerHTML = ""; $("stepNow").innerHTML = ""; $("errLine").textContent = "";
+    $("logHead").textContent = ""; $("log").textContent = "等待任务…";
+    $("taskTitle").title = "改完回车生效；清空回到「时间戳 · 商品名」";
+    renderResult(); renderOverview();
+    return;
+  }
+  // 任务号、创建时间、复刻强度这些放 title：需要时 hover 就有，不必长期占版面
+  $("taskTitle").title = `${task.task_id}\n建于 ${task.created_at}\n` +
     (task.options.rewrite_mode === "strict" ? "严格复刻" : "创意仿写");
-  const steps = meta ? meta.steps : [];
+  const steps = meta ? meta.steps.filter(s => s.key !== "ingest") : [];
+  const state = (s) => {
+    const st = task.steps[s.key] || {};
+    return st.status === "done" ? "done" : st.status === "failed" ? "fail" :
+      st.status === "running" ? "run" : "";
+  };
   $("steps").innerHTML = steps.map(s => {
     const st = task.steps[s.key] || {};
-    const cls = st.status === "done" ? "done" : st.status === "failed" ? "fail" :
-      st.status === "running" ? "run" : "";
-    const info = st.status === "done" ? summary(s.key, st) : st.status === "running" ? "进行中…" : "";
-    return `<li><span class="dot ${cls}"></span><div><b>${s.title}</b>
-      <em>${info}${st.sec?` · ${st.sec}s`:""}</em>
-      ${st.error?`<div class="msg">${st.error}</div>`:""}</div></li>`;
+    const info = st.status === "done" ? summary(s.key, st) : "";
+    // 耗时跟在步骤名后面用小字，跑着的步骤用服务端算的 elapsed，别拿浏览器时钟去减
+    const sec = st.status === "running" ? st.elapsed : st.sec;
+    return `<li class="${state(s)}${stepPick === s.key ? " sel" : ""}" data-step="${s.key}"
+      title="${esc(s.title + (info ? "：" + info : "") +
+      (st.started_at ? "\n开始 " + st.started_at : "") + "\n点一下看这步的信息")}"><i></i>
+      <span class="nm">${esc(s.short || s.title)}${
+        sec == null ? "" : `<em>${esc(fmtSec(sec))}</em>`}</span></li>`;
   }).join("");
+  $("steps").querySelectorAll("[data-step]").forEach(el => el.onclick = () => {
+    stepPick = stepPick === el.dataset.step ? "" : el.dataset.step;   // 再点一下收起
+    render();
+  });
+  // 一句话总览：现在在哪一步、这步跑了多久、总共几步、累计耗时
+  const cur = steps.find(s => state(s) === "run") || steps.find(s => state(s) === "fail")
+    || [...steps].reverse().find(s => state(s) === "done");
+  const done = steps.filter(s => state(s) === "done").length;
+  const total = steps.reduce((a, s) => a + (Number((task.steps[s.key]||{}).sec) || 0), 0);
+  // 默认跟着当前步骤走；点了某一步就显示那一步的信息
+  const shown = (stepPick && steps.find(s => s.key === stepPick)) || cur;
+  if(shown){
+    const st = task.steps[shown.key] || {};
+    // 正在跑不写「进行中」：左边呼吸灯已经说明了。每步耗时在进度轨上，这里只留总览
+    const info = st.status === "done" ? summary(shown.key, st)
+      : st.status === "failed" ? (st.error || "失败")
+      : st.status === "running" ? "" : "待运行";
+    $("stepNow").innerHTML = `<span class="dot ${state(shown)}"></span>
+      <b>${esc(shown.title)}</b><span class="si">${info ? esc(info) : ""}</span>
+      <span class="tail">${done}/${steps.length}${
+        total ? " · 累计 " + esc(fmtSec(total)) : ""}</span>`;
+  }else if(task.step === "ingest"){
+    $("stepNow").innerHTML = `<span class="dot run"></span><b>准备素材</b>`;
+  }else{
+    $("stepNow").innerHTML = `<span class="dot"></span><b>待运行</b>`;
+  }
+  // 失败原因单独一行：进度轨塞不进长错误信息，但它必须显眼
+  const failed = steps.map(s => [s, task.steps[s.key] || {}])
+    .filter(([,st]) => st.status === "failed");
+  $("errLine").innerHTML = failed.length
+    ? failed.map(([s,st]) => `${esc(s.title)}：${esc(st.error||"")}`).join("<br/>")
+    : (task.error ? esc(task.error) : "");
   if($("resetStep").options.length !== steps.length)
-    $("resetStep").innerHTML = steps.map(s=>`<option value="${s.key}">重跑：${s.title}</option>`).join("");
-  $("log").textContent = (task.logs||[]).slice(-120).join("\n") || "等待任务…";
+    $("resetStep").innerHTML = steps.map(s=>`<option value="${s.key}">${s.title}</option>`).join("");
+  // 日志只属于当前这条任务；把任务名和行数标出来，免得看着像混进了上一条任务的记录
+  const logs = task.logs || [];
+  $("logHead").textContent = `${task.title} · ${task.task_id} · ${logs.length} 行`;
+  $("log").textContent = logs.slice(-200).join("\n") || "等待任务…";
   $("log").scrollTop = 1e6;
   renderResult();
 }
@@ -353,37 +1368,310 @@ function summary(key, st){
   return "";
 }
 function renderResult(){
-  const r = task && task.result;
-  $("resultCard").style.display = r ? "block" : "none";
-  if(!r) return;
-  const p = $("player");
+  const r = task && task.result, box = $("resultBox");
+  if(!r){
+    box.innerHTML = `<div class="empty">尚无成片</div>`;
+    box.dataset.src = "";
+    return;
+  }
   const url = fileUrl(r.final);
-  if(p.dataset.src !== url){ p.dataset.src = url; p.src = url; }
-  $("resultMeta").textContent = `${r.duration_sec}s ｜ 用到 ${r.segments_used}/${r.segments_planned} 段` +
-    ` ｜ 音轨：${r.audio.note}` + (r.subtitles.enabled ?
-      ` ｜ 字幕：${r.subtitles.burned ? "已烧入 " + r.subtitles.lines + " 条" : (r.subtitles.note||"仅 SRT")}` : "");
-  const links = [["成片 mp4", r.final], ["参考片拆解", "reference/analysis.md"],
-    ["剧本", "script/script.md"], ["分镜素材匹配", "edit/asset_matches.json"],
-    ["商品事实卡", "product/fact_card.json"], ["任务记录", "task.json"]];
-  if(r.subtitles && r.subtitles.srt) links.push(["字幕 SRT", r.subtitles.srt]);
-  $("links").innerHTML = links.map(([t,p2]) =>
-    `<a href="${fileUrl(p2)}" target="_blank" rel="noopener">${t}</a>`).join("");
+  // 只在成片换了的时候重建播放器，否则每次轮询都会把正在看的视频打回开头
+  if(box.dataset.src !== url){
+    box.dataset.src = url;
+    // 下载走 download=1：成片默认内联播放，不加这个参数点了只会在标签页里打开
+    const name = (task.title || "成片").replace(/[\\/:*?"<>|]/g, "_") + ".mp4";
+    box.innerHTML = `<video id="player" controls preload="metadata" src="${url}"
+        style="max-height:52vh;width:auto;margin:0 auto"></video>
+      <div class="result-bar"><span class="rm" id="resultMeta"></span>
+        <a class="btn-dl" href="${url}&download=1" download="${esc(name)}">下载</a></div>`;
+  }
+  // 音轨那句话很长（「整轨复用：参考片只有 BGM 没有口播…」），一行只留冒号前的结论，
+  // 完整说明和字幕细节收进 title，hover 才展开
+  const audio = String(r.audio.note || "");
+  const subs = r.subtitles.enabled
+    ? (r.subtitles.burned ? `字幕 ${r.subtitles.lines} 条` : "仅 SRT") : "无字幕";
+  const meta = $("resultMeta");
+  meta.textContent = `${r.duration_sec}s · ${r.segments_used}/${r.segments_planned} 段 · ${
+    audio.split("：")[0] || "音轨"} · ${subs}`;
+  meta.title = `时长 ${r.duration_sec}s\n用到 ${r.segments_used}/${r.segments_planned} 段\n` +
+    `音轨：${audio}\n字幕：${r.subtitles.enabled
+      ? (r.subtitles.burned ? "已烧入 " + r.subtitles.lines + " 条"
+        : (r.subtitles.note || "仅 SRT")) : "未开启"}`;
 }
 
+/* ---------- 关键信息 ---------- */
+const fact = (title, body) => body ? `<div class="fact"><h4>${esc(title)}</h4><div>${body}</div></div>` : "";
+const chips = (arr) => `<div class="chips">` +
+  (arr||[]).map(v => `<span class="chip">${esc(v)}</span>`).join("") + `</div>`;
+// 中间产物的字段值形态很杂：字符串、字符串数组、对象数组、嵌套对象都有。
+// 统一在这里降解成可读的行，免得到处 JSON.stringify 糊一坨给用户看。
+function val(v, depth=0){
+  if(v == null || v === "") return "";
+  if(typeof v === "boolean") return v ? "是" : "否";
+  if(typeof v !== "object") return esc(v);
+  if(Array.isArray(v)){
+    if(!v.length) return "";
+    if(v.every(x => x == null || typeof x !== "object")) return chips(v);
+    return `<div class="rows">` +
+      v.map(x => `<div class="sub">${val(x, depth+1)}</div>`).join("") + `</div>`;
+  }
+  const kv = Object.entries(v).filter(([,x]) =>
+    x != null && x !== "" && !(Array.isArray(x) && !x.length));
+  if(!kv.length) return "";
+  if(depth >= 3) return esc(JSON.stringify(v, null, 2));
+  return `<div class="rows">` + kv.map(([k,x]) =>
+    `<div class="kvline"><span class="sk">${esc(k)}</span><span>${val(x, depth+1)}</span></div>`)
+    .join("") + `</div>`;
+}
+// 拆解和剧本里的空值大多是「无」「不确定」这种字而不是空串，照样铺出来全是噪音
+const NOISE = new Set(["无", "没有", "不确定", "暂无", "无台词", "-", "空"]);
+const meaningful = (v) => v != null && v !== "" && !NOISE.has(String(v).trim());
+// 人物是对象数组（谁/外形服装/表情情绪/视线朝向），摊成一行「谁（外形；表情）」，
+// 否则 chips 里直接出 [object Object]
+function personText(v){
+  return [].concat(v || []).map(x => {
+    if(!x || typeof x !== "object") return meaningful(x) ? String(x) : "";
+    const more = ["外形服装", "表情情绪", "视线朝向"].map(k => x[k]).filter(meaningful).join("；");
+    const who = x["谁"] || x["角色"] || x["编号"] || "";
+    return more ? `${who}（${more}）` : String(who || "");
+  }).filter(Boolean).join(" / ");
+}
+// 分镜行：参考片拆解和生成剧本的分镜字段名不完全一样，公共部分抽出来。
+// tagKeys 走底部胶囊（景别、运镜这类短词），rowKeys 走键值行（成句的描述）。
+function shotHtml(x, i, tagKeys, rowKeys = []){
+  const time = x["开始时间"] != null && x["结束时间"] != null
+    ? `${esc(x["开始时间"])}–${esc(x["结束时间"])}` : "";
+  const dur = x["时长秒"] != null ? esc(x["时长秒"]) + "s" : "";
+  const says = [].concat(x["台词"] || []).filter(meaningful);
+  const rows = rowKeys.map(k => [k, k === "人物" ? esc(personText(x[k]))
+    : (meaningful(x[k]) ? val(x[k]) : "")]).filter(([, v]) => v);
+  const tags = tagKeys.map(k => x[k]).filter(v => typeof v !== "boolean")
+    .filter(meaningful).flat().filter(meaningful);
+  if(x["需要模特出镜"] === true) tags.push("需模特出镜");
+  const ref = x["对应参考镜"] != null ? "参考镜 " + x["对应参考镜"] : "";
+  return `<div class="shot">
+    <div class="shot-h"><span class="no">${esc(x["序号"] ?? i + 1)}</span>
+      <span class="t">${[time, dur, ref].filter(Boolean).map(esc).join(" · ")}</span>
+      ${meaningful(x["叙事功能"]) ? `<span class="role">${esc(x["叙事功能"])}</span>` : ""}</div>
+    ${x["画面"] ? `<div class="pic">${esc(x["画面"])}</div>` : ""}
+    ${says.length ? `<div class="say">${esc(says.join(" / "))}</div>` : ""}
+    ${meaningful(x["花字"]) ? `<div class="say">花字：${esc(x["花字"])}</div>` : ""}
+    ${x["视频提示词"] ? `<p>${esc(x["视频提示词"])}</p>` : ""}
+    ${rows.map(([k, v]) =>
+      `<div class="kvline"><span class="sk">${esc(k)}</span><span>${v}</span></div>`).join("")}
+    ${tags.length ? chips(tags) : ""}</div>`;
+}
+
+async function loadOverview(taskId = task && task.task_id){
+  if(!taskId) return;
+  try{
+    const fresh = await api(`/tasks/${taskId}/overview`);
+    // 任务切换后，旧任务的拆解结果也不能写入当前页面。
+    if(!task || task.task_id !== taskId || $("taskPick").value !== taskId) return;
+    overview = fresh;
+    renderOverview();
+  }catch(e){
+    if(task && task.task_id === taskId && $("taskPick").value === taskId)
+      $("pane-ref").innerHTML = `<div class="empty">读取失败：${esc(e.message)}</div>`;
+  }
+}
+function renderOverview(){
+  renderRef(); renderProduct(); renderScript(); renderClips();
+}
+function renderRef(){
+  const a = overview && overview.reference;
+  if(!a){ $("pane-ref").innerHTML = `<div class="empty">尚无拆解</div>`; return; }
+  const shots = a["分镜"] || [], w = a["整体"] || {};
+  // 整体有十几个字段，平铺成一列小标签根本读不动：先给一行摘要，再把成句的描述两列排，
+  // 结构/情绪/骨架这三个结构化字段各自换成时间轴、柱图、清单。
+  const avg = shots.length && a["总时长秒"] ? (a["总时长秒"] / shots.length).toFixed(1) : "";
+  const sum = [a["总时长秒"] != null ? a["总时长秒"] + "s" : "", shots.length + " 镜",
+    avg ? "均 " + avg + "s/镜" : "", w["有背景音乐"] ? "有 BGM" : "无 BGM",
+    w["有人声口播"] ? "有口播" : "无口播", a["链路"] ? "链路 " + a["链路"] : "",
+    a["视频"] || ""].filter(Boolean);
+  const texts = [["核心创意", w["核心创意"]], ["开场钩子", w["开场钩子"]], ["节奏", w["节奏"]],
+    ["音乐", w["音乐"]], ["声音设计", w["声音设计"]], ["产品植入", w["产品植入"]],
+    ["可复用模板", w["可复用模板"]]].filter(([, v]) => meaningful(v));
+  const struct = [].concat(w["结构"] || []), mood = [].concat(w["情绪曲线"] || []);
+  const skel = [].concat(w["镜头骨架"] || []);
+  const skills = [].concat(w["叙事技巧"] || []).filter(meaningful);
+  const peak = Math.max(1, ...mood.map(m => Number(m["强度"]) || 0));
+  // 兜底：整体里万一还有没排进上面任何一块的字段，仍然按老样式铺出来，不静默吞掉
+  const shown = new Set(["有背景音乐", "有人声口播", "一句话概要", "结构", "情绪曲线",
+    "镜头骨架", "叙事技巧", ...texts.map(([k]) => k)]);
+  const rest = Object.entries(w).filter(([k, v]) => !shown.has(k) && val(v));
+  $("pane-ref").innerHTML = `<div class="pcard" style="margin-bottom:14px">
+    <div class="pcard-h"><h3>参考片拆解</h3></div>
+    <div class="sumbar">${sum.map(v => `<span>${esc(v)}</span>`).join("")}</div>
+    ${meaningful(w["一句话概要"]) ? `<p class="pcard-copy">${esc(w["一句话概要"])}</p>` : ""}
+    ${skills.length ? `<div class="pcard-sec"><h4>叙事技巧</h4>${chips(skills)}</div>` : ""}
+    ${struct.length ? `<div class="pcard-sec"><h4>结构</h4><ol class="tlsteps">${
+      struct.map(s => `<li><div class="hd"><b>${esc(s["名称"] || "")}</b>
+        <span class="rg">${esc(s["时间区间"] || "")}</span></div>
+        <div>${esc(s["作用"] || "")}</div></li>`).join("")}</ol></div>` : ""}
+    ${mood.length ? `<div class="pcard-sec"><h4>情绪曲线</h4><div class="mood">${
+      mood.map(m => `<div class="mb" title="${esc((m["时间"] || "") + " " + (m["情绪"] || "")
+        + " 强度 " + (m["强度"] ?? "-"))}">
+        <i style="height:${Math.round((Number(m["强度"]) || 0) / peak * 100)}%"></i>
+        <em>${esc(m["情绪"] || "")}</em><u>${esc(m["时间"] || "")}</u></div>`).join("")}</div></div>` : ""}
+    ${skel.length ? `<div class="pcard-sec"><h4>镜头骨架</h4><div class="skel">${
+      skel.map(s => `<div class="row"><span class="k">${esc(s["景别"] || "-")}</span>
+        <span class="d">${s["时长秒"] != null ? esc(s["时长秒"]) + "s" : ""}</span>
+        <span>${esc(s["作用"] || "")}${
+          meaningful(s["备注"]) ? ` <em>· ${esc(s["备注"])}</em>` : ""}</span></div>`)
+      .join("")}</div></div>` : ""}
+    ${texts.length ? `<div class="pcard-sec"><div class="pgrid">${
+      texts.map(([k, v]) => fact(k, val(v))).join("")}</div></div>` : ""}
+    ${rest.length ? `<div class="pcard-sec"><div class="pgrid">${
+      rest.map(([k, v]) => fact(k, val(v))).join("")}</div></div>` : ""}
+  </div><div class="shots">` +
+    shots.map((x, i) => shotHtml(x, i, ["景别", "运镜", "转场", "特效"],
+      ["动作", "人物", "场景", "音效音乐"])).join("") + `</div>`;
+}
+// 真正进了生成的商品图：按分镜级选图（shot_refs）反推，而不是看事实卡的 images。
+// images 是「选中 + 落选」的全量（product_facts 故意不丢落选图），全局参考图又只是候选，
+// 最后哪几张被镜头引用要看 shot_refs：全局落选的图分镜可以再取用（取用时补体检），
+// 全局选中的图也可能一个镜头都没用上。文件一律取「最终」，也就是体检改造后的那张。
+function usedProductImages(p, sr){
+  const fileOf = {}, fixed = new Set();
+  (p["商品图明细"] || []).forEach(d => {
+    if(d["编号"] != null) fileOf[d["编号"]] = d["文件"] || d["原图"];
+  });
+  [].concat(p["商品图检查"] || [], (sr || {})["选中补体检"] || []).forEach(c => {
+    if(c["编号"] != null && c["最终"]) fileOf[c["编号"]] = c["最终"];
+    if(c["最终"] && c["原图"] && c["最终"] !== c["原图"]) fixed.add(c["最终"]);
+  });
+  const shots = (sr || {})["分镜"] || {}, byNo = new Map(), states = new Map();
+  Object.keys(shots).sort((a, b) => Number(a) - Number(b)).forEach(no => {
+    const s = shots[no] || {};
+    (s["参考图编号"] || []).forEach(n => {
+      if(!byNo.has(n)) byNo.set(n, []);
+      byNo.get(n).push(no);
+    });
+    // 状态图：某个镜头需要的中间状态（比如「抠掉 logo 的背面」），基于参考图现改的。
+    // 有 url 才算真备好了：改不出来的会只留轮次记录，来源里写「放弃中间图」。
+    // 同一张状态图常被好几镜共用，按文件合并；核验命中已有商品图时文件会跟参考图重合，
+    // 那种情况在下面按文件去重，不重复铺一张。
+    const mid = s["中间图"] || {};
+    if(mid["url"] && mid["文件"]){
+      const d = states.get(mid["文件"]) || {shots: [], want: mid["关键状态"] || ""};
+      d.shots.push(no);
+      states.set(mid["文件"], d);
+    }
+  });
+  const refs = [...byNo.keys()].sort((a, b) => a - b).filter(n => fileOf[n]).map(n => ({
+    file: fileOf[n], tag: "图" + n, fixed: fixed.has(fileOf[n]),
+    tip: "用于分镜 " + byNo.get(n).join("、") + (fixed.has(fileOf[n]) ? "\n体检后的改造图" : "")}));
+  const seen = new Set(refs.map(x => x.file));
+  return refs.concat([...states].filter(([f]) => !seen.has(f)).map(([f, d]) => ({
+    file: f, tag: "状态图·镜" + d.shots[0], fixed: true,
+    tip: "镜 " + d.shots.join("、") + " 的中间状态图" + (d.want ? "：" + d.want : "")})));
+}
+function renderProduct(){
+  const p = overview && overview.product;
+  if(!p){ $("pane-product").innerHTML = `<div class="empty">尚无事实卡</div>`; return; }
+  const all = [].concat(p["images"] || []).filter(Boolean);
+  const used = usedProductImages(p, overview.shot_refs);
+  // 分镜选图还没跑（只跑到事实卡）时退一步：先按全局参考图展示，标题说明这是候选
+  const vetted = (p["商品图检查"] || []).map(x => x["最终"] || x["原图"]).filter(Boolean);
+  const imgs = used.length ? used
+    : (vetted.length ? vetted : all).map((f, i) => ({file: f, tag: "图" + (i + 1), tip: ""}));
+  const label = used.length ? "参与生成的商品图" : "候选参考图（分镜选图未跑）";
+  const idle = Math.max(0, all.length - imgs.filter(x => !x.tag.startsWith("状态图")).length);
+  const points = [].concat(p["selling_points"] || []).filter(Boolean);
+  const rows = [["目标人群", p["audience"]], ["使用场景", p["usage_scene"]],
+    ["外观", p["appearance"]]].filter(([, v]) => v != null && v !== "");
+  $("pane-product").innerHTML = `<div class="pcard">
+    <div class="pcard-h"><h3>${esc(p["name"] || "未命名商品")}</h3>${
+      p["category"] ? `<em>${esc(p["category"])}</em>` : ""}</div>
+    ${p["copy"] ? `<p class="pcard-copy">${esc(p["copy"])}</p>` : ""}
+    ${points.length ? `<div class="pcard-sec"><h4>卖点</h4><ul class="plist">${
+      points.map(v => `<li>${val(v)}</li>`).join("")}</ul></div>` : ""}
+    ${rows.length ? `<div class="pcard-sec"><div class="pgrid">${
+      rows.map(([k, v]) => fact(k, val(v))).join("")}</div></div>` : ""}
+    ${imgs.length ? `<div class="pcard-sec"><h4>${label}（${imgs.length} 张${
+      idle ? " · 另有 " + idle + " 张未用上" : ""}）</h4>
+      <div class="imgwall">${imgs.map(x => `<div class="thumb" data-pv="${esc(x.file)}"
+        style="aspect-ratio:3/4" title="${esc(x.tip)}"><img src="${libUrl(x.file)}"
+        loading="lazy" alt="" /><span class="refno">${esc(x.tag)}</span>${
+        x.fixed ? `<span class="refno fix">改造</span>` : ""}</div>`).join("")}</div></div>` : ""}
+    ${p["商品图来源"] ? `<div class="pfoot">商品图来源：${esc(p["商品图来源"])}${
+      idle ? `；未用上的 ${idle} 张留在任务里，重跑分镜选图时还可能被取用` : ""}</div>` : ""}
+  </div>`;
+  $("pane-product").querySelectorAll("[data-pv]").forEach(el => el.onclick = () =>
+    preview(libUrl(el.dataset.pv), el.dataset.pv.split("/").pop()));
+}
+function renderScript(){
+  const s = overview && overview.script;
+  if(!s){ $("pane-script").innerHTML = `<div class="empty">尚无剧本</div>`; return; }
+  const sc = s["剧本"] || {}, shots = sc["分镜"] || [], segs = s["分段"] || [];
+  const ORDER = ["剧本名","一句话概要","核心创意","开场钩子","结构","节奏","情绪曲线","音乐",
+    "人物设定","场景设定","视觉锚点","口播判定","商品状态审查","剧本告警","复刻说明"];
+  $("pane-script").innerHTML = `<div class="facts" style="margin-bottom:14px">
+    ${fact("规模", `${shots.length} 镜 · ${segs.length} 段 · 复刻强度 ${esc(s["复刻强度"]||"-")}`)}
+    ${ORDER.map(k => fact(k, val(sc[k]))).join("")}
+  </div><div class="shots">` +
+    shots.map((x,i) => shotHtml(x, i, ["景别","运镜","转场","特效"],
+      ["动作","音效音乐"])).join("") + `</div>`;
+}
+function renderClips(){
+  const segs = (overview && overview.segments) || [];
+  if(!segs.length){ $("pane-clips").innerHTML = `<div class="empty">尚无片段</div>`; return; }
+  const ok = segs.filter(s => s.path).length;
+  $("pane-clips").innerHTML = `<p class="hint">${segs.length} 段 · 可播 ${ok}</p>
+    <div class="timeline">` + segs.map(s => {
+      const label = `段 ${esc(s["段号"])}`;
+      const sub = [s.mode, s["时长秒"] != null ? s["时长秒"] + "s" : "",
+                   (s["用户素材镜头"]||[]).length ? "素材" + s["用户素材镜头"].length : "",
+                   (s["AI补片镜头"]||[]).length ? "AI" + s["AI补片镜头"].length : ""]
+                  .filter(Boolean).join(" · ");
+      const body = s.path
+        ? `<video src="${fileUrl(s.path)}" preload="metadata" muted playsinline></video>`
+        : `<div class="miss">${esc((s.error || "没有产出").slice(0, 60))}</div>`;
+      return `<div class="tl-item ${s.path?"":"bad"}" ${s.path?`data-clip="${esc(s.path)}"`:""}>
+        ${body}<div class="meta"><b>${label}</b>${esc(sub)}</div></div>`;
+    }).join("") + `</div>`;
+  $("pane-clips").querySelectorAll("[data-clip]").forEach(el => el.onclick = () =>
+    preview(fileUrl(el.dataset.clip), el.dataset.clip));
+}
+// 标签页：左栏（素材/商品/参数）和右栏（成片/拆解/事实卡/剧本/时间线/日志）同一套逻辑。
+// 只认带 data-p 的按钮——「刷新」也在 tabs 里，别把它当成标签。
+function wireTabs(id){
+  const btns = [...document.querySelectorAll(`#${id} button[data-p]`)];
+  btns.forEach(b => b.onclick = () => {
+    btns.forEach(x => x.classList.toggle("on", x === b));
+    btns.forEach(x => $("pane-" + x.dataset.p).classList.toggle("on", x === b));
+  });
+}
+wireTabs("inTabs"); wireTabs("ovTabs");
+
+// status 是 running 但后台线程已经不在的，是服务重启前留下的任务：它跑不完了，
+// 但素材、日志、已出的中间产物都还在，必须照常列出来供查看和删除，不能悄悄藏掉。
+// running 只有在服务端明确报 false 时才算线程不在；字段缺失（旧服务不返回）按在跑处理，
+// 否则会把正在出片的任务误判成中断。
+function statusText(t){
+  if(!t) return "未开始";
+  if(t.status === "running") return t.running === false ? "已中断" : "运行中";
+  return {draft: "待运行", completed: "已完成", failed: "失败"}[t.status] || t.status;
+}
+function statusClass(t){
+  if(!t) return "idle";
+  if(t.status === "running") return t.running === false ? "err" : "";
+  return {draft: "idle", completed: "ok", failed: "err"}[t.status] || "idle";
+}
 async function loadTaskList(){
   const list = await api("/tasks");
   const pick = $("taskPick");
   pick.innerHTML = `<option value="">— 新建任务 —</option>` + list.map(t =>
-    `<option value="${t.task_id}">${t.title} · ${t.status} · ${t.created_at.slice(5,16)}</option>`).join("");
+    `<option value="${t.task_id}">${esc(t.title)} · ${statusText(t)}</option>`).join("");
   if(task) pick.value = task.task_id;
 }
 function fillForm(){
   if(!task) return;
+  $("taskTitle").value = task.title || "";
   $("pName").value = task.product.name || "";
-  $("pCat").value = task.product.category || "";
-  $("pDesc").value = task.product.description || "";
   $("pPoints").value = (task.product.selling_points||[]).join("\n");
-  setMode(task.options.rewrite_mode || "strict");
+  setMode(task.options.rewrite_mode || "creative");
   renderOpts();
 }
 function startPolling(){
@@ -391,45 +1679,128 @@ function startPolling(){
   timer = setInterval(async () => {
     if(!task) return;
     try{
-      const before = task.status;
-      await refresh();
-      if(before !== task.status && task.status === "completed") toast("成片已生成");
-      if(task.status !== "running" && !task.running) { /* 保持轮询，成本极低 */ }
+      const beforeTaskId = task.task_id;
+      const before = task.status, beforeStep = task.step;
+      const fresh = await refresh();
+      if(!fresh || fresh.task_id !== beforeTaskId) return;
+      if(before !== fresh.status || beforeStep !== fresh.step){
+        // 只在步骤边界上重新拉：overview 需要读盘，不适合每 2.5s 一次
+        loadOverview(fresh.task_id);
+      }
+      if(before !== fresh.status && fresh.status === "completed") toast("成片已生成");
     }catch(e){ console.error("轮询/渲染出错", e); }
   }, 2500);
 }
-
-$("btnNew").onclick = async () => {
-  task = null; $("taskPick").value = "";
-  ["pName","pCat","pDesc","pPoints"].forEach(id => $(id).value = "");
-  setMode("strict"); renderOpts(); render(); toast("已清空，上传素材即建任务");
+/* ---------- 事件绑定 ---------- */
+$("btnNew").onclick = () => {
+  taskLoadSeq++;
+  clearTimeout(productSaveTimer);
+  stepPick = "";
+  task = null; overview = null; $("taskPick").value = "";
+  ["taskTitle","pName","pPoints"].forEach(id => $(id).value = "");
+  sessionStorage.removeItem("vf_product_draft");
+  setMode("creative"); renderOpts(); render();
+  toast("已清空");
 };
 $("taskPick").onchange = async (e) => {
-  if(!e.target.value){ $("btnNew").onclick(); return; }
-  task = await api("/tasks/" + e.target.value);
-  fillForm(); render();
+  const taskId = e.target.value;
+  const requestSeq = ++taskLoadSeq;
+  clearTimeout(productSaveTimer);
+  stepPick = "";
+  if(!taskId){ $("btnNew").onclick(); return; }
+  try{
+    const fresh = await api("/tasks/" + taskId);
+    // 用户在请求返回前又切换了任务时，丢弃这次旧响应。
+    if(requestSeq !== taskLoadSeq || $("taskPick").value !== taskId) return;
+    task = fresh;
+    overview = null;
+    fillForm(); render(); renderOverview(); loadOverview(taskId);
+  }catch(err){
+    if(requestSeq === taskLoadSeq && $("taskPick").value === taskId)
+      toast("读取任务失败：" + err.message, 5000);
+  }
+};
+$("btnOverview").onclick = () => { loadOverview(); };
+// 重命名：没有任务时提示而不是静默返回，否则用户会以为「改了没反应」。
+// 改名对跑过的任务也放行——名字不参与复刻，改了不会让记录和产物对不上。
+async function rename(){
+  if(!task){ toast("先上传素材建任务，名字会带过去"); return; }
+  try{
+    const running = task.running;                 // PATCH 的响应里没有 running，别丢掉
+    task = await api(`/tasks/${task.task_id}`, {method:"PATCH", json:{title: currentTitle()}});
+    task.running = running;
+    $("taskTitle").value = task.title || "";
+    await loadTaskList();
+    $("taskPick").value = task.task_id;           // 重建下拉后把选中项设回来
+    render();
+    toast("已改名：" + task.title);
+  }catch(e){ toast("改名失败：" + e.message, 5000); }
+}
+$("taskTitle").onchange = rename;
+// 商品信息改完即存。当前任务已经跑过时，save() 会先分叉出草稿，改动不会落到那次复刻上
+["pName","pPoints"].forEach(id => {
+  $(id).oninput = () => {
+    sessionStorage.setItem("vf_product_draft", JSON.stringify({
+      name:$("pName").value, points:$("pPoints").value,
+    }));
+    if(!task) return;
+    clearTimeout(productSaveTimer);
+    productSaveTimer = setTimeout(() =>
+      save().catch(e => toast("商品信息保存失败：" + e.message, 5000)), 500);
+  };
+});
+$("btnDelete").onclick = async () => {
+  if(!task){ toast("还没有任务可删"); return; }
+  const name = task.title, id = task.task_id, live = task.running;
+  const extra = live ? "\n\n它正在运行，会先终止再删除。" : "";
+  if(!confirm(`删除「${name}」？${extra}\n\n素材、中间结果、成片一并删除，不可恢复。`)) return;
+  try{
+    if(live) toast("正在终止任务，请稍候…", 8000);
+    const res = await api("/tasks/" + id, {method:"DELETE"});
+    localStorage.removeItem("vf_task");
+    $("btnNew").onclick();
+    await loadTaskList();
+    toast(res.cancelled ? "已终止并删除：" + name : "已删除：" + name);
+  }catch(e){ toast("删除失败：" + e.message, 6000); }
 };
 document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => {
   setMode(b.dataset.v); if(task) save();
 });
-$("btnSave").onclick = async () => { await save(); toast("已保存"); };
 $("btnRun").onclick = async () => {
   try{
-    await save();
-    if(!task.inputs.reference_video){ toast("请先上传爆款参考视频"); return; }
+    if(!task || !task.inputs.reference_video){
+      toast("请先给出爆款参考视频"); return;
+    }
+    // 商品图不是硬要求：没有商品图时 product_facts 会走 harvest_product_images，
+    // 从商品视频里抽商品帧再生成白底图，所以两者给一个就能跑。
+    if(!(task.inputs.product_images||[]).length && !(task.inputs.user_videos||[]).length){
+      toast("商品图和商品视频至少给一个：没有商品图会从商品视频里抽帧补齐", 5000); return;
+    }
+    // 跑过的任务不再复用：另开一条任务从头跑，老任务的素材、日志、成片一律不动。
+    // 当前就是还没跑过的草稿时直接用它，免得每点一次就多出一条空任务。
+    const fresh = editable();
+    if(!fresh) task = await spawnTask(task);
     await api(`/tasks/${task.task_id}/run`, {method:"POST", json:{}});
-    toast("已开始，整条链路通常需要几分钟");
+    toast(fresh ? "已开始，约数分钟" : "已另开一条新任务并开始复刻，约数分钟");
     await refresh();
   }catch(e){ toast("启动失败：" + e.message, 5000); }
 };
 $("btnReset").onclick = async () => {
   if(!task) return;
+  // 重跑会覆盖这个任务已有的产物，属于对历史记录的改动，先问一句
+  const step = $("resetStep").selectedOptions[0];
+  if(!editable() && !confirm(`从「${step ? step.textContent : $("resetStep").value}」重跑「${
+    task.title}」？\n\n这一步之后的中间结果和成片会被覆盖。想保留这次记录就点取消，` +
+    `改完素材直接点「开始复刻」，会另开一条新任务。`)) return;
   try{
     task = await api(`/tasks/${task.task_id}/reset`, {method:"POST", json:{step:$("resetStep").value}});
-    render(); toast("已重置，可重新开始复刻");
+    stepPick = "";
+    render(); toast("已重置");
   }catch(e){ toast(e.message, 5000); }
 };
-$("token").onchange = () => localStorage.setItem("vf_token", token());
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){ closePreview(); $("libMask").classList.remove("on"); }
+});
 // 前端出错时必须让用户看见，否则页面只是「点了没反应」
 window.addEventListener("error", e => toast("前端异常：" + (e.message || e.type), 6000));
 window.addEventListener("unhandledrejection", e =>
@@ -437,17 +1808,42 @@ window.addEventListener("unhandledrejection", e =>
 
 (async function init(){
   // 支持把口令直接写在链接里：http://<host>:<port>/?token=xxx
-  const fromUrl = new URLSearchParams(location.search).get("token");
+  // trim 很有必要：从聊天记录里复制链接常把后面的标点、说明文字一起带进来，
+  // 那样口令是错的，而且会被写进 localStorage，之后每次刷新都 401。
+  const fromUrl = (new URLSearchParams(location.search).get("token") || "").trim();
+  // 口令留在地址栏：这个链接要能直接复制给别人用，抹掉之后复制过去打开就是 401。
+  // 代价是它会进浏览器历史，所以别把链接发到公开群里。
   if(fromUrl) localStorage.setItem("vf_token", fromUrl);
-  $("token").value = fromUrl || localStorage.getItem("vf_token") || "";
-  try{ meta = await api("/meta"); }catch(e){ toast("无法连接后端：" + e.message, 6000); return; }
-  setMode(meta.default_options.rewrite_mode);
+  accessToken = fromUrl || localStorage.getItem("vf_token") || "";
+  try{
+    const draft = JSON.parse(sessionStorage.getItem("vf_product_draft") || "{}");
+    $("pName").value = draft.name || "";
+    $("pPoints").value = draft.points || "";
+  }catch(_){}
+  // 界面骨架先渲染出来：/meta 失败时至少上传区还能用，而不是留一个空白页。
   renderUploads(); renderOpts();
-  $("fontHint").textContent = meta.subtitle_font ? "字幕字体已就绪" : "未找到中文字体，字幕只会产出 SRT";
+  try{
+    meta = await api("/meta");
+  }catch(e){
+    const auth = /未授权|401/.test(e.message);
+    if(auth) localStorage.removeItem("vf_token");    // 错口令别留着毒下一次刷新
+    $("errLine").textContent = auth
+      ? "访问口令无效，请通过带 ?token= 的链接重新打开"
+      : "连不上后端：" + e.message;
+    toast(auth ? "访问口令无效，请通过带 ?token= 的链接重新打开" : "连不上后端：" + e.message, 8000);
+    return;
+  }
+  setMode(meta.default_options.rewrite_mode);
+  applyBg();
+  $("fontHint").textContent = meta.subtitle_font ? "字幕字体就绪" : "无中文字体，字幕只出 SRT";
   await loadTaskList();
   const last = localStorage.getItem("vf_task");
-  if(last){ try{ task = await api("/tasks/" + last); $("taskPick").value = last; fillForm(); }catch(e){} }
+  if(last){
+    try{ task = await api("/tasks/" + last); $("taskPick").value = last; fillForm(); }
+    catch(e){ localStorage.removeItem("vf_task"); }   // 任务被删过，别一直报错
+  }
   render(); startPolling();
+  if(task){ loadOverview(); }
   setInterval(() => { if(task) localStorage.setItem("vf_task", task.task_id); }, 1500);
 })();
 
