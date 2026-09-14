@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ViralForge 能力与优化清单</title>
+<style>
+:root{
+  --bg:#0f1116; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+  --fg:#e6e8ee; --dim:#9aa3b2; --dim2:#6b7484;
+  --acc:#5b9cff; --ok:#3ecf8e; --warn:#f0a020; --purple:#a67bff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px}
+header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+header .sub{color:var(--dim);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0 8px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.stat b{display:block;font-size:26px;line-height:1.2;color:var(--acc)}
+.stat span{color:var(--dim);font-size:13px}
+nav.tabs{display:flex;gap:6px;margin:28px 0 18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;
+  color:var(--dim);padding:9px 14px;font-size:15px;cursor:pointer;font-family:inherit}
+nav.tabs button:hover{color:var(--fg)}
+nav.tabs button.on{color:var(--fg);border-bottom-color:var(--acc)}
+section{display:none}
+section.on{display:block}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 18px}
+.bar input{background:var(--panel2);border:1px solid var(--line);color:var(--fg);
+  border-radius:6px;padding:7px 10px;font-family:inherit;font-size:14px;min-width:200px}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  border-radius:20px;padding:4px 12px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#0b1020;font-weight:600}
+.count{color:var(--dim2);font-size:13px;margin-left:auto}
+.flow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:0 0 22px}
+.flow h3{margin:0 0 4px;font-size:16px}
+.flow .note{color:var(--dim);font-size:13px;margin:0 0 12px}
+.steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.step{flex:0 0 auto;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:96px}
+.step em{display:block;color:var(--dim2);font-size:11px;font-style:normal}
+.step b{font-size:13px;font-weight:600}
+.step span{display:block;color:var(--dim);font-size:11px;margin-top:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h4{margin:0;font-size:15px}
+.card .file{color:var(--dim2);font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;white-space:nowrap}
+.card p{margin:8px 0 0;color:var(--dim);font-size:13.5px}
+.card ul{margin:8px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;
+  border:1px solid var(--line);color:var(--dim);margin:8px 6px 0 0}
+.tl{border-left:2px solid var(--line);margin-left:8px;padding-left:20px}
+.item{position:relative;margin:0 0 20px}
+.item:before{content:"";position:absolute;left:-27px;top:8px;width:10px;height:10px;
+  border-radius:50%;background:var(--acc);border:2px solid var(--bg)}
+.item.mech:before{background:var(--ok)}
+.item.spec:before{background:var(--purple)}
+.item .hd{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.item .hd b{font-size:15.5px}
+.item .date{color:var(--dim2);font-size:12px}
+.item .kind{font-size:11px;padding:1px 8px;border-radius:10px;border:1px solid var(--line);color:var(--dim)}
+.item .body{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-top:8px}
+.item .row{display:flex;gap:10px;margin:0 0 6px;font-size:13.5px}
+.item .row:last-child{margin-bottom:0}
+.item .row i{flex:0 0 46px;font-style:normal;color:var(--dim2);font-size:12px;padding-top:2px}
+.item .row div{color:var(--dim);flex:1}
+.item .row div b{color:var(--fg);font-weight:600}
+code{background:var(--panel2);padding:1px 5px;border-radius:4px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#cbd3e1}
+.empty{color:var(--dim2);padding:30px;text-align:center}
+footer{color:var(--dim2);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>ViralForge · 能力与优化清单</h1>
+  <div class="sub">通用爆款短视频复刻 Agent。两条出片链路 + 三层决策质检机制。数据来源：仓库代码、<code>测试记录.md</code>、<code>output/</code> 与 <code>videos/tesf_zyy/recut/</code> 产物。</div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<nav class="tabs">
+  <button class="on" data-tab="flow">链路总览</button>
+  <button data-tab="caps">能力清单</button>
+  <button data-tab="opts">我优化过的</button>
+  <button data-tab="method">沉淀的方法</button>
+</nav>
+
+<section class="on" id="tab-flow"></section>
+<section id="tab-caps">
+  <div class="bar" id="capbar"></div>
+  <div class="cards" id="caps"></div>
+</section>
+<section id="tab-opts">
+  <div class="bar" id="optbar"></div>
+  <div class="tl" id="opts"></div>
+</section>
+<section id="tab-method"><div class="cards" id="method"></div></section>
+
+<footer id="foot"></footer>
+</div>
+<script>
+/* ============ 概览数字 ============ */
+const STATS=[
+ ["25","主链路 Python 模块"],
+ ["18.5k","Python 行（含外挂工具 3.4k）"],
+ ["2","条独立出片链路"],
+ ["36","累计出片任务"],
+ ["19","零模型重剪产物"],
+ ["15","轮端到端测试记录"],
+ ["6","张判定规则表"],
+ ["3+1","道实测门禁"],
+];
+
+/* ============ 两条链路 ============ */
+const FLOWS=[
+ {name:"链路一：爆款复刻（pipeline.py 九步）",
+  note:"输入 = 爆款参考片 + 商品图/名称/卖点 + 可选自有素材/人物图/BGM。每步幂等落盘，失败停在当前步，可从任意步 reset 重跑。阶段并行：ingest → [reference ∥ materials] → [audio ∥ product] → script → match → generate → compose。",
+  steps:[["①","ingest","素材入库校验"],["②","reference","VLM 拆分镜骨架"],["③","audio","音轨实测判定"],
+         ["④","materials","素材语义切片"],["⑤","product","商品事实卡 + 参考图"],["⑥","script","仿写剧本 + DP 分段"],
+         ["⑦","match","分镜↔素材三路分流"],["⑧","generate","分段出片 + 克隆配音"],["⑨","compose","拼接 + 音轨 + 字幕"],
+         ["★","review","成片自检对账"]]},
+ {name:"链路二：纯重剪（recut.py，零模型调用）",
+  note:"前提是爆款本身就剪自用户素材（短剧投放的常见形态）。只留「拆爆款结构 → 找素材 → 裁剪拼接」，砸掉事实卡/剧本改写/AIGC 补片。定位靠感知哈希做帧级检索，不靠 VLM 语义描述互相配对。实测 4 条爆款片 × 3 种模式，镜头命中率 80%–99%。",
+  steps:[["0","box","内容区归一化"],["1","shots","dHash 切镜头"],["2","index","素材指纹时间轴"],
+         ["3a","asr","词级 ASR 锚点收窗"],["3b","hash","滑窗对齐精确帧"],["3c","vlm","抽 3 帧校验候选"],
+         ["3d","aigc","三层全失败才补（默认关）"],["4","cut","按倍率变速裁剪"],["5","concat","流复制拼接 + EDL"]]},
+];
+
+/* ============ 能力清单 ============ */
+const CAPS=[
+ // 编排层
+ {L:"编排",n:"九步流水线编排",f:"pipeline.py",d:"只做编排不做业务：顺序执行、逐步记状态、失败即停、断点续跑（reset_from）、阶段并行调度（STAGES），CLI 支持 --task/--from 在已有任务上从某步重跑。",t:["核心"]},
+ {L:"编排",n:"任务目录与素材登记",f:"task_store.py",d:"一个任务 = output/tasks/{task_id}/，参数、状态、日志、产物全落任务目录。支持 slug 可读命名；RLock 串行化 save/log，防并行阶段写坏 json。",t:[]},
+ {L:"编排",n:"ffmpeg / ffprobe 薄封装",f:"media.py",d:"探时长、裁片段（含放慢补时长）、抽音轨、抽帧。依赖 imageio-ffmpeg 自带二进制，无需系统装 ffmpeg。",t:[]},
+ {L:"编排",n:"Web 服务与前端",f:"server.py + web/",d:"建任务、上传 5 类素材（参考片/用户视频/商品图/人物图/BGM）、后台线程跑流水线、从某步重跑、取产物文件；前端轮询 task.json 展示步骤进度与日志。",t:[]},
+ {L:"编排",n:"批量端到端链路 + 生成工具箱",f:"produce_video.py",d:"早期按 materials/{编号}/ 出片的批量链路；同时是提示词按 Skills 重写、seedance 段生成、ffmpeg 归一化（aac_args 统一音轨参数、_canvas 按 ASPECT 推画布）的工具层。",t:[]},
+
+ // 九步实现
+ {L:"九步",n:"爆款参考片拆解",f:"analyze_reference.py",d:"VLM 把视频拆成分镜：景别、运镜、台词、转场、特效、情绪曲线、结构骨架，字段名统一中文键，供下游剧本与字幕消费。",t:["核心"]},
+ {L:"九步",n:"参考片音轨判定与分离",f:"ref_audio.py",d:"实测有没有口播/BGM，按规则表决定整轨复用还是分离伴奏；分离优先 demucs（htdemucs 子进程，CPU），回落 REPET-SIM 时带「残留风险」标记。",t:[]},
+ {L:"九步",n:"用户素材语义切片",f:"analyze_materials.py",d:"把自有素材切成带时间范围、主体、动作、情绪、标签的片段，并生成「召回文本」备用于检索。「真人出镜口播」口径 = 人物出镜且张嘴说话。",t:[]},
+ {L:"九步",n:"商品参考图链路",f:"product_images.py",d:"每张图结构化理解 → 选基准图 → 判断并改造（一张一张生成并比对）→ 按分镜分配 → 生成中间状态图。含多款点名删除、状态忠实硬口径、单块参考图截断到 4 张。",t:["核心"]},
+ {L:"九步",n:"商品事实卡",f:"product_facts.py",d:"用户填的信息 + 商品图 → name / 卖点 / appearance / images，作为下游唯一商品口径；没传商品图时从素材切片结论抽商品帧补齐。",t:[]},
+ {L:"九步",n:"仿写剧本 + 设定图 + 分段",f:"write_script.py",d:"三步：换题材重写分镜（逐条带「复刻说明」）→ 人物/场景设定图 → 动态规划打包成 ≤15s 生成段。含长镜切分、台词字数约束、视觉锚点、剧本四维审查、JSON 解析抖动重试。",t:["核心"]},
+ {L:"九步",n:"分镜↔素材匹配",f:"shot_match.py",d:"LLM 给候选打匹配分，一个片段只服务一个分镜，按 rules 阈值分三路：直接裁剪 / 素材编辑生成 / 纯 AIGC 生成。",t:[]},
+ {L:"九步",n:"分段出片",f:"segment_build.py",d:"段内按镜头混合：能裁的裁素材，裁不动的交 seedance 补，补片走不通退回素材。含 _ClipWindows 窗口游标防画面重复、片段验收门禁、need_voice 全片级门控。",t:["核心"]},
+ {L:"九步",n:"音色基准与克隆配音",f:"voice_dub.py",d:"音色基准优先带走用户原声，其次分离纯人声 / AI 段提纯；VoxCPM2 克隆配音。候选逐个实测响度过门禁，弃用记痕。",t:[]},
+ {L:"九步",n:"拼接与音轨字幕",f:"compose_video.py",d:"归一化拼接、铺 BGM/原声、SRT/ASS 烧字幕（可走参考片风格克隆）、成片查画面残字；字幕判定无论走哪个分支都落一条日志。",t:["核心"]},
+ {L:"九步",n:"溯源报告",f:"report.py",d:"只读中间产物出 report.md：每张图、每段视频的原料、prompt、产物一一对应，不重跑不调模型。",t:[]},
+ {L:"九步",n:"模型调用统一入口",f:"aigc.py",d:"wenchain 网关（qwen LLM/VLM、seedream 生图、seedance 生视频）+ 独立 Gemini 网关（视频/音频理解，媒体 base64 内联）；gemini 不通自动回落 qwen。",t:["核心"]},
+ {L:"九步",n:"真人人脸风控规避",f:"line_art.py",d:"seedance 拒收真人人脸参考图（40000002）：VLM 读外观 → 文生图画「写实身体 + 面部黑白线稿」替身图当参考，保住发型/服装/体型；输出侧审核（80000001）单独分类，同模式重试一次再降级。",t:[]},
+ {L:"九步",n:"BOS 对象存储上传",f:"storage.py",d:"把本地文件变成模型可访问的公网 URL。",t:[]},
+
+ // 决策与质检
+ {L:"决策质检",n:"判定规则表（规则是数据）",f:"rules.py",d:"6 张表自上而下首条命中、末行兜底：用户切片处理 / 切片缺失补片 / 素材匹配策略 / 参考片音轨 / 字幕复刻 / 口播复刻。另含 PIECE_REF_MAX、SUBTITLE_PLAIN 等口径常量。`python3 rules.py` 渲染 output/rules.md。",t:["规则"]},
+ {L:"决策质检",n:"实测门禁（标注是假设）",f:"gates.py",d:"3 道门禁声明（有声内容 / 克隆基准音 / BGM 音乐性）= 指标函数 + 阈值 + 判不出策略 + 口径说明；标准报告 schema 落进产物，check()/ok()/violations() 三个入口；片段验收在 segment_build 按同一范式留痕，由 violations() 统一对账。`python3 gates.py` 出清单。",t:["门禁"]},
+ {L:"决策质检",n:"成片自检",f:"review_case.py",d:"只读产物 + 量音量，不调模型。查素材利用率、逐片状态、字幕重叠/越尾、音轨连续性、源窗口重叠与回卷、剧本审查未修复项、字幕事实链，并对账「门禁没过却被使用」的资产。",t:["门禁"]},
+
+ // 第二条链路
+ {L:"重剪",n:"零模型纯重剪链路",f:"recut.py",d:"1040 行、零 token 成本：内容区归一化 → dHash 切镜头 → 素材指纹索引 → ASR 锚点收窗 → 哈希滑窗对齐 → VLM 抽帧校验 → 变速裁剪 → 流复制拼接，逐镜源位置与命中距离写进 EDL。未命中显式记 EDL，不拿相近画面糊过去。",t:["核心"]},
+ {L:"重剪",n:"三层定位降级梯",f:"recut.py",d:"哈希（主）→ ASR n-gram 锚点（台词不随分辨率/加字幕/贴纸/变速而变）→ VLM 三帧校验；实测哈希优先比 ASR 优先快 3–8 倍且命中率相当，asrfirst 模式仅用于对照。",t:[]},
+
+ // 外挂工具
+ {L:"外挂工具",n:"声音克隆",f:"Agent_tools/tts_clone",d:"VoxCPM2：用参考音色为新台词配音，重依赖隔离在独立环境子进程，用于 generate 步（素材静音后重新配音）。",t:[]},
+ {L:"外挂工具",n:"字幕风格克隆",f:"Agent_tools/caption_clone",d:"词级 ASR + 样式提取：把参考片字幕的样式/位置/节奏搬到成片，含颜色校准、ASS 烧制、字符流对齐；plain_mode 一键关掉强调手段。",t:[]},
+ {L:"外挂工具",n:"工具探活隔离",f:"Agent_tools/registry.py",d:"统一接入外挂工具，探活失败时对应步骤明确跳过并记日志，不拖垮整条链路。",t:[]},
+
+ // 提示词与展示
+ {L:"提示词",n:"生成提示词规范",f:"Skills/*.md",d:"5 份规范（Seedance / Image / Video / 商品图改造 / 商品参考图 Planner，共 890 行）：素材绑定 @图片N、镜头分拍、一镜一运镜、兜底约束包。生成前 LLM 按规范把段提示词重写一遍。",t:[]},
+ {L:"展示",n:"交互式复刻展示页",f:"output/tasks/build_frontend.py",d:"读已有任务产物（task.json / analysis.json / script.json / asset_matches.json / 成片）生成 report.html：爆款 vs 复刻六维对照（叙事骨架、镜头骨架、开场钩子、情绪曲线、产品植入、转化闭环），不重跑不调模型。",t:[]},
+ {L:"展示",n:"配对报告与溯源报告",f:"build_pair_report.py / enrich_report.py",d:"爆款↔复刻逐镜配对报告与报告补写；产物含 output/复刻拆解报告.md 及抽帧图。",t:[]},
+ {L:"展示",n:"系统文档三件套",f:"*.md",d:"通用爆款复刻Agent设计文档（1006 行，设计蓝图）、系统设计链路详解（827 行，九步逐一拆解 + 工程难题实录）、视频理解维度分层报告（756 行，调研）、测试记录（666 行，每轮问题与修复）。",t:[]},
+];
+
+/* ============ 优化记录（来源：测试记录.md 15 轮 + recut 链路） ============ */
+const OPTS=[
+ {r:"案例A 1–2 轮",d:"08-13",k:"通用机制",t:"段内镜头混合出片 + 配音装不下时画面放长",
+  p:"整段要么全裁素材要么全 AIGC，粒度太粗；配音被截断 3 处。",
+  x:"新增 _seg_blocks/_cut_piece/_gen_piece 段内按镜头混合；「素材编辑」前提不成立时降级为直接裁剪；改成先合成念白再裁画面，装不下先放长画面 ≤1.5× 再加速念白 ≤1.4×。",
+  v:"利用率 0.571，放长实际生效 1.50×/1.25×/1.08×，字幕重复/交叠/越尾清零。"},
+ {r:"案例A 3 轮",d:"08-13",k:"根因修复",t:"台词塞不进的根因回到剧本层",
+  p:"念白加速+画面放长的额度用尽仍截断（镜3 台词 25 字塞进 1.8s）。",
+  x:"不在剪辑层加补丁：提示词按「时长秒 × 6.5 字/秒」限每镜台词字数，_fit_speech 再做确定性重分配且总时长守恒。",
+  v:"新剧本最密 6.7 字/秒（原 13.9），无需重分配、无剧本告警，利用率升到 0.619。"},
+ {r:"案例A 4 轮",d:"08-13",k:"根因修复",t:"拼接静默丢段 → 显式失败 + 音轨参数统一",
+  p:"成片只有 21.9s，段2 被悄悄丢掉，日志只有一句「拼接 2/3 段完成」。根因是段内声道数中途从 mono 变 stereo，AAC 报 NaN/Inf 且随机复现。",
+  x:"aac_args() 统一所有进拼接的音轨参数（aac/44100/立体声），_normalize、cut_clip、_clip_audio、_paste_dub、_trim_to 全部走它；concat 归一化失败直接返回 error，不再静默跳过。",
+  v:"review_case 问题 = []，成片 36.75s vs 计划 36.4s（偏差 1%）。"},
+ {r:"案例D 2 轮",d:"08-12",k:"口径收敛",t:"规则表兜底行反转：标注缺失不等于不能用",
+  p:"素材标注缺「真人出镜口播 / 有BGM」（None），12 条画面已过门槛的真素材全掉进兜底行「不使用」，利用率 0.0。",
+  x:"CLIP_RULES 兜底行从「不使用」改成「静音后使用 + 需要配音」——画面过门槛就一定要用上，音轨维度判不出来按最安全的静音+重配处理；画面对不上仍由门槛拦住。",
+  v:"素材利用率 0 → 14/21 = 0.667。"},
+ {r:"案例D 3–4 轮",d:"08-12",k:"通用机制",t:"克隆基准音兜底挑选 + 参考音不能当唯一输入",
+  p:"标注全 None 时 _voice_source 找不到基准音，有台词的片全静音；随后纯文生视频块被拒 41000000（reference_audio cannot be the only reference input）。",
+  x:"_voice_by_loudness 按时长排序实测平均音量（>-40dB）取第一条当基准；_gen_piece 发请求前判断没有参考图/参考视频时不送参考音色并记日志，_audio_rejected 认这条错误运行期自动丢音色重试。",
+  v:"问题 = []；基准音自动挑中 17s / -18dB 的整段女声口播，选对了。"},
+ {r:"案例F 2–3 轮",d:"08-14",k:"通用机制",t:"一镜到底长镜切分 + 块内缺口重分配",
+  p:"参考片是一镜到底 POV 口播，拆解只有 1 个镜（23.9s），下游全部按镜工作 → 21 条素材一条都对不上，利用率 0.0；字幕也摊不开。",
+  x:"_cut_long_shots 把超过 SHOT_MAX(6s) 的镜切成连续子镜（画面/提示词照抄，台词按句分配，时长按字数比例且总时长守恒）；_block_needs 在块内做缺口重分配，裁完按实际长度再校正放长倍数。",
+  v:"利用率 0.0 → 1.0（4 镜全用素材、0 镜 AI），23.9s 单镜切成 4 镜；案例A 的 21 镜正常剧本完全不受影响。"},
+ {r:"第X轮",d:"08-14",k:"口径收敛",t:"口播定义收紧为「张嘴说话」+ demucs 换掉 REPET",
+  p:"成片在配音之外还能听到一路口播，怀疑「静音后使用」没生效。",
+  x:"诊断证明素材静音生效，漏音来自参考片：librosa REPET-SIM 分出的伴奏残留人声 -17.1dB，35% 音量垫底后清晰可闻。改为优先 demucs（htdemucs 子进程 CPU），回落时返回值带「残留风险」标记；同时把「真人出镜口播」标注口径改成人物出镜且张嘴说话（规则表本身不用改）。",
+  v:"残留 -17.1dB → -46.3dB（低于静音线 -45，等于消失）；demucs 分离 24s 音频 CPU 仅 8s。"},
+ {r:"第X轮",d:"08-14",k:"通用机制",t:"AI 首段提纯人声当全片音色基准",
+  p:"素材里完全没有可用人声时，有台词的片没有配音来源。",
+  x:"step_generate 基准音为空时先串行跑首个生成块，用 _voice_from_piece 提纯人声当全片基准（写 voice_plan + 上传 URL），其余块再并发。",
+  v:"案例H 端到端走通：段1 提纯成基准，段3 用它被拒后自动丢音色重生成。"},
+ {r:"第七轮",d:"08-14",k:"根因修复",t:"同片段多镜复用画面重复 → 窗口游标分配器",
+  p:"用户发现 seg02_01 是 seg01_01 的前 3.2s。根因：多个分镜命中同一素材片段时每刀都从片段窗口起点裁。",
+  x:"任务级 _ClipWindows 分配器：同一片段每裁一刀游标前移，同镜头因配音放长重裁只向后延，新鲜画面耗尽才回卷并显式标记「复用回卷」；明细新增「源窗口」，review_case 加窗口重叠检测与回卷计数。",
+  v:"两刀取 [0,6.2]/[6.2,9.4] 错开、0 问题；另一任务自然复用场景实证 [0,1.7]/[1.7,4.6] 错开。"},
+ {r:"第七轮",d:"08-14",k:"根因修复",t:"克隆基准音加响度门槛 + 判定与提取口径对齐",
+  p:"标注「有人声」的片段实测 -42.6dB 底噪被当克隆参考；规则判定说「AI视频片段」实际却取自素材。",
+  x:"新增 VOICE_MIN_DB=-38，_voice_plan 改为候选生成器逐个实测（弃用记进 voice_plan「候选弃用」）；「可用来源」事实把素材里只借音色的口播片段算进「用户视频-原声」，与提取器口径对齐；候选全弃时按修正事实重新判定。",
+  v:"当场弃用假人声 → 改判 AI 引导 → 唯一生成块提纯人声过弱如实放弃，判定痕迹完整、0 问题。"},
+ {r:"第八轮",d:"08-14",k:"口径收敛",t:"BGM 复刻口径两连改",
+  p:"①「口播时 BGM 偏小」②「参考片背景音不是音乐就不该复用」。",
+  x:"① 查到 amix 默认 normalize 把每路再除以 2（名义 35% 实际 17.5%）叠加伴奏本身响度低，定稿为 BGM 原声直取不压低（normalize=0 + alimiter 防爆音）；② 新增 _bgm_is_music（纯 numpy/ffmpeg，不依赖 librosa）：有声占比≥0.5、最长连续≥5s、谱平坦度≤0.35 全过才算音乐，表四新增「BGM是音乐」字段，判定器挂了按通配放行。",
+  v:"9 个 mix_bgm 任务全部重合成 9/9 通过；回填 15 任务，14 个真音乐维持复用，54f7 宫斗茶命中翻转（占比 0.43、最长连续 3.0s）。"},
+ {r:"第八/十轮",d:"08-14",k:"口径收敛",t:"字幕重复误报两次收窄口径",
+  p:"「字幕重复」误报两次：同一句相隔 8s 的正常口播被判重；军营口号连喊两镜（剧本设计）被 2.5s 窗口误伤。",
+  x:"先改成「同句间隔 < 2.5s 才算烧重」，再改为归一化后对照剧本台词出现次数——字幕出现不多于剧本的不算烧重。",
+  v:"修后 0 问题，另两个历史任务回归无误报。"},
+ {r:"案例H",d:"08-14",k:"根因修复",t:"人物图换主角链路的三处通用缺陷",
+  p:"上传一张人物图换主角，三轮各暴露一处：① 无素材时人物设定图被整体丢掉（3 段全 t2v 无参考图）；② 输出侧内容审核 80000001 直接把段跑失败；③ 归一化画布写死 9:16，16:9 内容被垫成竖屏黑边。",
+  x:"① 「没有任何选中切片」是确定事实 → 已有模特出镜=False，命中「直接生成线稿图」共用设定图；② line_art.is_output_flagged 单独分类，gen_video_safe 对它同模式重试一次再降级，输入侧真人风控仍直接降级，段错误聚合截断 120→300 字符；③ _canvas() 从 config.ASPECT 推导画布（短边 720），默认竖屏行为不变。",
+  v:"问题 = []，成片 34.16s / 1280×720；三段把降级梯全走了一遍（ref2v / line_art / t2v 如实降级）。"},
+ {r:"第九轮",d:"08-14",k:"通用机制",t:"实测判定收敛成「门禁范式」",
+  p:"第七、八轮暴露的是同一类问题——标注/假设与实际不符（标注有人声实为底噪、标注有 BGM 实为音效、分离伴奏残留人声），此前修法是各处加 if + 各自阈值，属临时调整。",
+  x:"新增 gates.py：门禁声明表（指标函数 + 阈值 + 判不出策略 + 口径说明）、标准报告 schema、check()/ok()/violations() 三个入口；迁移三处散点（克隆基准音响度、BGM 音乐性、静音线常量）；review_case 新增门禁对账，扫产物里「通过=False 却 使用=True」一律记问题。",
+  v:"门禁单测 5 例全对；19 个任务全量回归 0 问题。以后同类问题一律「GATES 加声明 + 调用处一行 check()」。"},
+ {r:"第十轮",d:"08-14",k:"口径收敛",t:"噪声门自适应的试错与回退",
+  p:"担心「安静但连续的真 BGM 被冤枉」，尝试把噪声门改成随轨响度自适应 min(-40, 均值-15)。",
+  x:"复测立刻翻掉锚点 case 54f7（音效轨间隙是 -60dB 环境底噪而非数字静音，门一放低占比 0.42→0.90 判成音乐）。回退为绝对 -40dB，教训写进 silence_profile 文档字符串，指标新增「噪声门dB」留痕。",
+  v:"16 条候选轨复测 0 翻转；19 个任务重合成后 review_case 全 0 问题。"},
+ {r:"第十一轮",d:"08-18",k:"通用机制",t:"文案不进画面 + 视觉锚点 + 状态忠实",
+  p:"商品图顶部营销小字「超拟人熊猫萌宠」被链路层层放大成画面事实（事实卡→剧本→状态图→生成端照抄）；另有跨段配色不连贯（镜2 绿色软体 vs 后段蓝色壁纸）。",
+  x:"改动全落约束层：WRITE_PROMPT 两条硬性要求（商品可见状态只能写图里实际看得见的；卖点宣称的功能画面只能进台词字幕不许进画面/提示词）；新增「视觉锚点」输出字段贯穿多镜定形定色并随分段下发；PRODUCT_IMG_PROMPT / FACT_PROMPT 只写画面可见；SHOT_REFS_PROMPT 状态忠实硬口径 + PICK_STATE 编造判负扩展到屏幕显示内容；pipeline 固化「剧本先行」原则注释。",
+  v:"离线重写剧本：分镜画面/提示词/动作 0 处熊猫，屏幕内容全部锚定 img3 真实的蓝色渐变壁纸，绿色软体改为蓝色能量球；视觉锚点 6 项、6/6 分段下发。"},
+ {r:"第十三轮",d:"08-18",k:"通用机制",t:"剧本层商品状态门禁（prompt 之外的验证兜底）",
+  p:"「文案不进画面」在剧本层只有 prompt 约束、没有验证兜底——模型无视指令时视频提示词可以绕过状态图门禁，直接让生成端画素材里不存在的内容。",
+  x:"write_script 新增 _audit_product_states + SCRIPT_AUDIT_PROMPT：分镜定稿后审一遍「素材里看不见却写成画面」，违规就地改写并把原文留痕在 script[\"商品状态审查\"]；审查失败不阻断但显式记录；review_case 对账未修复>0 或审查失败 → 问题（老任务无该字段不误报）。",
+  v:"人造违规两次运行均「违规 2 处、改写 2 处、未修复 0」；真实剧本审出镜15 屏幕显示素材里没有的风光照片、镜16 抹掉相机模组——正是上一轮成片里的轻度走样。"},
+ {r:"第十四轮",d:"08-18",k:"口径收敛",t:"主角商品配色锚定",
+  p:"用户反馈「手拉蓝色的东西，后面出现绿色的手机，看不出关联」。溯源：主角机开场「银灰色」直接继承自参考片的银灰笔记本，结尾又写「森野绿手机」当同一台主角机，分镜参考图给的是多配色图，生成端自行选色。",
+  x:"WRITE_PROMPT 新增硬性要求：主角商品必须从图片描述里实际存在的配色/款式中选定一款，写成第一条视觉锚点全片统一，不许沿用参考片原产品颜色；SCRIPT_AUDIT_PROMPT 输入带上视觉锚点，违规类型新增「配色是图片里不存在的 / 主角商品跨镜配色漂移」。",
+  v:"离线重写：第一锚点 = 小米17 Pro Max（冷烟紫，取自素材真实紫色款）；审查门禁真实链路首秀违规 12 处、改写 12 处、未修复 0 处。"},
+ {r:"第十四轮",d:"08-18",k:"口径收敛",t:"口播/字幕链路系统性修正（含回滚自己的 bad case 补丁）",
+  p:"正确口径本该是事实链闭环：参考片无人声口播 → 剧本无台词 → 无配音 → 无字幕。但 analyze_reference 已正确产出「有人声口播: false」却全链路无人消费，规则表里也没有口播的规则；而上一轮为「补字幕」给全部分镜硬写花字，属绕开规则表的 bad case 补丁。",
+  x:"① rules.py 新增「口播复刻」规则表并由 write_script 消费落痕，代码层兜底：判不写台词时无论模型输出什么台词一律清空；② 花字改为参考镜驱动（粒度到镜，参考镜特效出现字幕才写），回滚上一轮硬性要求；③ reset_from 重跑时把该步及后续产物整体挪进 history/<时间戳>/ 留档，不覆盖旧产物。",
+  v:"清掉三任务补写的花字（18/4/15 镜），copy_subtitles 回归 None；全量审计 36 个任务「参考口播 vs 剧本台词」全部合规。"},
+ {r:"第十五轮",d:"08-18",k:"通用机制",t:"五条需求一次性落到通用层",
+  p:"用户五条：多款同图要点名删除、参考图太多、剧本审查维度太窄、生成出来的段没人验、跑得慢。",
+  x:"① EDIT_PROMPT_PROMPT 同图商品数≥2 为硬规则（例外：这张图的用途就是展示多款/多配色）；② rules.PIECE_REF_MAX=4 截断单块商品图；③ 剧本审查扩成四维（状态失实含配色漂移 / 商品漂移 / 逻辑硬伤 / 复刻错位），输入带参考片分镜简表；④ 片段验收门禁 _vet_piece + PIECE_CHECK_PROMPT，VLM 只拦四类硬伤，不合格带问题重生一次，判不出一律放行不阻断产出；⑤ 阶段并行 STAGES + task_store RLock 串行化写盘。",
+  v:"三个 VLM 冒烟全中（双机图删到一台、四维违规 6 处改写 6 处、已出货段被验出「车身侧面明显乱码错字」——门禁抓的是真问题）；用例 24 全流水线复跑端到端验证。"},
+ {r:"第十五轮补记",d:"08-18",k:"根因修复",t:"无口播成片跳过音色提取",
+  p:"参考片音轨判定已确定「无口播 → 整轨复用」，step_generate 却无条件跑 _voice_plan：搜人声、抽 wav、过门禁、上传，素材里没嗓子时还触发「先串行跑首个生成块提纯」的慢路径，把并发生成拖成串行。",
+  x:"新增全片级事实 need_voice = any(切片需要配音) or any(AI 补片镜头有台词)，为假时跳过 _voice_plan 并落「策略=无需口播」留痕。判定锚在下游消费方而不是「参考片有无口播」。",
+  v:"离线用真实任务验证：24 摩托车 / 19 女装 → False 跳过；17 小米手机（参考片同样无口播但补片镜头有台词）→ True 保留，不误伤。"},
+ {r:"第十五轮补记",d:"08-18",k:"口径收敛",t:"字幕策略改为跟随参考片（三值）",
+  p:"字幕默认关 → 改默认开后，creative 17 复刻的苹果广告本就是干净无字画面，成片不该有字幕。",
+  x:"copy_subtitles 改三值（True 强制烧 / False 强制不烧 / None 默认跟随参考片）；rules「字幕复刻」表增加「字幕配置 / 参考片有字幕」两个事实；compose 新增 _ref_has_captions 从参考片分镜特效判定，读不到时落到烧（宁多不静默丢）。",
+  v:"干测四组合全过；creative 17 显式关字幕重出成片，用户显式要求带字幕的两个任务保持原状。"},
+ {r:"第十五轮补记",d:"08-19",k:"根因修复",t:"字幕「该有却没有」的可观测性补齐",
+  p:"26 号 prada 事实链完全支持烧字幕（有口播、24 镜里 11 镜含字幕花字、剧本 11 镜台词）却没字幕。查因：任务创建于 CLI 默认值切换的窗口期，copy_subtitles 被落盘成显式 False。真正难查的是 compose 的「不烧字幕」分支一句日志都不打。",
+  x:"① 字幕判定无论走哪个分支都先落一条「字幕判定：<动作>（<说明>）」日志；② review_case 新增字幕事实链对账（故意只看事实不看配置）：参考片有字幕 + 剧本有 N 镜文字 + 成片未烧 → 报问题，反之剧本一个字都没有却烧了 → 报问题；③ ASS 只在 subtitles.burned 为真时按 mode 读对应那份，避免把上一轮关字幕重跑留下的孤儿文件当本轮结果。",
+  v:"26 creative 从 compose 重跑，风格克隆烧入 17 块 / 11 句；全量重跑 36 个任务字幕审计，规则判定与成片实际烧制状态零不一致。"},
+ {r:"第十五轮补记二",d:"08-19",k:"口径收敛",t:"字幕统一成普通样式",
+  p:"用户要求每个 case 字幕风格统一、不要强调不要高亮；而 caption_clone 的风格克隆会把参考片的差异化手段一起复刻（关键词放大换色、斜排/弹入/放大镜特效）。",
+  x:"口径进 rules（SUBTITLE_PLAIN=True，只复刻字体/字号/正文色，不复刻强调手段），实现落工具既有开关体系（target_match.plain_mode()，默认关不改工具原行为）：开启时所有块 role 降级 narration、effects 清空、hot 标记摘掉；compose 翻译成 4 个环境变量；产物记 subtitles.普通字幕 避免看报告误会。",
+  v:"合成数据单测：plain=0 时 role=emphasis/highlight、eff=斜排,弹入/放大镜、hot=2；plain=1 时全部 narration、eff 空、hot=0、位置统一底部居中。"},
+ {r:"第十二轮补记",d:"08-18",k:"通用机制",t:"任务目录可读命名",
+  p:"任务目录名是「时间戳-哈希」，回头找用例得靠猜。",
+  x:"create_task 新增 slug 参数：CLI 跑用例时目录名 = 日期_用例_参考X生成Y（重名自动 _2/_3），Web 端建任务仍用时间戳-哈希。",
+  v:"四个任务目录改名并重写产物内路径引用，review_case 复核 4/4 仍 0 问题。"},
+ {r:"recut 链路",d:"08-27~28",k:"通用机制",t:"零模型重剪链路（第二条链路，1040 行新增）",
+  p:"爆款本身就剪自用户素材时，走九步全链路是浪费：商品事实卡、剧本改写、AIGC 补片全是多余的，而 analyze_materials 要把整条素材 base64 内联上传，59 分钟原片实测跑 4.6 分钟没返回。",
+  x:"另起一条零 token 链路：感知哈希（dHash 9×8）做帧级检索代替 VLM 语义配对——内容区归一化裁掉信箱黑边与字幕带 → 相邻帧突变切镜头 → 素材建 (时间,hash) 时间轴 → 词级 ASR n-gram 锚点把搜索范围从整片缩到几十秒 → 哈希滑窗对齐精确帧（含变速搜索、避开转场帧）→ VLM 抽 3 帧只校验候选 → 三层全失败且显式开 --aigc 才补 → 按倍率变速裁剪 → 流复制拼接。未命中显式写进 EDL，不拿相近画面糊过去。",
+  v:"4 条爆款 × 3 种模式 = 19 组产物：镜头命中率 80%–99%（r1_030 96%、r2_022 98%、r2_001 269 镜 93%），默认模式 0 次模型调用；实测哈希优先比 ASR 优先快 3–8 倍（r3_001：104s vs 1324s）且命中率相当。"},
+];
+
+/* ============ 沉淀的方法 ============ */
+const METHOD=[
+ {n:"用户素材为主、AI 补片为辅",f:"设计原则 1",d:"段内可混合，只有素材覆盖不了的镜头才生成；素材利用率是成片主指标。案例F 从 0.0 拉到 1.0、案例D 从 0 拉到 0.667，都是这条原则驱动的修改。",t:[]},
+ {n:"规则是数据",f:"rules.py",d:"素材怎么用、音轨怎么处理、字幕烧不烧、写不写台词——判定全部写成规则表，自上而下首条命中、末行兜底。管线里不散写 if + 魔法数，改口径只动一处。",t:["规则"]},
+ {n:"标注是假设，用前实测",f:"gates.py",d:"VLM 说「有人声/有 BGM」只算候选，资产进成片前用 ffmpeg 实测（响度/有声占比/谱平坦度）过门禁；每道门禁必须声明「判不出时放行还是拦下」，报告写进产物留痕。",t:["门禁"]},
+ {n:"显式失败，不静默丢内容",f:"全链路",d:"工具不可用就明确跳过并记日志；拼接失败返回 error 不再悄悄少一段；重剪未命中显式写进 EDL；字幕不烧也要落一条判定日志。最难查的 bug 都是「什么都没发生」的那种。",t:[]},
+ {n:"往上游追根因，不在下游打补丁",f:"方法论",d:"配音截断不在剪辑层加额度，回到剧本层限字数；画面重复不在裁剪处加 if，做任务级窗口分配器；文案进画面不改个例，改约束层 prompt + 加验证门禁。自己上一轮打的 bad case 补丁（硬写花字）也回滚了。",t:[]},
+ {n:"一切可追溯，同一把尺子复核",f:"review_case.py",d:"每步产物落盘留痕，成片自检只读产物不调模型，每轮跑到「问题 = []」才算通过，并把每轮的问题与修法写进测试记录。新加的门禁自动被复核对账覆盖。",t:["门禁"]},
+ {n:"锚点 case 防回归",f:"方法论",d:"54f7（音效轨）、c900（真音乐）、4496（假人声）这类 case 被当成阈值锚点：任何口径调整都要复测它们。噪声门自适应就是因为翻掉 54f7 才被回退的。",t:[]},
+ {n:"重依赖隔离 + 断点续跑",f:"Agent_tools/ + pipeline.py",d:"模型推理类重依赖放进子进程/独立环境，探活失败只跳过对应步骤；每步幂等落盘，改一处不用全链路重来，reset_from 重跑时旧产物进 history/<时间戳>/ 不覆盖。",t:[]},
+];
+
+/* ===== 渲染 ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const KMAP={"根因修复":"","通用机制":"mech","口径收敛":"spec"};
+
+$("#stats").innerHTML=STATS.map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join("");
+
+$("#tab-flow").innerHTML=FLOWS.map(f=>`<div class="flow"><h3>${f.name}</h3>
+  <div class="steps">${f.steps.map(([i,n,d])=>`<div class="step"><em>${i}</em><b>${n}</b><span>${d}</span></div>`).join("")}</div>
+  <p class="note" style="margin-top:12px;margin-bottom:0">${f.note}</p></div>`).join("");
+
+const LAYERS=[...new Set(CAPS.map(c=>c.L))];
+let capL="全部",capQ="";
+$("#capbar").innerHTML=`<input id="capq" placeholder="搜能力 / 文件名 / 关键词">`+
+  ["全部",...LAYERS].map(l=>`<span class="chip${l==="全部"?" on":""}" data-l="${l}">${l}</span>`).join("")+
+  `<span class="count" id="capn"></span>`;
+function renderCaps(){
+  const q=capQ.toLowerCase();
+  const rows=CAPS.filter(c=>(capL==="全部"||c.L===capL)&&
+    (!q||(c.n+c.f+c.d+c.L).toLowerCase().includes(q)));
+  $("#caps").innerHTML=rows.length?rows.map(c=>`<div class="card">
+    <div class="top"><h4>${c.n}</h4><span class="file">${esc(c.f)}</span></div>
+    <p>${c.d}</p><div><span class="tag">${c.L}</span>${c.t.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+    </div>`).join(""):`<div class="empty">没有匹配的能力</div>`;
+  $("#capn").textContent=`${rows.length} / ${CAPS.length} 项`;
+}
+$("#capbar").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  capL=c.dataset.l;
+  document.querySelectorAll("#capbar .chip").forEach(x=>x.classList.toggle("on",x===c));
+  renderCaps();
+});
+$("#capq").addEventListener("input",e=>{capQ=e.target.value;renderCaps();});
+renderCaps();
+
+const KINDS=[...new Set(OPTS.map(o=>o.k))];
+let optK="全部",optQ="";
+$("#optbar").innerHTML=`<input id="optq" placeholder="搜优化项 / 现象 / 修法">`+
+  ["全部",...KINDS].map(k=>`<span class="chip${k==="全部"?" on":""}" data-k="${k}">${k}</span>`).join("")+
+  `<span class="count" id="optn"></span>`;
+function renderOpts(){
+  const q=optQ.toLowerCase();
+  const rows=OPTS.filter(o=>(optK==="全部"||o.k===optK)&&
+    (!q||(o.t+o.p+o.x+o.v+o.r+o.k).toLowerCase().includes(q)));
+  $("#opts").innerHTML=rows.length?rows.map(o=>`<div class="item ${KMAP[o.k]||""}">
+    <div class="hd"><b>${o.t}</b><span class="kind">${o.k}</span><span class="date">${o.r} · ${o.d}</span></div>
+    <div class="body">
+      <div class="row"><i>现象</i><div>${o.p}</div></div>
+      <div class="row"><i>修法</i><div>${o.x}</div></div>
+      <div class="row"><i>验证</i><div>${o.v}</div></div>
+    </div></div>`).join(""):`<div class="empty">没有匹配的优化项</div>`;
+  $("#optn").textContent=`${rows.length} / ${OPTS.length} 项`;
+}
+$("#optbar").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  optK=c.dataset.k;
+  document.querySelectorAll("#optbar .chip").forEach(x=>x.classList.toggle("on",x===c));
+  renderOpts();
+});
+$("#optq").addEventListener("input",e=>{optQ=e.target.value;renderOpts();});
+renderOpts();
+
+$("#method").innerHTML=METHOD.map(m=>`<div class="card">
+  <div class="top"><h4>${m.n}</h4><span class="file">${esc(m.f)}</span></div>
+  <p>${m.d}</p><div>${m.t.map(t=>`<span class="tag">${t}</span>`).join("")}</div></div>`).join("");
+
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id==="tab-"+b.dataset.tab));
+}));
+
+$("#foot").innerHTML=`能力 ${CAPS.length} 项 · 优化 ${OPTS.length} 项 · 方法 ${METHOD.length} 条。`+
+  `数据手工整理自 <code>测试记录.md</code>（15 轮）、<code>README.md</code>、<code>系统设计链路详解.md</code> 与 <code>output/</code>、<code>videos/tesf_zyy/recut/</code> 产物；`+
+  `新增条目直接改本文件顶部的 CAPS / OPTS / METHOD 数组。`;
+</script>
+</body>
+</html>

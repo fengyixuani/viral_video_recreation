@@ -1,0 +1,44 @@
+// 图：一条爆款的复刻之旅（示意例子，时长/编号为虚构）
+digraph journey {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.25, ranksep=0.75, compound=true];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=11,
+        color="#9AA0A6", penwidth=1.1, margin="0.14,0.08"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  subgraph cluster_ref {
+    label=<<b>拆解（第②步）：参考片变成「分镜表」</b><br/><font point-size="10">为什么按镜拆：时长/景别/运镜/情绪是爆款的节奏骨架，可跨题材照搬；画面内容才需要换</font>>;
+    fontsize=12; fontcolor="#1A73E8"; style="rounded"; color="#C6DAFC"; bgcolor="#FBFCFF"; margin=12;
+    r1 [fillcolor="#E8F0FE", label=<<b>参考镜 1 · 0.0~2.1s</b><br/><font point-size="10">手部特写 · 快推<br/>台词：钩子问句<br/>叙事功能：3 秒抓注意</font>>];
+    r2 [fillcolor="#E8F0FE", label=<<b>参考镜 2 · 2.1~5.6s</b><br/><font point-size="10">中景 · 跟拍<br/>产品上手演示</font>>];
+    r3 [fillcolor="#E8F0FE", label=<<b>参考镜 3 · 5.6~9.0s</b><br/><font point-size="10">特写 · 固定机位<br/>使用效果对比</font>>];
+    r4 [fillcolor="#E8F0FE", label=<<b>参考镜 4 · 9.0~12.4s</b><br/><font point-size="10">近景口播<br/>卖点总结 + 行动号召</font>>];
+  }
+
+  subgraph cluster_new {
+    label=<<b>仿写（第⑥步）：一镜对一镜，换成你的商品</b><br/><font point-size="10">时长/景别/运镜/节奏照抄，台词按 ≤6.5 字/秒重写（成片是我们的 TTS 念）</font>>;
+    fontsize=12; fontcolor="#188038"; style="rounded"; color="#CEEAD6"; bgcolor="#FBFFFC"; margin=12;
+    n1 [fillcolor="#E6F4EA", label=<<b>新镜 1 · 2.1s</b><br/><font point-size="10">手部特写 · 快推<br/>你商品的钩子台词</font>>];
+    n2 [fillcolor="#E6F4EA", label=<<b>新镜 2 · 3.5s</b><br/><font point-size="10">中景 · 跟拍<br/>你的商品上手演示</font>>];
+    n3 [fillcolor="#E6F4EA", label=<<b>新镜 3 · 3.4s</b><br/><font point-size="10">特写 · 固定机位<br/>你的商品效果对比</font>>];
+    n4 [fillcolor="#E6F4EA", label=<<b>新镜 4 · 3.4s</b><br/><font point-size="10">近景口播<br/>你的卖点 + 行动号召</font>>];
+  }
+
+  subgraph cluster_src {
+    label=<<b>填充（第⑦⑧步）：每一镜的画面从哪来</b><br/><font point-size="10">能用真素材绝不 AI 重演；声音的问题交给声音解决</font>>;
+    fontsize=12; fontcolor="#C5221F"; style="rounded"; color="#FAD2CF"; bgcolor="#FFFCFB"; margin=12;
+    m1 [fillcolor="#E6F4EA", color="#34A853", label=<<b>素材片段 #7 · 直接裁剪</b><br/><font point-size="10">匹配度 0.86，画面过关<br/>素材里说的不是这句台词<br/>→ 静音使用 + 克隆音色配音</font>>];
+    m2 [fillcolor="#FEF7E0", color="#F9AB00", label=<<b>素材片段 #3 · 素材编辑</b><br/><font point-size="10">匹配度 0.62：画面可用但需换背景<br/>素材当「参考视频」交给生成模型改</font>>];
+    m3 [fillcolor="#FCE8E6", color="#EA4335", label=<<b>AI 生成 · 匹配度 0.30</b><br/><font point-size="10">素材库没有对比画面，AI 重拍<br/>线稿人物图 + 商品原图当参考<br/>克隆音色念这句台词</font>>];
+    m4 [fillcolor="#E6F4EA", color="#34A853", label=<<b>素材片段 #7 · 再次复用</b><br/><font point-size="10">取用窗口从上一刀结束处接着取<br/>同一画面绝不在成片出现两次</font>>];
+  }
+
+  final [fillcolor="#FFF8E1", color="#F9AB00", label=<<b>组装（第⑧⑨步）：按分段计划出片，再拼接成一条</b><br/><font point-size="10">段 ≤15s 是生成模型上限，切点选在硬切处拼缝隐形（动态规划，第⑥步定）<br/>铺 BGM（按第③步策略） · 烧字幕（可克隆参考片样式）　<b>→ render/final.mp4</b></font>>];
+
+  r1 -> n1 [style=dashed, label="对应参考镜"];
+  r2 -> n2 [style=dashed];
+  r3 -> n3 [style=dashed];
+  r4 -> n4 [style=dashed];
+  n1 -> m1 [label="画面从哪来"]; n2 -> m2; n3 -> m3; n4 -> m4;
+  m1 -> final; m2 -> final; m3 -> final; m4 -> final;
+}

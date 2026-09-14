@@ -1,0 +1,39 @@
+// 图：③ audio 参考片音轨策略决策
+digraph audio {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.35, ranksep=0.4];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.16,0.09"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  start [fillcolor="#E8F0FE", label=<<b>抽出参考片整条音轨 + 采集事实</b><br/><font point-size="10">「有背景音乐？」「有人声口播？」两个布尔：<br/>优先用第②步拆解结论 → 缺了把音频喂给模型补问 → 再缺从拆解文本推断（置信度 0.5，来源留痕）</font>>];
+
+  q1 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<用户单独<br/>上传了 BGM？>];
+  q2 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<参考片有<br/>背景音乐？>];
+  q3 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<同时有<br/>人声口播？>];
+
+  a1 [fillcolor="#E6F4EA", color="#34A853", label=<<b>策略：用用户音乐</b><br/><font point-size="10">参考片音轨不再复用</font>>];
+  c1 [fillcolor="#F1F3F4", label=<<b>候选音轨 = 参考片整轨</b>>];
+  c2 [fillcolor="#F1F3F4", label=<<b>候选音轨 = 人声 / 伴奏分离结果</b><br/><font point-size="10">三级降级：demucs（效果最好，CPU 跑 1~3 分钟）<br/>→ librosa REPET-SIM（无需模型，口播残响明显）<br/>→ ffmpeg 声道中置抵消；后两级显式标注「残留人声风险」</font>>];
+
+  gate [shape=box, fillcolor="#FEEFC3", color="#B06000", penwidth=1.6, label=<<b>门禁：BGM 音乐性实测（gates.check）</b><br/><font point-size="10">有声占比 ≥ 0.5　·　最长连续有声 ≥ 5s（短音轨按时长×60% 折算）<br/>·　频谱平坦度 ≤ 0.35（音乐有音高结构，噪声接近白噪声）</font>>];
+
+  a2 [fillcolor="#E6F4EA", color="#34A853", label=<<b>策略：整轨复用 / 分离伴奏</b><br/><font point-size="10">备好 bgm.m4a，第⑨步 compose 循环铺底</font>>];
+  a4 [fillcolor="#F1F3F4", color="#5F6368", label=<<b>策略：不使用参考片音频</b><br/><font point-size="10">「AI 说有音乐」不算数——量出来不是音乐就不复刻<br/>（踩过的坑：标注有 BGM，实测只是零星音效，有声占比 0.43）</font>>];
+
+  trace [shape=note, fillcolor="#FFFDF5", color="#B06000", fontsize=10, label=<命中哪张表第几行、依据什么事实、门禁报告<br/>全部写进 audio/reference_audio.json>];
+
+  start -> q1;
+  q1 -> a1 [label="是", color="#188038", fontcolor="#188038"];
+  q1 -> q2 [label="否"];
+  q2 -> a4 [label="否"];
+  q2 -> q3 [label="是"];
+  q3 -> c1 [label="否（纯音乐）"];
+  q3 -> c2 [label="是（音乐口播混着）"];
+  c1 -> gate; c2 -> gate;
+  gate -> a2 [label="三项全过", color="#188038", fontcolor="#188038"];
+  gate -> a4 [label="不过 → 拦下", color="#C5221F", fontcolor="#C5221F"];
+  gate -> a2 [label="指标算不出 → 放行\n（按门禁声明的判不出策略）", style=dashed];
+  a2 -> trace [style=dashed, arrowhead=none];
+  a4 -> trace [style=dashed, arrowhead=none];
+}

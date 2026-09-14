@@ -27,11 +27,12 @@ _gpu = os.getenv("VF_GPU", "").strip()
 if _gpu and not os.getenv("CUDA_VISIBLE_DEVICES"):
     os.environ["CUDA_VISIBLE_DEVICES"] = _gpu
 
-for _tool in ("tts_clone", "caption_clone"):
+for _tool in ("tts_clone", "caption_clone", "firered_asr"):
     _path = os.path.join(_ROOT, _tool)
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+import firered_asr  # noqa: E402  # pyright: ignore[reportMissingImports]
 import tts_clone  # noqa: E402  # pyright: ignore[reportMissingImports]
 
 # caption_clone 依赖 requests 等第三方包，缺了不该把 pipeline 一起拖死：
@@ -51,10 +52,20 @@ def caption_available() -> bool:
     return clone_captions is not None
 
 
+def prewarm_asr() -> bool:
+    """提前拉起 FireRedASR 常驻 worker（非阻塞）。
+
+    模型加载十几秒，而补片校对是在 generate 步才用到的。任务一开始就拉起来，
+    到用的时候模型已经热了；拉不起来也只是那一步退回不校对，不影响别的步骤。
+    """
+    return firered_asr.available() and firered_asr.start()
+
+
 def probe() -> dict:
     """探活全部外挂工具，任务开始时调一次写进日志，别等到最后一步才发现后端没配。"""
     return {
         "tts_clone": tts_clone.available(),
         "caption_clone": caption_available(),
         "caption_asr": bool(_asr_tokens and _asr_tokens.available()),
+        "firered_asr": firered_asr.available(),
     }

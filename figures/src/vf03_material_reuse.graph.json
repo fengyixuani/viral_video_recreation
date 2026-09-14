@@ -1,0 +1,314 @@
+{
+  "metadata": {
+    "title": "素材匹配与复用",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.48,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "raw",
+      "label": "用户原视频",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "cut",
+      "label": "语义切片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "library",
+      "label": "素材片段库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "shot",
+      "label": "待填分镜",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "score",
+      "label": "匹配度",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "crop",
+      "label": "直接裁剪",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "edit",
+      "label": "素材编辑",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "generate",
+      "label": "AI生成",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#60758C",
+        "background_color": "#F1F4F8",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "window",
+      "label": "取用窗口",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "voice",
+      "label": "声音另处理",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "segment",
+      "label": "混合出片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "raw",
+      "target": "cut",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e2",
+      "source": "cut",
+      "target": "library",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e3",
+      "source": "library",
+      "target": "score",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e4",
+      "source": "shot",
+      "target": "score",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e5",
+      "source": "score",
+      "target": "crop",
+      "label": "≥0.80",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6",
+      "source": "score",
+      "target": "edit",
+      "label": "0.55≤s<0.80",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e7",
+      "source": "score",
+      "target": "generate",
+      "label": "<0.55",
+      "style": {
+        "stroke_color": "#60758C",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e8",
+      "source": "crop",
+      "target": "window",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e9",
+      "source": "window",
+      "target": "voice",
+      "label": "口播不符",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e10",
+      "source": "window",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e11",
+      "source": "voice",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e12",
+      "source": "edit",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e13",
+      "source": "generate",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    }
+  ]
+}

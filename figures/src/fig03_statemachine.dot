@@ -1,0 +1,34 @@
+// 图3：任务与步骤状态机
+digraph statemachine {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=LR,
+         nodesep=0.4, ranksep=0.55, compound=true];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.16,0.1"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  subgraph cluster_task {
+    label=<<b>任务级状态（task.json，原子写：先写临时文件再替换）</b>>; fontsize=12;
+    style="rounded"; color="#C6DAFC"; bgcolor="#FBFCFF"; margin=10;
+    draft     [fillcolor="#F1F3F4", label=<<b>draft</b><br/><font point-size="10">草稿：建任务 / 传素材 / 调参数</font>>];
+    running   [fillcolor="#E8F0FE", label=<<b>running</b><br/><font point-size="10">九步依次执行</font>>];
+    completed [fillcolor="#E6F4EA", color="#34A853", label=<<b>completed</b><br/><font point-size="10">final.mp4 就绪</font>>];
+    failed    [fillcolor="#FCE8E6", color="#EA4335", label=<<b>failed</b><br/><font point-size="10">停在出错步骤<br/>原因写进 task.json</font>>];
+
+    draft -> running [label="启动"];
+    running -> completed [label="九步全过"];
+    running -> failed [label="任一步抛错"];
+    failed -> running [label="修好后重跑：已完成步骤直接跳过\n（断点续跑，前面的一秒不用等）", color="#188038", fontcolor="#188038"];
+    completed -> running [style=dashed, label="reset_from(步骤)：清掉该步及之后\n只重跑需要的部分（如只换剧本）", color="#B06000", fontcolor="#B06000"];
+  }
+
+  subgraph cluster_step {
+    label=<<b>单个步骤的状态（九步各自记录）</b>>; fontsize=12;
+    style="rounded"; color="#CEEAD6"; bgcolor="#FBFFFC"; margin=10;
+    sp [fillcolor="#F1F3F4", label=<<b>pending</b><br/><font point-size="10">待跑</font>>];
+    sr [fillcolor="#E8F0FE", label=<<b>running</b><br/><font point-size="10">记录耗时</font>>];
+    sd [fillcolor="#E6F4EA", color="#34A853", label=<<b>done</b><br/><font point-size="10">产物路径落盘<br/>重跑时直接复用（幂等）</font>>];
+    sf [fillcolor="#FCE8E6", color="#EA4335", label=<<b>failed</b><br/><font point-size="10">错误信息留痕</font>>];
+    sp -> sr; sr -> sd [label="成功"]; sr -> sf [label="抛错"];
+    sf -> sp [style=dashed, label="重跑 / 重置"];
+  }
+}

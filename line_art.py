@@ -40,14 +40,26 @@ _REDRAW_BASE = (
 
 _DESCRIBE_PROMPT = (
     "用一段中文描述这张图里人物的外观，只写：性别与大致年龄、发型发色、上衣/下装/鞋子的款式与颜色、"
-    "体型、随身道具。不要描述五官、表情、背景和光线，不要评价，不超过80字，直接输出描述。"
-)
+    "体型、随身道具。不要描述五官、表情、背景和光线，不要评价，不超过80字，直接输出描述。")
+
+# 人物外观是靠这段文字转达给 t2i 的（原图不进 seedream，见 to_line_art），所以人身上的
+# 商品一旦在这一步被叫错名字，生成图就会照着错名字画，而且这张图会成为整片的人物锚点。
+# 实测 2438：素材里女生耳朵上戴的是花朵造型硅胶耳塞，被描述成无线耳机，生成的锚点图
+# 两耳各一颗绿色 AirPods，后面每段引用它的补片都跟着戴耳机，验收打回也救不回来
+# （提示词同时要求"保持参考图人物特征不变"，文字压不过图）。所以把商品名告诉它。
+_DESCRIBE_PRODUCT = (
+    "\n注意：画面里的人可能正在佩戴或手持这件商品：%s。"
+    "看到它就按这个名称和形状写清楚，不要凭外形猜成别的品类；画面里看不到它就不要提。")
 
 
-def describe_person(src: str) -> str:
-    """把参考图里的人物外观转成文字（发型/服装/体型/配色），供 t2i 复现同一个人。"""
+def describe_person(src: str, product: str = "") -> str:
+    """把参考图里的人物外观转成文字（发型/服装/体型/配色），供 t2i 复现同一个人。
+
+    product 给「这个人身上可能出现的商品是什么」，避免商品被叫错名字（见 _DESCRIBE_PRODUCT）。
+    """
     url = storage.upload(src) if os.path.isfile(src) else src
-    return aigc.vision(_DESCRIBE_PROMPT, media=[{"type": "image", "url": url}]).strip()
+    prompt = _DESCRIBE_PROMPT + (_DESCRIBE_PRODUCT % product if product else "")
+    return aigc.vision(prompt, media=[{"type": "image", "url": url}]).strip()
 
 
 def make_eye_occluded_person(src: str, out_path: str,
@@ -149,11 +161,20 @@ def is_real_person_reject(exc) -> bool:
     return any(k.lower() in text for k in REAL_PERSON_ERRORS)
 
 
-def to_line_art(src: str, extra_prompt: str = "", size: str = None) -> str:
+def to_line_art(src: str, extra_prompt: str = "", size: str = None,
+                product: str = "", product_refs: list = None) -> str:
     """把含真人人脸的图换成一张「写实身体 + 脸部线稿」图，返回可安全喂 seedance 的 URL。
     src 为本地路径或公网 URL，只用来读外观描述，图本身不进 seedream。
+
+    src 不进 seedream 意味着人身上的商品只能靠文字转达，光靠文字保不住形状，所以另给两样：
+    - product      商品名（+外观），让 describe_person 别把商品叫错品类；
+    - product_refs 商品原图 URL，作为参考图带进 t2i，让形状有据可依。
+    商品图里可能有真人（服装类商品图就是模特实拍），一律先过 to_face_safe：
+    生成图里出现写实人脸的话，这张锚点图之后会被 seedance 风控拒，等于白生成。
     """
-    return gen_line_art_frame(describe_person(src) + (extra_prompt or ""), size=size)
+    refs = [to_face_safe(u) for u in (product_refs or [])]
+    return gen_line_art_frame(describe_person(src, product=product) + (extra_prompt or ""),
+                              size=size, ref_images=refs or None)
 
 
 # 服装、配饰这类商品，商品图本身就是「模特穿着实拍」：整张图重画（to_line_art）会把商品丢掉，
@@ -229,13 +250,16 @@ REAL_ACTOR_HINT = (
 
 
 def gen_video_safe(prompt: str, ref_images=None, line_art_extra: str = "",
-                   keep_refs=None, **kw) -> dict:
+                   keep_refs=None, product: str = "", product_refs=None, **kw) -> dict:
     """带真人风控自动降级的视频生成，返回 {"video_url", "mode", "ref_images"}。
     回退顺序：原参考图(ref2v) → 参考图逐张换成线描图后重试(line_art) → 丢参考图纯文生视频(t2v)。
     走 line_art 时会把 REAL_ACTOR_HINT 前置到 prompt 最前面，否则线稿脸会被照抄进成片。
-    keep_refs（商品图）不整张转线稿：to_line_art 走 describe_person 只保留人物外观信息，
+    keep_refs（商品图 + 场景图）不整张转线稿：to_line_art 走 describe_person 只保留人物外观信息，
     商品图过一遍会被改造成一张人物图，商品信息全丢；但商品图本身是模特实拍（服装类）时
     原样保留过不了风控，所以对它们走 to_face_safe——只换脸，商品与画面其余部分不动。
+    product / product_refs 给商品名（+外观）与商品原图：转线稿的那几张是人物图，人物身上的
+    商品同样只能靠文字转达，叫错品类就会被画成别的东西，所以把这两样一起交给 to_line_art。
+    product_refs 要单独传，不能从 keep_refs 里挑——keep_refs 里还混着场景图。
     只在被真人风控拒时才降级，其它错误直接抛。kw 透传给 aigc.gen_video。
     """
     refs = list(ref_images or [])
@@ -247,7 +271,9 @@ def gen_video_safe(prompt: str, ref_images=None, line_art_extra: str = "",
         try:
             p = prompt
             if mode == "line_art":
-                urls = [to_face_safe(u) if u in keep else to_line_art(u, line_art_extra)
+                urls = [to_face_safe(u) if u in keep
+                        else to_line_art(u, line_art_extra, product=product,
+                                         product_refs=list(product_refs or [])[:2])
                         for u in refs]
                 if urls == refs:   # 全是无真人的商品图，没什么可改，重试也不会有变化
                     continue

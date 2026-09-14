@@ -72,8 +72,12 @@ def step_product(rec: dict) -> dict:
             roles=roles)
     harvest = {} if images else harvest_product_images(rec)
     if harvest:
-        # 白底图排在前面：它是干净的商品主图，抽帧留着当兜底与人工核对用
-        images = (harvest.get("白底图") or []) + (harvest.get("抽帧") or [])[:1]
+        # 白底图排在前面：它是干净的商品主图，抽帧留着当兜底与人工核对用。
+        # 兜底那张必须取「最佳帧」而不是「抽帧」的第一张：抽帧顺序是挑片段模型给的候选
+        # 顺序，跟质量无关（实测 c1b4：第一张是耳塞被两指捏成尖角的帧，判定已经说了
+        # 不清晰、有手，照样被当成商品参考图进了事实卡，生成端照着它画出变形的商品）。
+        best = harvest.get("最佳帧")
+        images = (harvest.get("白底图") or []) + ([best] if best else [])
     if images and harvest:
         hint = ("这些图是从用户素材里抽帧、并据此生成的白底商品图，商品外观以图为准。\n"
                 + _material_clues(rec, harvest))

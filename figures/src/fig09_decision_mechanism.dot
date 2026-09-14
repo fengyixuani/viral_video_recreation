@@ -1,0 +1,28 @@
+// 图：全链路决策机制——模型提出，规则决定，实测把关，留痕对账
+digraph mechanism {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.4, ranksep=0.38];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.18,0.1"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  m1 [fillcolor="#E8F0FE", label=<<b>① AI 模型的标注 / 评审——只是「假设」</b><br/><font point-size="10">有 BGM 吗？有人声吗？这段素材匹配吗？……模型可能说错<br/>（实例：标注「有人声」实测是 −42.6dB 底噪；标注「有 BGM」实测是零星音效）</font>>];
+
+  m2 [fillcolor="#FEF7E0", color="#B06000", label=<<b>② 规则表决定怎么办（rules.py，6 张表）</b><br/><font point-size="10">自上而下取第一条命中；最后一行必须是兜底行（漏了直接抛错）<br/>事实缺失（None）只能被通配吃掉，绝不误当「否」走错分支<br/>覆盖自检 coverage_holes()：穷举布尔组合，暴露「只能落兜底」的漏洞</font>>];
+
+  m3 [fillcolor="#E6F4EA", label=<<b>③ 执行动作</b><br/><font point-size="10">「动作」只是名字，具体实现由管线侧映射表对接——换实现不动规则表</font>>];
+
+  m4 [fillcolor="#FEEFC3", color="#B06000", penwidth=1.6, label=<<b>④ 实测门禁把关（gates.py，3 道门禁）</b><br/><font point-size="10">对「将要用的那个文件」用 ffmpeg / 数值计算实测，不许只听 AI 说<br/>有声内容 &gt; −45dB（判不出→拦下）　克隆基准音 &gt; −38dB（判不出→拦下）<br/>BGM 音乐性三指标（判不出→放行）——判不出策略按后果逐个声明</font>>];
+
+  m5 [fillcolor="#F1F3F4", label=<<b>⑤ 产物 JSON 带完整痕迹</b><br/><font point-size="10">哪张表第几行 · 依据的事实 · 门禁报告（标准件） · 谁用了就标「使用: True」</font>>];
+
+  m6 [fillcolor="#FCE8E6", color="#EA4335", label=<<b>⑥ review_case 自动对账</b><br/><font point-size="10">扫全部产物：「门禁没过（通过=False）却被使用（使用=True）」一律记违规<br/>新加门禁自动纳入对账，质检代码零改动</font>>];
+
+  m1 -> m2 [label="模型结论只当输入事实"];
+  m2 -> m3 [label="动作 + 命中行 + 依据"];
+  m3 -> m4 [label="产出媒体资产"];
+  m4 -> m5 [label="过→用；不过→拦下或改道"];
+  m5 -> m6 [label="每轮出片后"];
+  m6 -> m2 [style=dashed, constraint=false, color="#B06000", fontcolor="#B06000",
+            label="发现口径问题？\n改表 / 改阈值只动一处"];
+}

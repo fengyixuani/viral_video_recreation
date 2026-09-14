@@ -1,0 +1,6 @@
+# 构建工具：ci.yml 的构建命令是 `python3 -m build`，需要 build 包
+build>=1.0.3
+requests>=2.28.0
+bce-python-sdk>=0.9.0
+imageio-ffmpeg>=0.6.0
+flask>=3.0.0

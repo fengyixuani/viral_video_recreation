@@ -234,8 +234,23 @@ LEAD_NO_SUBTITLE = "保持无字幕。"
 LEAD_NO_BGM = "无bgm。"
 
 
+def _scene_ref_pairs(assets: dict, scene_ids: list) -> list:
+    """取出本段实际存在的场景参考图，顺序与分段场景编号一致。"""
+    scenes = {
+        str(s.get("编号")): s
+        for s in (assets.get("场景") or [])
+        if s.get("url")
+    }
+    return [
+        (str(scene_id), scenes[str(scene_id)].get("url"))
+        for scene_id in (scene_ids or [])
+        if str(scene_id) in scenes
+    ]
+
+
 def _asset_manifest(char_urls: list, product_urls: list, assets: dict, product: dict,
-                    state_notes: dict = None) -> str:
+                    state_notes: dict = None, scene_ids: list = None,
+                    scene_urls: list = None) -> str:
     """给 LLM 的素材清单，编号顺序必须与实际传给 seedance 的 ref_images 顺序一致。
 
     state_notes（url → {"关键状态","应有","应无"}）里的图是「中间状态图」：视频模型一次画不准的
@@ -251,6 +266,15 @@ def _asset_manifest(char_urls: list, product_urls: list, assets: dict, product: 
         c = cmap.get(cid) or {}
         lines.append("@图片%d = 人物形象设定图：%s（%s），全身正面，纯色背景"
                      % (n, c.get("姓名") or cid, cid))
+    scene_map = {str(s.get("编号")): s for s in (assets.get("场景") or [])}
+    for sid, _ in zip(scene_ids or [], scene_urls or []):
+        n += 1
+        scene = scene_map.get(str(sid)) or {}
+        lines.append(
+            "@图片%d = 背景场景参考图：%s（%s）。本段涉及该场景的镜头必须保持"
+            "它的空间结构、主要陈设、背景色调和光线方向一致，不要自行更换背景"
+            % (n, scene.get("名称") or sid, sid)
+        )
     for u in product_urls:
         n += 1
         note = notes.get(u)
@@ -281,6 +305,26 @@ def _asset_manifest(char_urls: list, product_urls: list, assets: dict, product: 
                          "也不要提前补全或闪现，缺的位置就是平整表面"
                          % "、".join(note["应无"]))
     return "\n".join(lines) or "（本段无参考图，纯文生视频）"
+
+
+def scene_reference_prompt(scene_ids: list, scene_urls: list, refs: list,
+                           assets: dict) -> str:
+    """给最终 Seedance prompt 增加确定性的场景 @图片N 约束。"""
+    positions = {url: index for index, url in enumerate(refs or [], 1)}
+    scene_map = {str(s.get("编号")): s for s in (assets.get("场景") or [])}
+    lines = []
+    for sid, url in zip(scene_ids or [], scene_urls or []):
+        no = positions.get(url)
+        if no is None:
+            continue
+        scene = scene_map.get(str(sid)) or {}
+        lines.append(
+            "@图片%d 是本段的背景场景参考图（%s）。涉及该场景的镜头必须引用"
+            "@图片%d，并保持背景的空间结构、主要陈设、色调和光线方向一致，"
+            "不要自行更换或虚构另一套背景。"
+            % (no, scene.get("名称") or sid, no)
+        )
+    return ("\n【背景参考】" + "\n".join(lines)) if lines else ""
 
 
 def _sfx_only(text: str) -> str:
@@ -322,7 +366,8 @@ def _seg_brief(seg: dict, shots: dict) -> str:
 
 
 def optimize_prompt(seg: dict, shots: dict, char_ids: list, product_urls: list,
-                    assets: dict, product: dict, state_notes: dict = None) -> dict:
+                    assets: dict, product: dict, state_notes: dict = None,
+                    scene_ids: list = None, scene_urls: list = None) -> dict:
     """按 SeedancePromptSkill.md 重写本段提示词。失败则回退原始提示词。
 
     重写结果一律过 scrub_music_marks：规范正文与示例里满是 （音乐）/<鼓点音效>，
@@ -331,8 +376,9 @@ def optimize_prompt(seg: dict, shots: dict, char_ids: list, product_urls: list,
     try:
         raw = aigc.understand(OPT_PROMPT
                               .replace("__SKILL__", _skill_doc())
-                              .replace("__ASSETS__", _asset_manifest(char_ids, product_urls,
-                                                                     assets, product, state_notes))
+                              .replace("__ASSETS__", _asset_manifest(
+                                  char_ids, product_urls, assets, product, state_notes,
+                                  scene_ids, scene_urls))
                               .replace("__SEG__", _seg_brief(seg, shots))
                               .replace("__NSHOT__",
                                        str(len(seg.get("镜头序号") or []))),
@@ -349,18 +395,27 @@ def optimize_prompt(seg: dict, shots: dict, char_ids: list, product_urls: list,
 
 def gen_segment(seg: dict, assets: dict, product_urls: list, product: dict,
                 shots: dict, outdir: str) -> dict:
-    """生成一段视频。提示词先过 SeedancePromptSkill 优化，参考图 = 人物线稿设定图 + 商品原图。"""
+    """生成一段视频。提示词先过 SeedancePromptSkill 优化，参考图含人物、场景和商品图。"""
     cmap = {c.get("编号"): c for c in assets.get("人物") or [] if c.get("url")}
     char_ids = [c for c in (seg.get("人物编号") or []) if c in cmap]
-    refs = ([cmap[c]["url"] for c in char_ids] + product_urls)[:9]  # seedance 上限 9 张
+    scene_pairs = _scene_ref_pairs(assets, seg.get("场景编号") or [])
+    scene_urls = [url for _, url in scene_pairs]
+    refs = ([cmap[c]["url"] for c in char_ids] + scene_urls + product_urls)[:9]
+    scene_pairs = [(sid, url) for sid, url in scene_pairs if url in refs]
+    scene_ids = [sid for sid, _ in scene_pairs]
+    scene_urls = [url for _, url in scene_pairs]
 
-    opt = optimize_prompt(seg, shots, char_ids, product_urls, assets, product)
+    opt = optimize_prompt(seg, shots, char_ids, product_urls, assets, product,
+                          scene_ids=scene_ids, scene_urls=scene_urls)
     body = opt["prompt"].strip()
     for kw in (LEAD_NO_SUBTITLE, LEAD_NO_BGM):    # 模型常自己带上，去重避免重复开头
         while body.startswith(kw):
             body = body[len(kw):].lstrip()
     lead = LEAD_NO_SUBTITLE + LEAD_NO_BGM
-    prompt = lead + (line_art.REAL_ACTOR_HINT if char_ids else "") + body
+    prompt = (lead
+              + (line_art.REAL_ACTOR_HINT if char_ids else "")
+              + scene_reference_prompt(scene_ids, scene_urls, refs, assets)
+              + body)
 
     rec = {"段号": seg["段号"], "生成时长秒": seg["生成时长秒"],
            "ref_images": refs, "prompt_final": prompt,
@@ -370,8 +425,9 @@ def gen_segment(seg: dict, assets: dict, product_urls: list, product: dict,
         rec["optimize_error"] = opt["optimize_error"]
     try:
         # keep_refs：商品图不参与线稿降级——线稿化只保人物外观，商品图会被改造成人物图
-        out = line_art.gen_video_safe(prompt, ref_images=refs or None,
-                                      keep_refs=product_urls,
+        out = line_art.gen_video_safe(
+            prompt, ref_images=refs or None,
+            keep_refs=product_urls + scene_urls,
                                       duration_sec=seg["生成时长秒"])
         rec["mode"] = out["mode"]
         rec["url"] = out["video_url"]

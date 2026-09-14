@@ -1,0 +1,64 @@
+// 图：系统分层架构
+digraph architecture {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.28, ranksep=0.5, compound=true, splines=spline];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=11,
+        color="#9AA0A6", penwidth=1.1, margin="0.14,0.08"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  subgraph cluster_ui {
+    label=<<b>接入层</b>>; fontsize=12; style="rounded"; color="#DADCE0"; bgcolor="#FAFAFA"; margin=8;
+    web [fillcolor="#FFF8E1", label=<<b>Web 控制台 + HTTP API</b><br/><font point-size="10">server.py（Flask）+ web/index.html<br/>建任务 / 传文件 / 跑管线 / 看产物，后台线程执行</font>>];
+    cli [fillcolor="#FFF8E1", label=<<b>命令行入口</b><br/><font point-size="10">pipeline.py（跑 / 重置）<br/>review_case.py（质检）</font>>];
+  }
+
+  orch [fillcolor="#E8F0FE", color="#4285F4", penwidth=1.4, label=<<b>编排层　pipeline.py　九步流水线状态机</b><br/><font point-size="10">task.json 病历本（原子写） · 幂等断点续跑 · 任意步骤重置 · 失败即停留痕</font>>];
+
+  subgraph cluster_rule {
+    label=<<b>决策层（全系统判定口径的单一来源，每一步都要查）</b>>; fontsize=12; style="rounded"; color="#FEEFC3"; bgcolor="#FFFDF5"; margin=8;
+    rules [fillcolor="#FEF7E0", color="#B06000", label=<<b>规则表　rules.py</b><br/><font point-size="10">6 张表：遇到什么情况怎么办<br/>查表得动作，判定带痕迹</font>>];
+    gates [fillcolor="#FEF7E0", color="#B06000", label=<<b>实测门禁　gates.py</b><br/><font point-size="10">3 道门禁：媒体资产量过才能用<br/>AI 标注只是假设，不是事实</font>>];
+  }
+
+  subgraph cluster_cap {
+    label=<<b>能力层（按步骤被编排调用）</b>>; fontsize=12; style="rounded"; color="#CEEAD6"; bgcolor="#FBFFFC"; margin=8;
+    an1 [fillcolor="#E6F4EA", label=<<b>analyze_script</b><br/><font point-size="10">参考片逐镜拆解</font>>];
+    an2 [fillcolor="#E6F4EA", label=<<b>analyze_materials</b><br/><font point-size="10">用户素材切片打标</font>>];
+    ws  [fillcolor="#E6F4EA", label=<<b>write_script</b><br/><font point-size="10">仿写剧本 · 设定图<br/>动态规划分段</font>>];
+    la  [fillcolor="#E6F4EA", label=<<b>line_art</b><br/><font point-size="10">线稿替身绕人脸风控<br/>三级降级生成</font>>];
+    ai  [fillcolor="#E6F4EA", label=<<b>aigc</b><br/><font point-size="10">模型统一网关<br/>重试 / 双通道回退</font>>];
+    pv  [fillcolor="#E6F4EA", label=<<b>produce_video</b><br/><font point-size="10">FFmpeg 工具箱<br/>裁剪 / 归一化 / 拼接</font>>];
+    st  [fillcolor="#E6F4EA", label=<<b>storage</b><br/><font point-size="10">BOS 上传下载<br/>内容指纹去重</font>>];
+  }
+
+  subgraph cluster_tools {
+    label=<<b>外挂工具（registry 统一接入：挂路径 / 灌配置 / 探活）</b>>; fontsize=12; style="rounded"; color="#E8D5F2"; bgcolor="#FDFBFF"; margin=8;
+    tts [fillcolor="#F3E8FD", label=<<b>tts_clone</b><br/><font point-size="10">VoxCPM2 零样本声音克隆<br/>子进程隔离 · 全局锁一次一条</font>>];
+    cc  [fillcolor="#F3E8FD", label=<<b>caption_clone</b><br/><font point-size="10">字幕风格克隆<br/>风格档 / 词级 ASR / ASS 烧录</font>>];
+  }
+
+  subgraph cluster_ext {
+    label=<<b>外部依赖</b>>; fontsize=12; style="rounded"; color="#DADCE0"; bgcolor="#FAFAFA"; margin=8;
+    wq  [fillcolor="#F1F3F4", label=<<b>文心网关</b><br/><font point-size="10">LLM · 文生图 · 图生视频<br/>（seedream / seedance）</font>>];
+    gm  [fillcolor="#F1F3F4", label=<<b>Gemini 网关</b><br/><font point-size="10">视频 / 图片理解 VLM</font>>];
+    bos [fillcolor="#F1F3F4", label=<<b>百度 BOS</b><br/><font point-size="10">对象存储（给模型出公网 URL）</font>>];
+    loc [fillcolor="#F1F3F4", label=<<b>本地工具（无 GPU，CPU 跑）</b><br/><font point-size="10">ffmpeg · demucs · librosa · VoxCPM2</font>>];
+  }
+
+  out [fillcolor="#FFF8E1", color="#F9AB00", label=<<b>产物　output/tasks/{任务ID}/</b><br/><font point-size="10">task.json + 每步中间产物 + render/final.mp4（全程可追溯）</font>>];
+
+  web -> orch; cli -> orch;
+  orch -> rules [style=dashed, label="查表决策"];
+  orch -> gates [style=dashed, label="实测把关"];
+  orch -> ws  [lhead=cluster_cap, label="按步骤调用", constraint=false];
+  orch -> tts [lhead=cluster_tools, label="探活后调用", constraint=false];
+
+  // 不可见边：强制分层带（决策层之下是能力层与外挂工具，再往下是外部依赖与产物）
+  rules -> an2 [style=invis]; rules -> ws [style=invis];
+  gates -> la  [style=invis]; gates -> tts [style=invis];
+  an1 -> ai; an2 -> ai; ws -> ai; la -> ai;
+  ai -> wq; ai -> gm; st -> bos; pv -> loc; tts -> loc [constraint=false];
+  cc -> loc [style=invis];
+  bos -> out [style=invis]; loc -> out [style=invis];
+  orch -> out [label="逐步落盘", constraint=false, color="#F9AB00", fontcolor="#B06000"];
+}

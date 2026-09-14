@@ -1,0 +1,646 @@
+{
+  "metadata": {
+    "title": "通用Agent决策调度",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.45,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "inputs",
+      "label": "任务输入",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 19.065600000000003,
+      "y": 0.04608000000008872,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "observe",
+      "label": "提取事实",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 19.065600000000003,
+      "y": 137.37408000000005,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "rules",
+      "label": "规则决策",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 19.065600000000003,
+      "y": 293.37407999999994,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "state",
+      "label": "任务状态",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 231.0624,
+      "y": 293.37407999999994,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "agent",
+      "label": "Agent中枢",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 220.392,
+      "y": 449.37407999999994,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "understand",
+      "label": "理解模型",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 593.7312000000001,
+      "y": 605.3740799999999,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "generate",
+      "label": "生成模型",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 49.72800000000001,
+      "y": 605.3740799999999,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "media",
+      "label": "媒体工具",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 231.0624,
+      "y": 605.3740799999999,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "plugins",
+      "label": "外挂能力",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 412.3968,
+      "y": 605.3740799999999,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "gates",
+      "label": "门禁验收",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 231.0624,
+      "y": 742.71168,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "output",
+      "label": "成片交付",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 231.0624,
+      "y": 898.70976,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "inputs",
+      "target": "observe",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          88.3968,
+          66.96960000000001
+        ],
+        [
+          88.3968,
+          83.93280000000004
+        ],
+        [
+          88.3968,
+          104.79359999999997
+        ],
+        [
+          88.3968,
+          123.35039999999992
+        ]
+      ]
+    },
+    {
+      "id": "e2",
+      "source": "observe",
+      "target": "rules",
+      "label": "结构化事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          88.3968,
+          204.17280000000005
+        ],
+        [
+          88.3968,
+          226.28160000000003
+        ],
+        [
+          88.3968,
+          255.5616
+        ],
+        [
+          88.3968,
+          279.9552
+        ]
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "rules",
+      "target": "agent",
+      "label": "动作名",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          133.872,
+          360.17280000000005
+        ],
+        [
+          166.15679999999998,
+          383.92319999999995
+        ],
+        [
+          209.6832,
+          415.9584
+        ],
+        [
+          244.1472,
+          441.3216
+        ]
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "state",
+      "target": "agent",
+      "label": "当前步骤",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          300.3936,
+          360.17280000000005
+        ],
+        [
+          300.3936,
+          382.2816
+        ],
+        [
+          300.3936,
+          411.5616
+        ],
+        [
+          300.3936,
+          435.9552
+        ]
+      ]
+    },
+    {
+      "id": "e5",
+      "source": "agent",
+      "target": "understand",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          378.2016,
+          516.1728
+        ],
+        [
+          437.8464,
+          541.8335999999999
+        ],
+        [
+          519.984,
+          577.1616
+        ],
+        [
+          580.7328,
+          603.2927999999999
+        ]
+      ]
+    },
+    {
+      "id": "e6",
+      "source": "agent",
+      "target": "generate",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          261.4944,
+          516.1728
+        ],
+        [
+          234.24960000000002,
+          539.616
+        ],
+        [
+          197.61599999999999,
+          571.1328
+        ],
+        [
+          168.3264,
+          596.3232
+        ]
+      ]
+    },
+    {
+      "id": "e7",
+      "source": "agent",
+      "target": "media",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          300.3936,
+          516.1728
+        ],
+        [
+          300.3936,
+          538.2816
+        ],
+        [
+          300.3936,
+          567.5616
+        ],
+        [
+          300.3936,
+          591.9552
+        ]
+      ]
+    },
+    {
+      "id": "e8",
+      "source": "agent",
+      "target": "plugins",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          339.2928,
+          516.1728
+        ],
+        [
+          366.5472,
+          539.616
+        ],
+        [
+          403.1808,
+          571.1328
+        ],
+        [
+          432.47040000000004,
+          596.3232
+        ]
+      ]
+    },
+    {
+      "id": "e9",
+      "source": "understand",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          593.568,
+          665.0304
+        ],
+        [
+          533.5296,
+          687.7632
+        ],
+        [
+          446.66880000000003,
+          720.6528
+        ],
+        [
+          383.0688,
+          744.7392
+        ]
+      ]
+    },
+    {
+      "id": "e10",
+      "source": "generate",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          163.42079999999999,
+          672.3072
+        ],
+        [
+          188.00639999999999,
+          690.9215999999999
+        ],
+        [
+          218.8128,
+          714.2496
+        ],
+        [
+          244.9728,
+          734.064
+        ]
+      ]
+    },
+    {
+      "id": "e11",
+      "source": "media",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          300.3936,
+          672.3072
+        ],
+        [
+          300.3936,
+          689.2608
+        ],
+        [
+          300.3936,
+          710.1216
+        ],
+        [
+          300.3936,
+          728.6784
+        ]
+      ]
+    },
+    {
+      "id": "e12",
+      "source": "plugins",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          437.3664,
+          672.3072
+        ],
+        [
+          412.7808,
+          690.9215999999999
+        ],
+        [
+          381.98400000000004,
+          714.2496
+        ],
+        [
+          355.824,
+          734.064
+        ]
+      ]
+    },
+    {
+      "id": "e13",
+      "source": "gates",
+      "target": "output",
+      "label": "通过",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          300.3936,
+          809.5104
+        ],
+        [
+          300.3936,
+          831.6096
+        ],
+        [
+          300.3936,
+          860.8992
+        ],
+        [
+          300.3936,
+          885.29184
+        ]
+      ]
+    },
+    {
+      "id": "e14",
+      "source": "gates",
+      "target": "rules",
+      "label": "失败重判",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "dashed",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          230.688,
+          758.9856
+        ],
+        [
+          158.1984,
+          739.6704
+        ],
+        [
+          52.04352,
+          706.3968
+        ],
+        [
+          28.3968,
+          672.0383999999999
+        ],
+        [
+          -34.90464,
+          580.0704
+        ],
+        [
+          23.3568,
+          442.5408
+        ],
+        [
+          61.44288,
+          372.0
+        ]
+      ]
+    }
+  ],
+  "groups": []
+}

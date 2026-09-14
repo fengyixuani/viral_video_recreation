@@ -1,0 +1,688 @@
+{
+  "metadata": {
+    "title": "素材匹配与复用",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.48,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "raw",
+      "label": "用户原视频",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 53.33280000000002,
+      "y": -0.021119999999868355,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "cut",
+      "label": "语义切片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 64.00320000000002,
+      "y": 137.35487999999998,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "library",
+      "label": "素材片段库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 53.33280000000002,
+      "y": 274.67328,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "shot",
+      "label": "待填分镜",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 260.0064,
+      "y": 274.67328,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "score",
+      "label": "匹配度",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 200.00160000000002,
+      "y": 412.01088000000004,
+      "width": 133.33440000000002,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "crop",
+      "label": "直接裁剪",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 57.331199999999995,
+      "y": 568.01088,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "edit",
+      "label": "素材编辑",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 226.6656,
+      "y": 669.3484800000001,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "generate",
+      "label": "AI生成",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#60758C",
+        "background_color": "#F1F4F8",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 357.336,
+      "y": 872.01408,
+      "width": 133.33440000000002,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "window",
+      "label": "取用窗口",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 57.331199999999995,
+      "y": 770.6764800000001,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "voice",
+      "label": "声音另处理",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": -0.0019199999999983675,
+      "y": 973.34208,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "segment",
+      "label": "混合出片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 208.00320000000002,
+      "y": 1110.67776,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "raw",
+      "target": "cut",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          133.33440000000002,
+          66.91200000000003
+        ],
+        [
+          133.33440000000002,
+          83.904
+        ],
+        [
+          133.33440000000002,
+          104.7360000000001
+        ],
+        [
+          133.33440000000002,
+          123.36000000000013
+        ]
+      ]
+    },
+    {
+      "id": "e2",
+      "source": "cut",
+      "target": "library",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          133.33440000000002,
+          204.28800000000012
+        ],
+        [
+          133.33440000000002,
+          221.23199999999997
+        ],
+        [
+          133.33440000000002,
+          242.0928
+        ],
+        [
+          133.33440000000002,
+          260.6496000000001
+        ]
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "library",
+      "target": "score",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          165.94559999999998,
+          341.6064
+        ],
+        [
+          183.5424,
+          359.73120000000006
+        ],
+        [
+          205.4688,
+          382.3104000000001
+        ],
+        [
+          224.3616,
+          401.76959999999997
+        ]
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "shot",
+      "target": "score",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          314.0064,
+          341.6064
+        ],
+        [
+          306.11519999999996,
+          358.8960000000002
+        ],
+        [
+          296.37120000000004,
+          380.2464
+        ],
+        [
+          287.7792,
+          399.0720000000001
+        ]
+      ]
+    },
+    {
+      "id": "e5",
+      "source": "score",
+      "target": "crop",
+      "label": "≥0.80",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          199.7088,
+          473.00160000000005
+        ],
+        [
+          181.5648,
+          483.30240000000003
+        ],
+        [
+          163.44,
+          496.66560000000004
+        ],
+        [
+          150.6624,
+          513.3408000000001
+        ],
+        [
+          141.6192,
+          525.1584
+        ],
+        [
+          135.984,
+          540.1536
+        ],
+        [
+          132.47039999999998,
+          554.4096000000001
+        ]
+      ]
+    },
+    {
+      "id": "e6",
+      "source": "score",
+      "target": "edit",
+      "label": "0.55≤s<0.80",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          264.2976,
+          478.8768000000001
+        ],
+        [
+          263.6352,
+          489.8592000000001
+        ],
+        [
+          262.992,
+          502.11840000000007
+        ],
+        [
+          262.6656,
+          513.3408000000001
+        ],
+        [
+          262.4064,
+          522.2304000000001
+        ],
+        [
+          261.8016,
+          524.496
+        ],
+        [
+          262.6656,
+          533.3472
+        ],
+        [
+          266.7552,
+          575.2800000000001
+        ],
+        [
+          276.4128,
+          622.2432
+        ],
+        [
+          284.2848,
+          656.0544
+        ]
+      ]
+    },
+    {
+      "id": "e7",
+      "source": "score",
+      "target": "generate",
+      "label": "<0.55",
+      "style": {
+        "stroke_color": "#60758C",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          333.6576,
+          465.77279999999996
+        ],
+        [
+          356.7744,
+          476.2464000000001
+        ],
+        [
+          380.4288,
+          491.53920000000005
+        ],
+        [
+          394.66560000000004,
+          513.3408000000001
+        ],
+        [
+          464.37120000000004,
+          620.0736
+        ],
+        [
+          447.97440000000006,
+          779.7408
+        ],
+        [
+          434.01599999999996,
+          858.2784
+        ]
+      ]
+    },
+    {
+      "id": "e8",
+      "source": "crop",
+      "target": "window",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          126.66239999999999,
+          634.8096
+        ],
+        [
+          126.66239999999999,
+          668.1120000000001
+        ],
+        [
+          126.66239999999999,
+          719.5008
+        ],
+        [
+          126.66239999999999,
+          756.912
+        ]
+      ]
+    },
+    {
+      "id": "e9",
+      "source": "window",
+      "target": "voice",
+      "label": "口播不符",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          118.9632,
+          837.4752000000001
+        ],
+        [
+          111.26400000000001,
+          870.9216000000001
+        ],
+        [
+          99.35999999999999,
+          922.6176
+        ],
+        [
+          90.73248000000001,
+          960.0672000000001
+        ]
+      ]
+    },
+    {
+      "id": "e10",
+      "source": "window",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          169.5648,
+          837.4464
+        ],
+        [
+          180.3168,
+          847.5744000000001
+        ],
+        [
+          190.9632,
+          859.392
+        ],
+        [
+          198.6624,
+          872.0064
+        ],
+        [
+          242.20800000000003,
+          943.392
+        ],
+        [
+          262.6176,
+          1039.9872
+        ],
+        [
+          271.4112,
+          1096.7856000000002
+        ]
+      ]
+    },
+    {
+      "id": "e11",
+      "source": "voice",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          128.2752,
+          1040.2752
+        ],
+        [
+          155.3664,
+          1059.1296
+        ],
+        [
+          189.3984,
+          1082.81184
+        ],
+        [
+          218.1024,
+          1102.7856000000002
+        ]
+      ]
+    },
+    {
+      "id": "e12",
+      "source": "edit",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          298.992,
+          736.3392000000001
+        ],
+        [
+          304.176,
+          802.0224000000001
+        ],
+        [
+          312.7488,
+          951.7152000000001
+        ],
+        [
+          295.9968,
+          1076.0064
+        ],
+        [
+          295.0656,
+          1082.96064
+        ],
+        [
+          293.616,
+          1090.2048
+        ],
+        [
+          291.91679999999997,
+          1097.26368
+        ]
+      ]
+    },
+    {
+      "id": "e13",
+      "source": "generate",
+      "target": "segment",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          416.8416,
+          939.2640000000001
+        ],
+        [
+          407.9616,
+          975.6192000000001
+        ],
+        [
+          390.18240000000003,
+          1033.7952
+        ],
+        [
+          360.0,
+          1076.0064
+        ],
+        [
+          353.472,
+          1085.1379200000001
+        ],
+        [
+          345.42719999999997,
+          1093.7424
+        ],
+        [
+          336.94079999999997,
+          1101.5635200000002
+        ]
+      ]
+    }
+  ],
+  "groups": []
+}

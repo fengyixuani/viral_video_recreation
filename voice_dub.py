@@ -23,16 +23,44 @@ from Agent_tools.registry import tts_clone  # noqa: E402
 VOICE_KEEP_ACTIONS = ("原声直接使用", "分离BGM保留人声")   # 这些切片带得走用户原声
 VOICE_BASE_MAX = 12.0        # 基准原声最多取多长，够克隆/参考就行
 VOICE_BASE_MIN = 2.0         # seedance 参考音单段下限 2s，短于它整条请求会被拒
+# 素材理解阶段自报的「主角人声」清晰度门槛。6 分是评分口径里「能完整听懂，有可察觉背景音
+# 但不掩盖人声」这一档的下界（口径全文见 analyze_materials.PROMPT），不是随手取的数。
+VOICE_SAMPLE_MIN_SCORE = 6
 
 
-def _voice_candidates(keep: list, pool: dict):
+def _voice_sample_candidates(voices: list):
+    """素材理解阶段挑出的「主角人声」段，按评分再按时长降序给出。
+
+    放在最前面是因为只有它带着「是不是主角」的判断：其余候选都靠 有人声/真人出镜口播
+    这两个布尔标注，而标注为真的可能是机舱广播、电视里的声音或场工闲聊——实测（博士耳塞
+    17 条）里公共广播能拿 6 分、现场工作人员闲聊能拿 5 分，真拿去克隆就克出了播音员的嗓子。
+    它同时给出精确到秒的子区间，不用像其余候选那样从整段片头开始截。
+    评分低于 VOICE_SAMPLE_MIN_SCORE 的不给，宁可退回下面的老口径。
+    """
+    ok = [v for v in (voices or [])
+          if isinstance(v, dict) and v.get("可用") is True and v.get("源文件")
+          and float(v.get("清晰度评分") or 0) >= VOICE_SAMPLE_MIN_SCORE]
+    ok.sort(key=lambda v: (-float(v.get("清晰度评分") or 0), -float(v.get("时长秒") or 0)))
+    for v in ok:
+        yield {"源文件": v.get("源文件"), "开始秒": float(v.get("开始秒") or 0),
+               "可用秒": float(v.get("时长秒") or 0),
+               "片段ID": "%s#主角人声" % (v.get("素材ID") or ""),
+               "说明": "取自素材里的主角人声段（%s，清晰度 %s 分，%s）"
+                       % (v.get("人声类型") or "口播", v.get("清晰度评分"),
+                          v.get("评分依据") or "")}
+
+
+def _voice_candidates(keep: list, pool: dict, voices: list = None):
     """按优先级逐个给出基准原声候选：{"源文件","开始秒","可用秒","片段ID","说明"}。
 
-    先用成片里「能带走原声」的切片；然后素材里的真人口播片段——画面可能没被选中、
-    或者被静音后使用，但音轨里那把嗓子就是用户本人，克隆音色够用；再退到旁白/画外音；
-    最后实测音量兜底。做成生成器而不是单选：标注说有人声不代表真有，
-    _voice_plan 逐个实测响度，太弱就换下一个（4496：标注有人声、实测 -42.6 dB 底噪）。
+    先用素材理解阶段判定的主角人声段（唯一排除了广播/旁人的候选）；再用成片里「能带走
+    原声」的切片；然后素材里的真人口播片段——画面可能没被选中、或者被静音后使用，
+    但音轨里那把嗓子就是用户本人，克隆音色够用；再退到旁白/画外音；最后实测音量兜底。
+    做成生成器而不是单选：标注说有人声不代表真有，_voice_plan 逐个实测响度，
+    太弱就换下一个（4496：标注有人声、实测 -42.6 dB 底噪）。
     """
+    for got in _voice_sample_candidates(voices):
+        yield got
     if keep:
         best = max(keep, key=lambda r: float(r.get("可用秒") or 0))
         yield {"源文件": best.get("源文件"), "开始秒": float(best.get("开始秒") or 0),
@@ -154,9 +182,12 @@ def _voice_from_piece(rec: dict, plan: dict, piece: dict) -> bool:
         return False
 
 
-def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None) -> dict:
+def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None,
+                voices: list = None) -> dict:
     """按「音色优先级」表定全片音色基准，并把基准原声抽成文件。
 
+    voices 是各条素材理解阶段产出的「主角人声」段（material_index.json 的 素材[].主角人声），
+    作为第一优先候选，见 _voice_sample_candidates。
     产物 audio/voice_plan.json：来源、策略、基准音文件与 URL、判定痕迹。
     """
     tid = rec["task_id"]
@@ -164,8 +195,12 @@ def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None) -> 
     voiced_pool = any(rules.as_bool(s.get("真人出镜口播")) is True
                       or rules.as_bool(s.get("有人声")) is True
                       for s in (pool or {}).values())
+    # 主角人声段本身就是「素材里有可用原声」的证据，必须参与这个判定：否则模型把片段级的
+    # 有人声/真人出镜口播 都标成了 false（只在整体那一问里认出主角），
+    # 「用户视频-原声」不会进 available，第一优先候选还没轮到就被表判成了 AI 引导。
+    has_sample = any(True for _ in _voice_sample_candidates(voices))
     available = []
-    if keep or voiced_pool:
+    if keep or voiced_pool or has_sample:
         # 「用户视频-原声」= 素材里有人声可当基准（保留原声的切片，或只借音色的片段），
         # 与 _voice_candidates 的搜索口径一致——否则判定说 AI、提取却拿素材，自相矛盾
         available.append("用户视频-原声")
@@ -179,7 +214,7 @@ def _voice_plan(rec: dict, matches: list, segments: list, pool: dict = None) -> 
     # 41000000「audio format ... is not valid ... in r2v」整条拒掉（实测每段必失败）。
     # 时长也有下限，单段参考音要求 2~15s。
     dst, tried, rejected = _p(tid, "audio", "voice_base.wav"), set(), []
-    for src in _voice_candidates(keep, pool or {}):
+    for src in _voice_candidates(keep, pool or {}, voices):
         if not src.get("源文件") or src.get("片段ID") in tried:
             continue
         tried.add(src.get("片段ID"))
@@ -340,23 +375,34 @@ def _mean_db(path: str) -> float:
 
 def _fill_silent_dub(rec: dict, piece: dict, block: dict, shots: dict,
                      plan: dict, tag: str, label: str) -> None:
-    """补片有台词却没声，就用克隆音色把这句话配上。
+    """补片有台词却没把它说出来，就用克隆音色把这句话配上。
 
     seedance 时不时返回静音音轨（或干脆没有音轨），这样成片的口播就会凭空断掉一句；
     音色和别的片略有差别可以接受，少一句话不行。所以逐片检查、缺声就补。
+
+    两个触发条件，任一命中就补：
+    - 响度门禁判成静音（音轨压根没声）；
+    - ASR 判定「有声音但没说出台词」——响度门禁看不出这种，实测 c1b4 段2块2 音轨
+      -39.3 dB 在静音线 -45 之上，门禁放行，可 ASR 一个字都没识别出来，
+      成片里「戴上感觉超舒服」这句就凭空消失了。
     """
     if not any(_shot_text(shots.get(n)) for n in block["镜头"]):
         return                          # 这一片本来就没台词，静音是分镜设计
     # 走 gates.check 而不是内联比阈值：这样这条静音判定会产出标准门禁报告，
     # review_case 的 gates.violations() 对账才看得见它（gates.py 第 5 条范式）。
     gate = gates.check("有声内容", piece["file"])
-    if gates.ok(gate):
+    check = piece.get("人声核对") or {}
+    no_line = bool(check.get("台词缺失"))
+    if gates.ok(gate) and not no_line:
         return
     db = (gate.get("指标") or {}).get("平均响度dB")
+    why = ("ASR 没听到台词（识别到「%s」）" % (check.get("识别") or "")) if no_line else (
+        "补片%s，视为没有人声" % (gate.get("判据") or gate.get("原因") or ""))
     dub = _dub_wav(rec, block, shots, plan, tag)
     piece.update(_paste_dub(rec, piece, dub))
-    piece["补配音"] = "补片%s，视为没有人声" % (gate.get("判据") or gate.get("原因") or "")
+    piece["补配音"] = why
     piece["有声内容门禁"] = dict(gate, 使用=True)
-    log(rec, "  %s 补片没有人声（%s），用克隆音色补上：%s"
-        % (label, "%.0f dB" % db if isinstance(db, (int, float)) else "判不出",
+    log(rec, "  %s 补片没说出台词（%s），用克隆音色补上：%s"
+        % (label, why if no_line else
+           ("%.0f dB" % db if isinstance(db, (int, float)) else "判不出"),
            piece.get("配音") or "未补上"))

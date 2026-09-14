@@ -25,9 +25,13 @@ from task_store import _p, _rel, log
 PICK_FRAME_PROMPT = """下面是用户素材视频切好的片段清单。用户没有上传商品图，
 我要从素材里抽一帧当商品参考图。
 
-挑出商品露出最完整、最清晰的 1-3 个片段，按清晰度从高到低排。
+挑出商品露出最完整、最清晰的 1-3 个片段，按可用性从高到低排。
 优先特写或近景、商品居中、没有手部或其它物体大面积遮挡的片段。
-「抽帧秒数」给这个片段内商品最清楚的时间点，是相对整条视频的绝对秒数，要落在片段起止之间。
+**商品必须保持它原本的形状**：被手指捏压、揉搓成条、拉伸、折弯而变形的时间点一律不要选，
+宁可选商品静静躺着、被托着或摆在桌面上的时间点——哪怕那个点稍微远一点、糊一点。
+形变比遮挡和清晰度更该排除：糊一点只是细节少，形状被捏变了会让整片的商品都是变形的。
+「抽帧秒数」给这个片段内商品最清楚**且没有变形**的时间点，是相对整条视频的绝对秒数，
+要落在片段起止之间。
 
 【商品】名称：__NAME__，品类：__CATEGORY__
 （名称或品类为空时，就按素材里反复出现的那个主要商品来理解）
@@ -42,10 +46,16 @@ FRAME_JUDGE_PROMPT = """这是从视频里抽出来的一帧，我要拿它当�
 
 {"商品": "画面里的主体商品是什么",
  "清晰": true/false,
- "问题": "遮挡/模糊/太小/有手或人/背景杂乱，都没有就写空字符串",
+ "形变": "商品有没有偏离它原本的形状：没有就写「无」；有就写清是怎么变的，如 被手指捏扁 / 被揉搓成细长条 / 被拉伸 / 被折弯 / 被按压凹陷",
+ "问题": "遮挡/模糊/太小/有手或人/背景杂乱/商品被捏压变形，都没有就写空字符串",
  "外观": "外形结构、材质质感、主色配色、包装上的显著文字或图案，60字内",
  "白底图": [{"要表现什么": "如 正面全貌 / 侧面 / 背面 / 打开后露出内容物"}],
  "卖点": ["从画面能看出来的卖点，看不出就给空数组"]}
+
+「形变」只看商品自身的形状有没有被改变：手托着、手指捏着但商品没变形，写「无」；
+商品被握变形、揉搓成条、压扁、拉长、折弯才算有形变。可折叠/可开合商品按设计正常
+开合（翻盖打开、折叠屏展开）不是形变，写「无」。
+「外观」写商品原本的形状，不要把被捏出来的临时形状当成它的设计。
 
 「白底图」只能提出这一帧里实际看得见的角度或状态：帧里只拍到正面就只给正面，
 背面/内部结构这类帧里看不到的不要提——生成模型会凭空编造出假商品。
@@ -61,6 +71,21 @@ MAX_WHITE_BG = 3            # 白底图最多生成几张，控成本
 MAX_PICK_SEGMENTS = 80      # 喂给挑片段模型的片段上限
 MAX_STATE_LOOKUP = 6        # 核验「素材里有没有这个状态」时一次最多打开几张候选图
 
+# 「形变」字段判为「没有变形」的写法。模型不会每次都老实回「无」，也会写「无形变」
+# 「没有明显变形」这类，所以按包含匹配收口，别让一句「无明显形变」被当成有形变。
+# 上传图（IMAGE_INDEX_PROMPT）与抽帧（FRAME_JUDGE_PROMPT）两条链路共用这一套判定口径。
+NO_DEFORM_WORDS = ("无", "否", "没有", "未变形", "不存在")
+
+
+def _is_deformed(value) -> bool:
+    """这张图/帧里的商品是不是被人为挤压按压揉搓拉伸而偏离了原本形状。
+
+    判不出（字段缺失或空）一律按「没变形」处理：宁可放过一张，也不要因为字段没填
+    就把唯一可用的商品参考图判死（没有商品图时生成端会凭空编造一个假商品）。
+    """
+    text = str(value or "").strip()
+    return bool(text) and not any(w in text for w in NO_DEFORM_WORDS)
+
 # 商家给的图片素材质量参差：有整体全貌、有局部特写、有大字报海报。挑参考图之前先逐张做
 # 结构化理解（产物 product/image_index.json），后面选图、判断要不要编辑都读这份结构，
 # 不再靠文件顺序猜——case 17 的 @图片1 是镜头模组局部特写，生成端照着它编出了假手机。
@@ -71,6 +96,7 @@ IMAGE_INDEX_PROMPT = """这是一张商品图片素材，后面要拿去当 AI �
  "商品": "画面主体商品是什么",
  "展示信息": ["这张图能看清商品的哪些信息，逐条写，如 正面全貌 / 机身厚度 / 摄像头模组排布 / 屏幕显示内容 / 包装印刷"],
  "可见状态": ["画面里这个商品正处在什么状态，逐条把状态本身写出来；没什么可说的就给空数组"],
+ "形变": "商品有没有偏离它原本的形状：没有就写「无」；有就写清是怎么变的，如 被手指捏扁 / 被揉搓成细长条 / 被拉伸 / 被折弯 / 被按压凹陷",
  "视角或状态": "正面 / 背面 / 侧面 / 45度 / 俯视 / 打开状态 / 使用中 等",
  "是否局部细节": true/false,
  "完整性": "完整 / 基本完整 / 局部",
@@ -81,6 +107,10 @@ IMAGE_INDEX_PROMPT = """这是一张商品图片素材，后面要拿去当 AI �
  "画质": "清晰 / 一般 / 模糊"}
 
 商品包装或机身自身印刷的品牌名、产品名属于商品本身，不算干扰。
+
+「形变」只看商品自身的形状有没有被改变：手托着、手指捏着但商品没变形，写「无」；
+商品被握变形、揉搓成条、压扁、拉长、折弯才算有形变。可折叠/可开合商品按设计正常
+开合（翻盖耳机仓打开、折叠屏展开）不是形变，写「无」。
 
 「展示信息」「可见状态」写具体内容，不要只给类别名：写「背部副屏亮起显示紫底白色指针模拟时钟」，
 不要写「屏幕显示内容」；写「翻盖开到约120度，仓内两只耳机都在位」，不要写「打开状态」。
@@ -98,6 +128,9 @@ __INDEX__
 - 排第 1 的还必须是「同图商品数」为 1 的图：一张图里几台不同配色/款式同框时，
   生成端分不清该照哪一台画，主锚点自带多种配色等于要求它混搭。多款同框的图可以选中，
   但只能排在后面当配色/角度对照，不能当第 1 张
+- 排第 1 的还必须是「形变」为「无」的图：商品被人为挤压、按压、揉搓、拉伸、折弯而
+  偏离原本形状时，拿它当主锚点，生成端就会照着那个变形的形状画，整片的商品都是变形的。
+  这类图可以选中，但只能排在后面当使用状态对照，不能当第 1 张
 - 同一个视角只留信息最全的那张，其余落选
 - 素材里有多款 / 多配色 / 多套搭配时，每一款各留一张最有代表性的，不要当成同角度冗余合并掉
 - 局部特写只在它提供了别的图没有的关键信息时才留
@@ -280,11 +313,22 @@ def _pick_product_segments(rec: dict, segs: list) -> list:
                  for s in segs[:3]]
     return picks[:3]
 
+def _frame_rank(info: dict) -> tuple:
+    """抽帧的优劣排序键（元组越大越好）：不变形排在清晰前面。
+
+    形变优先级高于清晰度：糊一点只是白底图少些细节，形状被捏变了会让整片的商品一直是
+    那个变形的形状（实测 c1b4：耳塞被两指捏成尖角的那帧被当成商品参考图进了事实卡）。
+    """
+    return (0 if _is_deformed(info.get("形变")) else 1, 1 if info.get("清晰") else 0)
+
+
 def harvest_product_images(rec: dict) -> dict:
     """没有商品图时，从用户素材里抽商品帧，再据此生成白底商品图。
 
-    返回 {"抽帧": [...], "白底图": [...], "判定": {...}, "候选": [...]}，
+    返回 {"抽帧": [...], "白底图": [...], "判定": {...}, "候选": [...], "最佳帧": ...}，
     任何一步失败都只是少几张图，不抛异常打断整条流水线。
+    「抽帧」是全部抽出来的帧（留档用，顺序即候选顺序）；下游要拿去当参考图的是「最佳帧」，
+    别用「抽帧」的第一张——候选顺序是模型给的，不代表质量。
     """
     tid = rec["task_id"]
     idx_path = _p(tid, "assets", "material_index.json")
@@ -337,16 +381,26 @@ def harvest_product_images(rec: dict) -> dict:
         # 看不清商品的帧上，而这张帧是白底图与事实卡 appearance 的唯一依据。
         clear = rules.as_bool(info.get("清晰")) is True
         info["清晰"] = clear
-        if not out["判定"] or (clear and not out["判定"].get("清晰")):
+        info["商品变形"] = _is_deformed(info.get("形变"))
+        pick["形变"] = info.get("形变")
+        pick["商品变形"] = info["商品变形"]
+        if not out["判定"] or _frame_rank(info) > _frame_rank(out["判定"]):
             out["判定"] = info
             out["最佳帧"] = dst
-        if clear:
+        if _frame_rank(info) == (1, 1):   # 又清晰又没变形，不用再看后面的候选
             break
 
     frame = out.get("最佳帧")
     if not frame:
         return out
     judge = out["判定"]
+    # 全部候选都是变形的：仍然用最好的那一张（没有商品图时生成端会凭空编造假商品，
+    # 那比形状不对更糟），但把这件事显式记下来，报告与复核看得见，不静默
+    if judge.get("商品变形"):
+        log(rec, "抽帧候选里没有商品未变形的帧，只能用变形帧当参考（%s）"
+            % str(judge.get("形变"))[:60])
+        out["形变告警"] = "全部抽帧候选都是变形的商品，最佳帧仍为变形帧：%s" % judge.get("形变")
+    out["最佳帧文件"] = _rel(tid, frame)
     wants = [w.get("要表现什么") or "商品正面全貌"
              for w in (_norm_items(judge.get("白底图"), "要表现什么") or [{}])
              ][:MAX_WHITE_BG] or ["商品正面全貌"]
@@ -379,9 +433,10 @@ def harvest_product_images(rec: dict) -> dict:
     kept = [d for d in details if not d.get("弃用")]
     out["白底图"] = [d["文件"] for d in kept]                   # 下游按路径列表消费，口径不变
     out["白底图明细"] = [dict(d, 文件=_rel(tid, d["文件"])) for d in details]   # 报告溯源用
-    log(rec, "商品图补齐：抽帧 %d 张（%s），白底图 %d 张"
-        % (len(out["抽帧"]), "清晰" if judge.get("清晰") else (judge.get("问题") or "不够清晰"),
-           len(out["白底图"])))
+    log(rec, "商品图补齐：抽帧 %d 张（最佳帧 %s，%s%s），白底图 %d 张"
+        % (len(out["抽帧"]), os.path.basename(frame),
+           "清晰" if judge.get("清晰") else (judge.get("问题") or "不够清晰"),
+           "，商品变形" if judge.get("商品变形") else "", len(out["白底图"])))
     return out
 
 
@@ -485,8 +540,8 @@ def _index_product_images(rec: dict, images: list) -> list:
     理解失败的图不丢：标 error 进索引，选图时自然排在后面（结构信息缺失就没法论证它更好）。
     """
     tid = rec["task_id"]
-    keys = ("caption", "商品", "展示信息", "可见状态", "视角或状态", "是否局部细节", "完整性",
-            "完整展示的角度", "商品占比", "同图商品数", "干扰", "画质")
+    keys = ("caption", "商品", "展示信息", "可见状态", "形变", "视角或状态", "是否局部细节",
+            "完整性", "完整展示的角度", "商品占比", "同图商品数", "干扰", "画质")
 
     def one(job):
         n, path = job
@@ -509,9 +564,31 @@ def _index_product_images(rec: dict, images: list) -> list:
     whole = sum(1 for d in index if str(d.get("完整性") or "").startswith(("完整", "基本完整")))
     part = sum(1 for d in index if rules.as_bool(d.get("是否局部细节")) is True)
     dirty = sum(1 for d in index if d.get("干扰"))
-    log(rec, "商家图片结构化理解：%d 张（完整/基本完整 %d，局部特写 %d，带干扰 %d）"
-        % (len(index), whole, part, dirty))
+    bent = sum(1 for d in index if _anchor_block(d).startswith("商品变形"))
+    log(rec, "商家图片结构化理解：%d 张（完整/基本完整 %d，局部特写 %d，带干扰 %d，商品变形 %d）"
+        % (len(index), whole, part, dirty, bent))
     return index
+
+
+def _anchor_block(d: dict) -> str:
+    """这张图不能当 @图片1（主锚点）的理由；能当就返回空串。
+
+    两条都是硬口径，判不出来一律放行——免得把本该当主锚点的好图挤下去：
+    - 多款/多配色同框：主锚点自带多种配色等于要求生成端混搭（实测四色全览图当 @图片1，
+      场景设定图直接生成了 4 台不同颜色的手机）。体检本来会把多余那几台删掉，
+      但轮次用完保留原图时多台还在，所以选图这里再兜一层。
+    - 商品被人为挤压/按压/揉搓/拉伸而变形：主锚点是生成端照着画的形状基准，
+      拿变形的当基准，成片里的商品会一路变形下去（耳塞被搓成细长条那种图最典型）。
+    提示词里已经写了同样两条口径，这里是确定性兜底：模型不照做时代码仍然换位。
+    """
+    try:
+        if int(d.get("同图商品数")) >= 2:
+            return "%d 台同框" % int(d["同图商品数"])
+    except (TypeError, ValueError):
+        pass
+    if _is_deformed(d.get("形变")):
+        return "商品变形（%s）" % str(d.get("形变")).strip()[:20]
+    return ""
 
 
 def _select_refs(rec: dict, index: list) -> tuple:
@@ -519,7 +596,8 @@ def _select_refs(rec: dict, index: list) -> tuple:
 
     只读 image_index，不再看图：选图是「覆盖哪些信息」的取舍，结构化理解已经把这些
     信息摊平了。落选的图仍留在列表尾部（事实卡可查、不静默丢），只是排不进 @图片N。
-    第 1 张必须是完整全貌——生成端拿第 1 张当主锚点。
+    第 1 张必须是完整全貌，且不能多款同框、不能是变形的商品——生成端拿第 1 张当主锚点，
+    硬口径见 _anchor_block。
     """
     by_no = {d["编号"]: d for d in index}
     brief = [{k: v for k, v in d.items() if k != "文件" and v not in (None, "", [])}
@@ -551,24 +629,15 @@ def _select_refs(rec: dict, index: list) -> tuple:
         log(rec, "选图没给出有效编号，按原顺序用")
         return [d["文件"] for d in index], {"说明": "选图结果无效，按原顺序取前几张当参考图"}
     picked = picked[:rules.PRODUCT_REF_MAX]
-    # 主锚点硬口径：@图片1 不能是多款/多配色同框的图。生成端拿第 1 张当主锚点，一张图里
-    # 4 台不同配色的机器 + 提示词里「严格保留配色」是自相矛盾的指令，模型只能混搭
-    # （实测四色全览图当 @图片1，场景设定图直接生成了 4 台不同颜色的手机）。体检本来会把
-    # 多余那几台删掉，但轮次用完保留原图时多台还在，所以选图这里再兜一层。
+    # 主锚点硬口径兜底：@图片1 不能多款同框、也不能是变形的商品，理由见 _anchor_block
     by_file = {d["文件"]: d for d in index}
-
-    def units(path: str) -> int:
-        try:                          # 判不出来按单台算，免得把本该当主锚点的好图挤下去
-            return int((by_file.get(path) or {}).get("同图商品数"))
-        except (TypeError, ValueError):
-            return 1
-
     swap = ""
-    if len(picked) > 1 and units(picked[0]) >= 2:
-        alt = next((p for p in picked[1:] if units(p) < 2), "")
+    blocked = _anchor_block(by_file.get(picked[0]) or {})
+    if len(picked) > 1 and blocked:
+        alt = next((p for p in picked[1:] if not _anchor_block(by_file.get(p) or {})), "")
         if alt:
-            swap = "%s（%d 台同框）让位给 %s" % (os.path.basename(picked[0]),
-                                                units(picked[0]), os.path.basename(alt))
+            swap = "%s（%s）让位给 %s" % (os.path.basename(picked[0]), blocked,
+                                          os.path.basename(alt))
             picked.remove(alt)
             picked.insert(0, alt)
     rest = [d["文件"] for d in index if d["文件"] not in set(picked)]

@@ -1,0 +1,666 @@
+{
+  "metadata": {
+    "title": "爆款拆解与映射",
+    "diagram_type": "flowchart",
+    "direction": "LR",
+    "ranksep": 0.82,
+    "nodesep": 0.5,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "reference",
+      "label": "爆款原片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 0.0019199999999983675,
+      "y": 173.33567999999997,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "shots",
+      "label": "逐镜切分",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 220.00320000000002,
+      "y": 173.33567999999997,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "camera",
+      "label": "镜头语言",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 450.672,
+      "y": -0.0019200000000267892,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "narrative",
+      "label": "叙事结构",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 450.672,
+      "y": 114.66047999999996,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "rhythm",
+      "label": "节奏情绪",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 450.672,
+      "y": 229.33247999999998,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "audio",
+      "label": "声音风格",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 450.672,
+      "y": 343.99487999999997,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "mapping",
+      "label": "结构映射",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 757.3344000000001,
+      "y": 229.33247999999998,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "product",
+      "label": "商品事实卡",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 440.0016,
+      "y": 458.66495999999995,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "strict",
+      "label": "严格复刻",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 1053.2928,
+      "y": 172.00127999999995,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "creative",
+      "label": "创意仿写",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 1053.2928,
+      "y": 286.66367999999994,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "script",
+      "label": "新商品剧本",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 1273.3103999999998,
+      "y": 230.66688,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "reference",
+      "target": "shots",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          138.9408,
+          206.66879999999998
+        ],
+        [
+          160.3104,
+          206.66879999999998
+        ],
+        [
+          184.0512,
+          206.66879999999998
+        ],
+        [
+          206.2272,
+          206.66879999999998
+        ]
+      ]
+    },
+    {
+      "id": "e2",
+      "source": "shots",
+      "target": "camera",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          331.9008,
+          173.2704
+        ],
+        [
+          361.9104,
+          149.87519999999995
+        ],
+        [
+          403.1712,
+          118.03199999999993
+        ],
+        [
+          439.9968,
+          90.66239999999993
+        ],
+        [
+          447.09119999999996,
+          85.39199999999994
+        ],
+        [
+          454.5888,
+          79.91039999999998
+        ],
+        [
+          462.0384,
+          74.5152
+        ]
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "shots",
+      "target": "narrative",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          359.1648,
+          188.89919999999995
+        ],
+        [
+          383.7792,
+          182.64
+        ],
+        [
+          411.696,
+          175.54559999999992
+        ],
+        [
+          437.2704,
+          169.03679999999997
+        ]
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "shots",
+      "target": "rhythm",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          359.1648,
+          223.62239999999997
+        ],
+        [
+          383.7792,
+          229.59359999999998
+        ],
+        [
+          411.696,
+          236.3712
+        ],
+        [
+          437.2704,
+          242.58239999999995
+        ]
+      ]
+    },
+    {
+      "id": "e5",
+      "source": "shots",
+      "target": "audio",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          333.30240000000003,
+          240.16319999999996
+        ],
+        [
+          363.2448,
+          262.86719999999997
+        ],
+        [
+          403.8528,
+          293.45279999999997
+        ],
+        [
+          439.9968,
+          319.99679999999995
+        ],
+        [
+          447.12960000000004,
+          325.2288
+        ],
+        [
+          454.6368,
+          330.6912
+        ],
+        [
+          462.08639999999997,
+          336.06719999999996
+        ]
+      ]
+    },
+    {
+      "id": "e6",
+      "source": "camera",
+      "target": "mapping",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          570.7872,
+          66.80639999999994
+        ],
+        [
+          611.184,
+          93.87839999999994
+        ],
+        [
+          668.7936,
+          133.47839999999997
+        ],
+        [
+          717.3312,
+          170.66879999999998
+        ],
+        [
+          737.5776,
+          186.17279999999994
+        ],
+        [
+          759.1967999999999,
+          204.06719999999996
+        ],
+        [
+          777.8208,
+          219.9264
+        ]
+      ]
+    },
+    {
+      "id": "e7",
+      "source": "narrative",
+      "target": "mapping",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          589.584,
+          174.01919999999996
+        ],
+        [
+          635.5008,
+          191.18399999999997
+        ],
+        [
+          695.856,
+          213.75359999999995
+        ],
+        [
+          744.1728,
+          231.82079999999996
+        ]
+      ]
+    },
+    {
+      "id": "e8",
+      "source": "rhythm",
+      "target": "mapping",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          589.584,
+          262.6656
+        ],
+        [
+          635.1072,
+          262.6656
+        ],
+        [
+          694.8288,
+          262.6656
+        ],
+        [
+          742.944,
+          262.6656
+        ]
+      ]
+    },
+    {
+      "id": "e9",
+      "source": "audio",
+      "target": "mapping",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          589.584,
+          351.31199999999995
+        ],
+        [
+          635.5008,
+          334.1472
+        ],
+        [
+          695.856,
+          311.57759999999996
+        ],
+        [
+          744.1728,
+          293.51039999999995
+        ]
+      ]
+    },
+    {
+      "id": "e10",
+      "source": "product",
+      "target": "mapping",
+      "label": "替换内容",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          576.0768,
+          458.60064
+        ],
+        [
+          616.4928,
+          433.73472
+        ],
+        [
+          671.7216,
+          398.1024
+        ],
+        [
+          717.3312,
+          362.6688
+        ],
+        [
+          739.9968,
+          345.06239999999997
+        ],
+        [
+          763.6704,
+          323.80799999999994
+        ],
+        [
+          783.1679999999999,
+          305.43359999999996
+        ]
+      ]
+    },
+    {
+      "id": "e11",
+      "source": "mapping",
+      "target": "strict",
+      "label": "一镜对应",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          826.6656,
+          295.99871999999993
+        ],
+        [
+          1122.624,
+          172.00127999999995
+        ]
+      ]
+    },
+    {
+      "id": "e12",
+      "source": "mapping",
+      "target": "creative",
+      "label": "机制对应",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          896.064,
+          276.1056
+        ],
+        [
+          939.1487999999999,
+          284.448
+        ],
+        [
+          994.752,
+          295.2192
+        ],
+        [
+          1040.0639999999999,
+          304.0032
+        ]
+      ]
+    },
+    {
+      "id": "e13",
+      "source": "strict",
+      "target": "script",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          1122.624,
+          238.66751999999994
+        ],
+        [
+          1353.312,
+          230.66688
+        ]
+      ]
+    },
+    {
+      "id": "e14",
+      "source": "creative",
+      "target": "script",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          1192.5120000000002,
+          303.04319999999996
+        ],
+        [
+          1213.824,
+          297.87839999999994
+        ],
+        [
+          1237.536,
+          292.1088
+        ],
+        [
+          1260.096,
+          286.63679999999994
+        ]
+      ]
+    }
+  ],
+  "groups": []
+}

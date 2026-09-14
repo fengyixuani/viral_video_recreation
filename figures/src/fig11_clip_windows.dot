@@ -1,0 +1,25 @@
+// 图：素材片段复用机制——取用窗口（_ClipWindows）
+digraph windows {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.35, ranksep=0.4];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=11,
+        color="#9AA0A6", penwidth=1.1, margin="0.15,0.08"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  bar [shape=plaintext, label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="8">
+      <tr><td colspan="3" bgcolor="#E8F0FE" border="1"><b>同一条素材片段 #7（总长 9.8 秒）被多个镜头选中时的取用示意</b></td></tr>
+      <tr>
+        <td bgcolor="#A8DAB5"><b>0.0 ~ 2.1s</b><br/><font point-size="10">第一刀 → 新镜 1</font></td>
+        <td bgcolor="#CEEAD6"><b>2.1 ~ 5.5s</b><br/><font point-size="10">第二刀 → 新镜 4<br/>从上一刀结束处接着取</font></td>
+        <td bgcolor="#F1F3F4"><b>5.5 ~ 9.8s（还没用）</b><br/><font point-size="10">优先供「画面放长」取新鲜画面</font></td>
+      </tr>
+    </table>
+  >];
+
+  k1 [fillcolor="#E6F4EA", label=<<b>规则 1：只前进，不回头</b><br/><font point-size="10">每一刀从上一刀结束的位置接着取——成片里同一画面绝不出现两次</font>>];
+  k2 [fillcolor="#E6F4EA", label=<<b>规则 2：放长画面优先取新鲜素材</b><br/><font point-size="10">念白装不下要放长画面时，先取本片段没用过的真实画面，不够才放慢（≤1.6×）</font>>];
+  k3 [fillcolor="#FEF7E0", color="#B06000", label=<<b>规则 3：实在不够才允许「回卷」，且必须留痕</b><br/><font point-size="10">新鲜画面不足 1 秒才回卷复用，显式标记——review_case 质检专门查取用窗口重叠</font>>];
+
+  bar -> k1 -> k2 -> k3;
+}

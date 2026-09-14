@@ -1056,8 +1056,14 @@ def gen_assets(script: "dict[str, Any]", outdir: str,
         person = assign.get(str(ch.get("编号")))
         if person:
             try:
-                # 用户传了人物参考图：先转线稿脸（真人脸会被 seedance 风控拒），再按外观出设定图
-                sketch = line_art.to_line_art(person["url"])
+                # 用户传了人物参考图：先转线稿脸（真人脸会被 seedance 风控拒），再按外观出设定图。
+                # 商品名与商品图一起带上：线稿化是「读图出文字→文字生图」，人物身上的商品
+                # 在文字这一步被叫错品类就会一路错下去（见 line_art._DESCRIBE_PRODUCT）。
+                sketch = line_art.to_line_art(
+                    person["url"],
+                    product="、".join(x for x in ((product or {}).get("name"),
+                                                 (product or {}).get("appearance")) if x),
+                    product_refs=prod_refs[:2])
                 rec["素描图"] = sketch
                 rec["提示词"] = PERSON_SHEET_PROMPT % (ch.get("外观") or person.get("desc") or "")
                 url = aigc.gen_image(rec["提示词"], ref_images=[sketch])

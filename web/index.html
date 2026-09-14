@@ -553,6 +553,8 @@ const OPTS = [
   {key:"copy_bgm", label:"复刻 BGM", tip:"只有BGM则整轨复用；BGM+口播则分离伴奏；没有BGM则不使用"},
   {key:"copy_subtitles", label:"复刻字幕", tri:true,
    tip:"跟随参考片：参考片画面有字才烧；参考片没字就不叠字。关掉则一律不烧"},
+  {key:"dub_all_cuts", label:"素材全部重配音",
+   tip:"直接用的用户素材一律静音，改用克隆音色重新配音，整片只有一把嗓子；关掉则口播对得上又没BGM的切片保留原声"},
 ];
 let meta = null, task = null, timer = null, productSaveTimer = null;
 let taskLoadSeq = 0;

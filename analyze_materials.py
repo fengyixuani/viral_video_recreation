@@ -53,6 +53,32 @@ OVERALL_FIELDS = {
     "不适合内容": ("avoid_uses", "avoid"),
 }
 
+# 声音克隆样本：整条素材只挑一段最长的干净主角人声，在素材理解这一次调用里一并产出，
+# 不额外发请求。voice_dub._voice_candidates 把它当第一优先候选。
+# 实测（博士耳塞 17 条）证明这四条约束缺一不可：
+#   1. 不定义「主角」并列排除项 → 机舱安全须知广播拿 6 分、拍摄现场工作人员闲聊拿 5 分，
+#      真拿去克隆就克出了播音员或场工的嗓子；
+#   2. 不设段长下限 → 1s 碎片的转写会漂移（「看一下耳塞啥样」→「水星」）；
+#   3. 不写「不许猜」→ 低音量段（实测 mean -34.6dB）模型直接编内容；
+#   4. 没有「排除说明」→ 记 0 分时无从判断是真没有还是漏听，违背「显式失败」。
+VOICE_FIELDS = {
+    "有主角人声": ("有人声", "has_voice"),
+    "人声类型": ("voice_type",),
+    "开始秒": ("start", "开始时间"),
+    "结束秒": ("end", "结束时间"),
+    "时长秒": ("duration_sec", "duration"),
+    "清晰度评分": ("评分", "score", "clarity"),
+    "评分依据": ("reason",),
+    "干扰因素": ("interference", "noise"),
+    "该段转写": ("转写", "transcript"),
+    "排除说明": ("excluded", "exclusion"),
+}
+
+# 与 voice_dub.VOICE_BASE_MIN 同一口径（seedance 参考音单段下限 2s，短于它整条请求被拒）。
+# 不从 voice_dub import：media.py 已经 import 本模块，voice_dub → media 会成环。
+# 改这里要同步改 voice_dub.VOICE_BASE_MIN。
+VOICE_SEG_MIN_SEC = 2.0
+
 # 判定维度：rules.py 的规则表直接读这些布尔字段，所以必须在这里一次性问清楚，
 # 不能让下游再去「画面」「主体」这些自由文本里猜关键词（猜错就整段走错分支）。
 # 判不出来的写 null，收敛成 None：规则表只会被通配吃掉，不会等值命中某条规则。
@@ -108,9 +134,30 @@ PROMPT = """请把这条用户自有视频分析成可被未来剧本召回的�
 - 素材概要、主体标签、场景标签、动作标签、情绪标签
 - 适合内容、不适合内容
 
+「主角人声」是整条素材只给一段的音色样本，用来做声音克隆，必须包含下列字段。
+主角 = 这条素材里讲解商品、或者对着镜头说话的那个人（出镜口播和画外口播都算）。
+以下声音一律**不算**主角人声，哪怕录得很清晰也必须排除：
+- 机舱、车站、商场的公共广播与播报，安全须知，提示音
+- 电视、手机、音响里播放出来的人声
+- 路人、旁人、拍摄现场工作人员的闲聊或指挥
+- 既听不出在讲商品、也听不出是对着镜头说的背景对话
+在整条音轨里找**最长的一段清晰主角人声**：先保证清晰，再在清晰的前提下取最长。
+不足 %.1f 秒的不算；整条都没有就把「有主角人声」记 false，起止与评分都记 0。
+听不清就给低分，**绝对不要猜测或补全没听清的字**，宁可转写留空。
+- 有主角人声：布尔值 true / false
+- 人声类型：出镜口播 / 画外口播 / 无
+- 开始秒、结束秒、时长秒：数字，必须落在 0 到全片时长之间
+- 清晰度评分：0-10 整数。10 播音级近场干净单人声，无背景音乐与噪声，可直接做克隆样本；
+  8-9 仅有轻微底噪，不影响任何字词；6-7 能完整听懂，有可察觉背景音但不掩盖人声；
+  4-5 多数字能听懂但要专注，背景音明显；2-3 只听出零星词句；1 几乎听不到；0 没有主角人声
+- 评分依据：30 字内
+- 干扰因素：数组，从「背景音乐、环境噪声、混响、远场收音、爆音齿音、多人重叠、无」中选
+- 该段转写：这一段主角说的原话，没听清的字宁可省略，没有就写「无」
+- 排除说明：听到但被排除的声音及排除原因；没有就写「无」
+
 严格只输出 JSON，顶层格式必须是：
-{"片段": [...], "整体": {...}}
-不要输出 markdown，不要省略字段。"""
+{"片段": [...], "整体": {...}, "主角人声": {...}}
+不要输出 markdown，不要省略字段。""" % VOICE_SEG_MIN_SEC
 
 
 def _parse_json(raw: str) -> "dict[str, Any]":
@@ -179,6 +226,7 @@ def normalize(record: "dict[str, Any]") -> "dict[str, Any]":
     """将模型可能返回的中英文键名收敛到素材库 schema。"""
     raw_segments = record.get("片段") or record.get("segments") or []
     raw_overall = record.get("整体") or record.get("overall") or {}
+    raw_voice = record.get("主角人声") or record.get("voice_sample") or {}
     segments: "list[dict[str, Any]]" = []
     for raw in raw_segments:
         if isinstance(raw, dict):
@@ -195,7 +243,45 @@ def normalize(record: "dict[str, Any]") -> "dict[str, Any]":
         cn: _pick(raw_overall, cn, aliases)
         for cn, aliases in OVERALL_FIELDS.items()
     }
-    return {"片段": segments, "整体": overall}
+    voice = {cn: _pick(raw_voice, cn, aliases) for cn, aliases in VOICE_FIELDS.items()}
+    voice["有主角人声"] = _as_bool(voice.get("有主角人声"))
+    return {"片段": segments, "整体": overall, "主角人声": voice}
+
+
+def _fix_voice_sample(voice: "dict[str, Any]", real_total: float) -> "dict[str, Any]":
+    """校验主角人声段的时间戳，落一个「可用」结论给下游读。
+
+    模型自报的起止不能直接信：实测里它偶尔给出超过全片长度的结束秒，或者嘴上说有人声、
+    起止却是 0-0。这里只做能本地判定的三件事（有没有、区间合不合法、够不够长），
+    响度不在这里量——克隆基准音要量的是「将要使用的那个文件」，
+    由 voice_dub 抽完 wav 后走 gates.check("克隆基准音")，这是 gates.py 第 1 条范式。
+    不可用时写明原因，不静默清零。
+    """
+    start, end = _sec(voice.get("开始秒")), _sec(voice.get("结束秒"))
+    span = round(end - start, 1) if start >= 0 and end > start else -1.0
+    voice["开始秒"] = round(start, 1) if start >= 0 else 0.0
+    voice["结束秒"] = round(end, 1) if end > 0 else 0.0
+    voice["时长秒"] = span if span > 0 else 0.0
+    if voice.get("有主角人声") is not True:
+        voice.update({"可用": False, "弃用原因": "模型判定没有主角人声"})
+        return voice
+    if span <= 0:
+        voice.update({"可用": False, "弃用原因": "起止时间非法（%s→%s）"
+                                                % (voice["开始秒"], voice["结束秒"])})
+        return voice
+    if span < VOICE_SEG_MIN_SEC:
+        voice.update({"可用": False, "弃用原因": "只有 %.1fs，短于样本下限 %.1fs"
+                                                % (span, VOICE_SEG_MIN_SEC)})
+        return voice
+    if real_total > 0 and end > real_total * 1.05:
+        voice.update({"可用": False, "弃用原因": "结束秒 %.1f 超出全片时长 %.1f"
+                                                % (end, real_total)})
+        return voice
+    if real_total > 0:
+        voice["结束秒"] = round(min(end, real_total), 1)
+        voice["时长秒"] = round(voice["结束秒"] - voice["开始秒"], 1)
+    voice.update({"可用": True, "弃用原因": ""})
+    return voice
 
 
 def _model_spans(segments: "list[dict[str, Any]]", real_total: float) -> "list[tuple]":
@@ -295,11 +381,14 @@ def analyze(video: str, url: Optional[str] = None, engine: str = "gemini") -> "d
     record = normalize(_parse_json(raw))
     real_total = _video_duration(video)
     record["片段"] = _fix_timeline(record["片段"], real_total)
+    record["主角人声"] = _fix_voice_sample(record["主角人声"], real_total)
     stem = os.path.splitext(os.path.basename(video))[0]
     for segment in record["片段"]:
         segment["片段ID"] = "%s#%04d" % (stem, segment["片段序号"])
         segment["源视频"] = os.path.basename(video)
         segment["召回文本"] = _retrieval_text(segment)
+    record["主角人声"]["源文件"] = video
+    record["主角人声"]["素材ID"] = stem
     record.update({
         "素材ID": stem,
         "视频": os.path.basename(video),
@@ -319,6 +408,17 @@ def to_markdown(record: "dict[str, Any]") -> str:
     lines = ["# 素材分析：%s" % record.get("视频", ""), "", "## 整体", ""]
     for key, value in (record.get("整体") or {}).items():
         lines.append("- **%s**：%s" % (key, _fmt(value)))
+    voice = record.get("主角人声") or {}
+    lines += ["", "## 主角人声（声音克隆样本）", ""]
+    if voice.get("可用"):
+        lines.append("- **样本区间**：%.1f → %.1fs（%.1fs）" %
+                     (voice.get("开始秒") or 0, voice.get("结束秒") or 0,
+                      voice.get("时长秒") or 0))
+        for key in ("人声类型", "清晰度评分", "评分依据", "干扰因素", "该段转写", "排除说明"):
+            lines.append("- **%s**：%s" % (key, _fmt(voice.get(key))))
+    else:
+        lines.append("- **不可用**：%s" % _fmt(voice.get("弃用原因")))
+        lines.append("- **排除说明**：%s" % _fmt(voice.get("排除说明")))
     lines += ["", "## 可召回片段", ""]
     for segment in record.get("片段") or []:
         lines.append("### 片段 %s  %s→%s（%ss）" %

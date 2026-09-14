@@ -5,8 +5,10 @@
 - 补片走不通且素材本来能出镜时退回裁素材：用户素材优先于 AI 重演
 """
 import concurrent.futures as cf
+import difflib
 import json
 import os
+import re
 import shutil
 import threading
 
@@ -17,6 +19,7 @@ import produce_video  # pyright: ignore[reportImplicitRelativeImport]
 import rules  # pyright: ignore[reportImplicitRelativeImport]
 import storage  # pyright: ignore[reportImplicitRelativeImport]
 import write_script  # pyright: ignore[reportImplicitRelativeImport]
+from Agent_tools.registry import firered_asr
 from media import (MAX_SLOWDOWN, _ffmpeg, _sec, cut_clip, extract_frame)
 from product_images import _make_state_images, _piece_product_urls, _plan_shot_refs
 from ref_audio import separate_bgm
@@ -28,6 +31,13 @@ from voice_dub import (DUB_MAX_TEMPO, _dub_scale, _dub_wav, _fill_silent_dub, _j
 # 视频编辑用的参考片段下限：seedance r2v 硬要求 ≥1.8s，但太短的片段控不住整段画面，
 # 要 >5s 才有参考价值。凑不到 5s 就不做编辑，改用参考图生视频靠提示词还原画面。
 REF_CLIP_MIN = 5.0
+
+# 补片保台词的加速上限：atempo 保音高，1.5× 听着只是语速偏快；再快就开始听不清，
+# 那种宁可按老路裁掉、把结论记进 segments.json 留人工听，也别糊成一团。
+SPEECH_MAX_TEMPO = 1.5
+SPEECH_TAIL_PAD = 0.12       # 最后一个字说完后多留一点，别把尾音切秃
+SPEECH_TAIL_SLACK = 0.25     # 话尾比计划时长只超出这么多就不折腾，直接裁
+LINE_MIN_COVER = 0.5         # 台词被说出来的字数比例低于它，就当模型压根没说这句
 
 
 # ---------------- 步骤 7：分段出片 ----------------
@@ -313,17 +323,28 @@ GAP_ACTIONS = {"AIGC直接生成": "product_only", "提取模特改线稿图": "
                "直接生成线稿图": "shared_line_art", "文字描述生成": "text_only"}
 
 
-def _model_frame_line_art(rec: dict, matches: list, pool: dict) -> str:
+MODEL_REF_PRODUCT_MAX = 2    # 造模特锚点图时最多带几张商品图（只为锁形状，多了会抢人物的构图）
+
+
+def _model_frame_line_art(rec: dict, matches: list, pool: dict,
+                          product: dict = None) -> str:
     """从已选中的用户切片里抽一帧有模特人脸的画面，转成线稿图 URL（整任务只做一次）。
 
     线稿是必须的：seedance 拒收含真人人脸的参考图（见 line_art 模块说明），
     而线稿脸能把人物锚到真实模特身上又能过风控。
+
+    这张图是整片的人物锚点，模特身上/手上的商品也一起被锚死，所以必须把商品名和商品图
+    一起带进去：线稿化是「读图出文字 → 文字生图」，商品在文字这一步被叫错就全片跟着错
+    （实测 2438 的绿色无线耳机就是这么来的，详见 line_art._DESCRIBE_PRODUCT）。
     """
     tid = rec["task_id"]
     cache = _p(tid, "generated", "model_ref.json")
     if os.path.isfile(cache):
         with open(cache, encoding="utf-8") as fh:
             return json.load(fh).get("url") or ""
+    info = product or {}
+    hint = "、".join(x for x in (info.get("name"), info.get("appearance")) if x)
+    prod_urls = (info.get("image_urls") or [])[:MODEL_REF_PRODUCT_MAX]
     url, note = "", ""
     for row in sorted((r for r in matches if r.get("源文件") and r.get("片段ID")),
                       key=lambda r: -r.get("匹配度", 0)):
@@ -333,14 +354,18 @@ def _model_frame_line_art(rec: dict, matches: list, pool: dict) -> str:
         try:
             frame = extract_frame(row["源文件"], row["开始秒"] + 0.2,
                                   _p(tid, "generated", "model_frame.jpg"))
-            url = line_art.to_line_art(frame)
+            url = line_art.to_line_art(frame, product=hint, product_refs=prod_urls)
             note = "取自 %s" % row["片段ID"]
         except (RuntimeError, OSError) as exc:
             note = "抽帧/线稿失败：%s" % str(exc)[:150]
         break
     with open(cache, "w", encoding="utf-8") as fh:
-        json.dump({"url": url, "说明": note}, fh, ensure_ascii=False, indent=2)
-    log(rec, "模特线稿参考图：%s" % (note or "已选切片里没有模特人脸"))
+        json.dump({"url": url, "说明": note, "商品提示": hint,
+                   "商品参考图": prod_urls}, fh, ensure_ascii=False, indent=2)
+    log(rec, "模特线稿参考图：%s%s" % (note or "已选切片里没有模特人脸",
+                                      "（已带商品 %s + %d 张商品图）"
+                                      % (info.get("name") or "?", len(prod_urls))
+                                      if url and hint else ""))
     return url
 
 
@@ -361,28 +386,45 @@ def _gap_refs(rec: dict, seg: dict, built: dict, product_urls: list, gap: dict,
     返回 {"refs","extra","char_ids","线稿人物","product_urls"}；线稿人物=True 时提示词要前置
     line_art.REAL_ACTOR_HINT，否则线稿脸会被照抄进成片。
     """
-    cmap = {c.get("编号"): c for c in (built.get("素材") or {}).get("人物") or []
+    assets = built.get("素材") or {}
+    cmap = {c.get("编号"): c for c in assets.get("人物") or []
             if c.get("url")}
     char_ids = [c for c in (seg.get("人物编号") or []) if c in cmap]
+    scene_pairs = produce_video._scene_ref_pairs(
+        assets, seg.get("场景编号") or []
+    )
+    scene_ids = [sid for sid, _ in scene_pairs]
+    scene_urls = [url for _, url in scene_pairs]
+
+    def finish(head: list, extra: str = "", line_art_person: bool = False) -> dict:
+        refs, prods = _refs_with(head + scene_urls, product_urls)
+        kept_scenes = [(sid, url) for sid, url in zip(scene_ids, scene_urls)
+                       if url in refs]
+        return {
+            "refs": refs,
+            "extra": extra,
+            "char_ids": char_ids,
+            "scene_ids": [sid for sid, _ in kept_scenes],
+            "scene_urls": [url for _, url in kept_scenes],
+            "线稿人物": line_art_person,
+            "product_urls": prods,
+        }
+
     todo = GAP_ACTIONS.get(gap["动作"], "product_only")
     if todo == "extract_line_art" and model_url:
-        refs, prods = _refs_with([model_url], product_urls)
-        return {"refs": refs, "extra": "", "char_ids": char_ids, "线稿人物": True,
-                "product_urls": prods}
+        return finish([model_url], line_art_person=True)
     if todo == "shared_line_art" and char_ids:
-        refs, prods = _refs_with([cmap[c]["url"] for c in char_ids], product_urls)
-        return {"refs": refs, "extra": "", "char_ids": char_ids, "线稿人物": True,
-                "product_urls": prods}
+        return finish([cmap[c]["url"] for c in char_ids], line_art_person=True)
     if todo == "text_only":
         looks = [c.get("外观") or "" for c in built["剧本"].get("人物设定") or []
                  if c.get("编号") in (seg.get("人物编号") or [])]
         extra = ("画面中的人物外观：%s。" % "；".join(x for x in looks if x)) if looks else ""
-        refs, prods = _refs_with([], product_urls)
-        return {"refs": refs, "extra": extra, "char_ids": [], "线稿人物": False,
-                "product_urls": prods}
-    refs, prods = _refs_with([], product_urls)
-    return {"refs": refs, "extra": "", "char_ids": [], "线稿人物": False,
-            "product_urls": prods}
+        result = finish([], extra=extra)
+        result["char_ids"] = []
+        return result
+    result = finish([])
+    result["char_ids"] = []
+    return result
 
 
 def _sub_seg(seg: dict, block: dict, shots: dict) -> dict:
@@ -396,6 +438,8 @@ def _sub_seg(seg: dict, block: dict, shots: dict) -> dict:
     need = sum(max(0.1, float(s.get("时长秒") or 0)) for s in group)
     sub = dict(seg)
     sub.update({"镜头序号": list(block["镜头"]),
+                "场景编号": sorted({s.get("场景编号") for s in group
+                                    if s.get("场景编号")}),
                 "台词": [t for t in (_shot_text(s) for s in group) if t],
                 "原始时长秒": round(need, 1), "生成时长秒": max(4, int(round(need))),
                 "视频提示词": "；".join(x for x in (s.get("画面") for s in group) if x)
@@ -491,10 +535,23 @@ def _vet_piece(rec: dict, video_url: str, part: dict, shots: dict, product: dict
         return {"门禁": "片段验收", "通过": True, "原因": "验收失败放行：%s" % str(exc)[:120]}
 
 
+def _keep_raw(path: str) -> None:
+    """把即将被原地覆盖的补片原片挪去 *_raw.mp4 留档。
+
+    复盘「模型到底生成了什么」只能靠这份原片：segments.json 里的 url 是带签名的临时
+    地址，24 小时后回源不到；成片里留下的又只是裁过或变速过的那一版。
+    留档失败只是没得复盘，不能因此把这一块弄丢，所以异常一律吞掉。
+    """
+    try:
+        os.replace(path, os.path.splitext(path)[0] + "_raw.mp4")
+    except OSError:
+        pass
+
+
 def _trim_to(path: str, need: float) -> float:
     """把补片裁回计划时长（seedance 最短出 4s，比计划短的块必然多出一截）。"""
     got = produce_video._duration(path)
-    if need < 0.4 or got <= need + 0.25:
+    if need < 0.4 or got <= need + SPEECH_TAIL_SLACK:
         return round(got, 2)
     tmp = os.path.splitext(path)[0] + "_trim.mp4"
     ret = produce_video._run([_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
@@ -503,8 +560,117 @@ def _trim_to(path: str, need: float) -> float:
                             + produce_video.aac_args() + [tmp])
     if ret.returncode != 0 or not os.path.isfile(tmp):
         return round(got, 2)          # 裁不动就留原长，节奏差一点也别丢整块
+    _keep_raw(path)
     os.replace(tmp, path)
     return round(produce_video._duration(path), 2)
+
+
+def _plain_text(text: str) -> str:
+    """只留下用来对字的部分：去标点、空白、英文大小写差异。"""
+    return re.sub(r"[^0-9a-z\u4e00-\u9fff]", "", (text or "").lower())
+
+
+def _line_span(words: list, line: str) -> tuple:
+    """台词在补片里说到哪，返回 (说完的秒, 台词被说出来的比例)。
+
+    拿「生成时给模型的那句 text」和 ASR 逐字对齐（difflib），取最后一段对得上的字的
+    结束时间。用对齐而不是精确匹配：ASR 和剧本的标点、语气词常有出入（剧本
+    「硬桌面上，也完全」ASR 出「硬桌面上也完全」），精确匹配会一路对不上。
+    比例低于 LINE_MIN_COVER 就当模型压根没说这句话。
+    """
+    chars, ends = "", []
+    for w in words:
+        t = _plain_text(w.get("text"))
+        chars += t
+        ends += [float(w.get("end") or 0)] * len(t)
+    want = _plain_text(line)
+    if not chars or not want:
+        return 0.0, 0.0
+    blocks = [b for b in difflib.SequenceMatcher(None, want, chars).get_matching_blocks()
+              if b.size]
+    cover = sum(b.size for b in blocks) / float(len(want))
+    if not blocks:
+        return ends[-1], 0.0
+    last = blocks[-1]
+    return ends[min(last.b + last.size - 1, len(ends) - 1)], cover
+
+
+def _speed_fit(path: str, keep: float, tempo: float) -> bool:
+    """取前 keep 秒并整体加速 tempo 倍（画面 setpts、音轨 atempo 保音高），原地替换。
+
+    画面和音轨必须同一个倍数，否则口型和声音会错开。atempo 单次支持 0.5~2.0，
+    SPEECH_MAX_TEMPO 卡在 1.5 就是为了留在这个区间里。
+    """
+    tmp = os.path.splitext(path)[0] + "_fit.mp4"
+    ret = produce_video._run([_ffmpeg(), "-y", "-hide_banner", "-loglevel", "error",
+                             "-t", "%.3f" % keep, "-i", path, "-filter_complex",
+                             "[0:v]setpts=PTS/%.6f[v];[0:a]atempo=%.6f[a]" % (tempo, tempo),
+                             "-map", "[v]", "-map", "[a]",
+                             "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+                             "-pix_fmt", "yuv420p"] + produce_video.aac_args() + [tmp])
+    if ret.returncode != 0 or not os.path.isfile(tmp):
+        return False
+    _keep_raw(path)
+    os.replace(tmp, path)
+    return True
+
+
+def _fit_by_speech(rec: dict, path: str, need: float, dialogue: list,
+                   label: str) -> dict:
+    """按台词的实际说话时间收补片，返回 {"时长秒", "人声核对"}。
+
+    seedance 最短出 4s，比计划短的块必然多出一截，但直接按计划时长切会切在话中间：
+    实测 c1b4 段1块2 计划 1.13s，模型把「几十块换个好觉」说到 4.08s，切完成片里只剩
+    「几十块换个」。所以拿生成时给模型的那句 text 跟 ASR 对齐，看它说完的时刻和剪辑
+    窗口对不对得上：
+
+      说完的时刻落在计划时长内   -> 照旧裁，什么都不改
+      超出窗口且 ≤ 1.5×        -> 整块加速，把整句压进计划时长（口型跟着一起快）
+      超出窗口且 > 1.5×        -> 按老路裁，结论记进 segments.json 留人工听
+      台词几乎没说出来          -> 只记结论，交给 _fill_silent_dub 用克隆音色补整句
+
+    ASR 后端没就绪或识别失败时一律退回老路：少这层校对而已，不影响出片。
+    """
+    line = _join_lines(dialogue or [])
+    if not line or need < 0.4:
+        return {"时长秒": _trim_to(path, need)}
+    if not firered_asr.available():
+        return {"时长秒": _trim_to(path, need),
+                "人声核对": {"结论": "跳过：ASR 后端未就绪（%s）" % firered_asr.missing()}}
+    got = produce_video._duration(path)
+    r = firered_asr.transcribe(path, label)
+    check = {"台词": line, "识别": r.get("text") or "", "补片时长秒": round(got, 2),
+             "计划时长秒": round(need, 2)}
+    if not r.get("ok"):
+        check["结论"] = "跳过：识别失败（%s）" % str(r.get("error"))[:120]
+        return {"时长秒": _trim_to(path, need), "人声核对": check}
+    end, cover = _line_span(r.get("words") or [], line)
+    check["台词说出比例"] = round(cover, 2)
+    if cover < LINE_MIN_COVER:
+        # 交给 _fill_silent_dub 用克隆音色配整句，这里只把画面裁到计划时长
+        check["结论"] = ("补片几乎没说这句台词（对上 %.0f%%），待克隆音色补配音"
+                         % (cover * 100))
+        check["台词缺失"] = True
+        return {"时长秒": _trim_to(path, need), "人声核对": check}
+    end = min(got, end + SPEECH_TAIL_PAD)
+    check["台词说完于秒"] = round(end, 2)
+    if end <= need + SPEECH_TAIL_SLACK:
+        check["结论"] = "台词说完的时刻在计划时长内，按计划裁"
+        return {"时长秒": _trim_to(path, need), "人声核对": check}
+    tempo = end / need
+    if tempo <= SPEECH_MAX_TEMPO and _speed_fit(path, end, tempo):
+        check.update({"结论": "台词超出剪辑窗口，整块加速保住整句", "加速": round(tempo, 3)})
+        log(rec, "  %s 补片台词说到 %.2fs（窗口 %.2fs），加速 %.2f× 保住整句「%s」"
+            % (label, end, need, tempo, line[:20]))
+        return {"时长秒": round(produce_video._duration(path), 2), "人声核对": check}
+    # 加速也救不回来（>1.5× 就听不清了）。先按老路裁，把话被切断这件事显式记下来
+    check.update({"结论": "台词要 %.2f× 才压得进剪辑窗口，超过上限 %.1f×，已按计划裁断"
+                          % (tempo, SPEECH_MAX_TEMPO), "需要加速": round(tempo, 3),
+                  "台词被切断": True})
+    log(rec, "  %s 补片台词说到 %.2fs，压进 %.2fs 要 %.2f×（上限 %.1f×），先按计划裁断留听"
+        % (label, end, need, tempo, SPEECH_MAX_TEMPO))
+    return {"时长秒": _trim_to(path, need), "人声核对": check}
+
 
 
 def _gen_piece(rec: dict, seg: dict, block: dict, built: dict, product: dict,
@@ -536,8 +702,10 @@ def _gen_piece(rec: dict, seg: dict, block: dict, built: dict, product: dict,
     # 我们自己在 compose 里铺音轨/烧字幕，所以段内不要模型生成的音乐与画面文字（画面内音效保留）
     # 状态说明只留真正下发的那几张图：提示词与成片验收都按它写，两处口径必须一致
     notes = {u: s for u, s in state_notes.items() if u in product_urls}
-    opt = produce_video.optimize_prompt(part, shots, char_ids, product_urls,
-                                        built.get("素材") or {}, product, notes)
+    opt = produce_video.optimize_prompt(
+        part, shots, char_ids, product_urls,
+        built.get("素材") or {}, product, notes,
+        plan.get("scene_ids") or [], plan.get("scene_urls") or [])
     body = opt["prompt"].strip()
     for kw in (produce_video.LEAD_NO_SUBTITLE, produce_video.LEAD_NO_BGM):
         while body.startswith(kw):
@@ -545,7 +713,11 @@ def _gen_piece(rec: dict, seg: dict, block: dict, built: dict, product: dict,
     lead = produce_video.LEAD_NO_SUBTITLE + produce_video.LEAD_NO_BGM
     prompt = (lead + (EDIT_HINT if ref_videos else "")
               + (line_art.REAL_ACTOR_HINT if plan["线稿人物"] else "")
-              + plan["extra"] + body)
+              + plan["extra"]
+              + produce_video.scene_reference_prompt(
+                  plan.get("scene_ids") or [], plan.get("scene_urls") or [],
+                  refs, built.get("素材") or {})
+              + body)
     # 不能只把台词作为结构化信息交给 prompt 优化器：优化器可能保留台词
     # 文本，却没有把「需要模型生成对白人声」传到最终视频提示词。这里在
     # 真正下发前再加一道确定性的音频约束，保证提嗓逻辑与生成要求一致。
@@ -559,9 +731,16 @@ def _gen_piece(rec: dict, seg: dict, block: dict, built: dict, product: dict,
         prompt += "\n【对白与人声】本段无台词，只保留必要的画面内物理音效，不生成对白或人声。"
 
     def _gen(p_text, videos, audios):
-        # keep_refs：商品图不参与线稿降级——线稿化只保人物外观，商品图会被改造成人物图
-        return line_art.gen_video_safe(p_text, ref_images=refs or None,
-                                       keep_refs=product_urls,
+        # keep_refs：商品图不参与线稿降级——线稿化只保人物外观，商品图会被改造成人物图。
+        # product/product_refs：人物图转线稿时把商品名与商品图带上，别让人身上的商品被
+        # 叫错品类（见 line_art._DESCRIBE_PRODUCT 记的绿色无线耳机那次）
+        return line_art.gen_video_safe(
+                                       p_text, ref_images=refs or None,
+                                       keep_refs=product_urls + (plan.get("scene_urls") or []),
+                                       product="、".join(
+                                           x for x in (product.get("name"),
+                                                       product.get("appearance")) if x),
+                                       product_refs=product_urls,
                                        ref_videos=videos or None,
                                        ref_audios=audios or None,
                                        duration_sec=part["生成时长秒"])
@@ -610,18 +789,21 @@ def _gen_piece(rec: dict, seg: dict, block: dict, built: dict, product: dict,
         except Exception as exc:  # noqa: BLE001  已有可用的第一版，重生失败不拖垮整块
             log(rec, "  %s 重生成失败，沿用第一版（%s）" % (label, str(exc)[:80]))
     vet["使用"] = True
-    return {"kind": "gen", "mode": "edit_user_video" if ref_videos else out["mode"],
-            "验收": vet,
-            "file": file, "url": out["video_url"], "镜头": list(block["镜头"]),
-            "prompt_final": prompt, "ref_images": refs, "ref_videos": ref_videos,
-            # 溯源：ref_images_used 是真人风控降级后真正下发的参考图（人物图换成了线稿版），
-            # 参考视频来源回答「@视频1 剪自哪条素材的哪几秒」，都进 segments.json 供报告用
-            "ref_images_used": out.get("ref_images"),
-            "参考视频文件": clip or "", "参考视频来源": clip_src,
-            "ref_audios": audios, "补片判定": gap, "商品图计划": ref_plan,
-            "prompt_fixed": opt.get("fixed"), "optimize_error": opt.get("optimize_error"),
-            "生成时长秒": part["生成时长秒"],
-            "时长秒": _trim_to(file, 0 if whole else float(part["原始时长秒"]))}
+    piece = {"kind": "gen", "mode": "edit_user_video" if ref_videos else out["mode"],
+             "验收": vet,
+             "file": file, "url": out["video_url"], "镜头": list(block["镜头"]),
+             "prompt_final": prompt, "ref_images": refs, "ref_videos": ref_videos,
+             # 溯源：ref_images_used 是真人风控降级后真正下发的参考图（人物图换成了线稿版），
+             # 参考视频来源回答「@视频1 剪自哪条素材的哪几秒」，都进 segments.json 供报告用
+             "ref_images_used": out.get("ref_images"),
+             "参考视频文件": clip or "", "参考视频来源": clip_src,
+             "ref_audios": audios, "补片判定": gap, "商品图计划": ref_plan,
+             "prompt_fixed": opt.get("fixed"), "optimize_error": opt.get("optimize_error"),
+             "生成时长秒": part["生成时长秒"]}
+    # 收尾按「台词说完没」来，不是照计划时长一刀切（见 _fit_by_speech）
+    piece.update(_fit_by_speech(rec, file, 0 if whole else float(part["原始时长秒"]),
+                                dialogue, label))
+    return piece
 
 
 def _assemble_segments(rec: dict, built: dict, pieces: list, segdir: str) -> list:
@@ -772,10 +954,13 @@ def step_generate(rec: dict) -> dict:
     segdir = _d(tid, "generated", "segments")
     # 素材标注用来判断片段里有没有真人出镜（能不能做视频编辑）和有没有模特人脸（补片参考图）
     index_path = _p(tid, "assets", "material_index.json")
-    pool = {}
+    pool, voices = {}, []
     if os.path.isfile(index_path):
         with open(index_path, encoding="utf-8") as fh:
-            pool = {s.get("片段ID"): s for s in (json.load(fh).get("片段") or [])}
+            index = json.load(fh)
+        pool = {s.get("片段ID"): s for s in (index.get("片段") or [])}
+        # 素材级的「主角人声」段：voice_dub 挑克隆基准音的第一优先候选
+        voices = [m.get("主角人声") for m in (index.get("素材") or []) if m.get("主角人声")]
 
     # 「素材编辑」当不了参考视频时先降级成直接裁剪：用户素材为主，别掉到纯生成
     _demote_edit_rows(rec, matches, pool)
@@ -793,7 +978,7 @@ def step_generate(rec: dict) -> dict:
     model_url = ""
     if gap_facts["已有模特出镜"] and any(rules.as_bool(s.get("需要模特出镜")) is True
                                         for s in built["分段"]):
-        model_url = _model_frame_line_art(rec, used, pool)
+        model_url = _model_frame_line_art(rec, used, pool, product)
     # 成片要不要口播是全片级事实，不看参考片有没有口播，看下游谁会用这把嗓子：
     # 要重配音的切片行、要 AI 补片的行，只有**这一镜真有台词**才算需要。`需要配音` 只说明
     # 这段素材的原声不能要（画面能用但口播对不上），这一镜没台词时 _dub_wav 照样跳过，
@@ -802,7 +987,7 @@ def step_generate(rec: dict) -> dict:
     need_voice = any(_shot_text(shots.get(r.get("序号")))
                      for r in matches if r.get("需要配音") or not _can_cut(r))
     if need_voice:
-        voice = _voice_plan(rec, matches, built["分段"], pool)
+        voice = _voice_plan(rec, matches, built["分段"], pool, voices)
     else:
         voice = {"策略": "无需口播", "来源": "", "基准音文件": "", "基准音URL": "",
                  "说明": "没有需要配音的切片，AI 补片镜头也没有台词，跳过音色基准提取"}

@@ -1,0 +1,12 @@
+[
+  {
+    "source_video_id": "原始成片",
+    "source_path": "/root/jmzhang/baidu/ViralForge/Agent_tools/caption_clone/tests/samples/原始成片.mp4",
+    "duration": 36.69,
+    "audio_path": "/root/jmzhang/baidu/ViralForge/Agent_tools/caption_clone/tests/_run/capwork/final_asr/audio/原始成片.wav",
+    "asr_raw_path": "/root/jmzhang/baidu/ViralForge/Agent_tools/caption_clone/tests/_run/capwork/final_asr/raw/原始成片.json",
+    "asr_text": "",
+    "asr_items": [],
+    "asr_segments": []
+  }
+]

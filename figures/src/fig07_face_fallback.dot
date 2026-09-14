@@ -1,0 +1,27 @@
+// 图：真人人脸风控的三级降级链（line_art.gen_video_safe）
+digraph face {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.4, ranksep=0.45];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.16,0.09"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  prob [fillcolor="#FCE8E6", color="#EA4335", label=<<b>问题：seedance 拒收含真人人脸的参考图 / 参考视频</b><br/><font point-size="10">而「角色跨镜头长得一致」恰恰最需要人脸参考<br/>风控错误码与普通参数错误共用 40000002，只能按文案关键词（real person / sensitive）识别</font>>];
+
+  t1 [fillcolor="#E8F0FE", label=<<b>尝试①　原参考图直接生成</b>>];
+  t2 [fillcolor="#E8F0FE", label=<<b>尝试②　参考图逐张转「线稿替身」重试</b><br/><font point-size="10">写实身体 + 面部黑白线稿（材质拼接写法，头发保持写实防变白发）<br/>写实感靠具体相机光学参数压住：12/12 判为实拍（基线只有 4/12）<br/>视频提示词最前注入 REAL_ACTOR_HINT：<br/>「线稿脸 = 需要替换成真人脸的占位符」（5/5 生效，否则成片顶白线稿脸）</font>>];
+  t3 [fillcolor="#E8F0FE", label=<<b>尝试③　丢掉人物参考图，纯文字描述生成</b><br/><font point-size="10">损失人物一致性，保住出片</font>>];
+
+  ok   [fillcolor="#E6F4EA", color="#34A853", label=<<b>出片成功</b><br/><font point-size="10">用了哪级、降级原因写进产物</font>>];
+  fail [fillcolor="#FCE8E6", color="#EA4335", label=<<b>三级全被拒 → 抛错</b><br/><font point-size="10">任务显式失败，不出残片</font>>];
+  othr [shape=note, fillcolor="#FFFDF5", color="#B06000", fontsize=10, label=<只有确认是风控拒绝才降级；<br/>其他错误（网络 / 参数）直接抛出，不白白降级>];
+
+  prob -> t1;
+  t1 -> ok [label="成功", color="#188038", fontcolor="#188038"];
+  t1 -> t2 [label="被风控拒", color="#C5221F", fontcolor="#C5221F"];
+  t2 -> ok [label="成功", color="#188038", fontcolor="#188038"];
+  t2 -> t3 [label="再被拒", color="#C5221F", fontcolor="#C5221F"];
+  t3 -> ok [label="成功", color="#188038", fontcolor="#188038"];
+  t3 -> fail [label="再被拒", color="#C5221F", fontcolor="#C5221F"];
+  t1 -> othr [style=dashed, arrowhead=none];
+}

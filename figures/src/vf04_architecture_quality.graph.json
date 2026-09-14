@@ -1,0 +1,326 @@
+{
+  "metadata": {
+    "title": "通用Agent决策调度",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.45,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "inputs",
+      "label": "任务输入",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "observe",
+      "label": "提取事实",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "rules",
+      "label": "规则决策",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "state",
+      "label": "任务状态",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "agent",
+      "label": "Agent中枢",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "understand",
+      "label": "理解模型",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "generate",
+      "label": "生成模型",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "media",
+      "label": "媒体工具",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "plugins",
+      "label": "外挂能力",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "gates",
+      "label": "门禁验收",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "output",
+      "label": "成片交付",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "inputs",
+      "target": "observe",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e2",
+      "source": "observe",
+      "target": "rules",
+      "label": "结构化事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e3",
+      "source": "rules",
+      "target": "agent",
+      "label": "动作名",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e4",
+      "source": "state",
+      "target": "agent",
+      "label": "当前步骤",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e5",
+      "source": "agent",
+      "target": "understand",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6",
+      "source": "agent",
+      "target": "generate",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e7",
+      "source": "agent",
+      "target": "media",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e8",
+      "source": "agent",
+      "target": "plugins",
+      "label": "调度",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e9",
+      "source": "understand",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e10",
+      "source": "generate",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e11",
+      "source": "media",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e12",
+      "source": "plugins",
+      "target": "gates",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e13",
+      "source": "gates",
+      "target": "output",
+      "label": "通过",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e14",
+      "source": "gates",
+      "target": "rules",
+      "label": "失败重判",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "dashed",
+        "end_arrowhead": "arrow"
+      }
+    }
+  ]
+}

@@ -1,0 +1,706 @@
+{
+  "metadata": {
+    "title": "爆款复刻 Agent 的业务决策链",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.62,
+    "nodesep": 0.45,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "product",
+      "label": "商品信息卡",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 14.664960000000008,
+      "y": -0.021119999999868355,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "reference",
+      "label": "爆款参考片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 217.32959999999997,
+      "y": -0.021119999999868355,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "materials",
+      "label": "用户素材片段库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 420.00480000000005,
+      "y": -0.021119999999868355,
+      "width": 202.66559999999998,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "facts",
+      "label": "多模态事实层",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 206.66399999999996,
+      "y": 147.91488000000004,
+      "width": 181.33440000000002,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "skeleton",
+      "label": "爆款骨架与逐镜分镜表",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 65.32799999999997,
+      "y": 295.94687999999996,
+      "width": 266.66880000000003,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "script",
+      "label": "新商品剧本",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 162.6672,
+      "y": 443.95967999999993,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "agent",
+      "label": "Agent：逐镜复刻决策",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 192.0,
+      "y": 591.95328,
+      "width": 266.66880000000003,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "rules",
+      "label": "rules：动作选择",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 105.33600000000001,
+      "y": 739.95648,
+      "width": 223.9968,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "tools",
+      "label": "工具调用：复用 / 编辑 / 补片",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 0.0,
+      "y": 887.95968,
+      "width": 365.3376,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "gates",
+      "label": "gates：真实产物验收",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 175.99679999999995,
+      "y": 1035.95328,
+      "width": 266.66880000000003,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "compose",
+      "label": "组装成片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 239.99999999999997,
+      "y": 1183.95648,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "deliver",
+      "label": "可追溯复刻成片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 207.99839999999998,
+      "y": 1331.95776,
+      "width": 202.66559999999998,
+      "height": 66.66623999999999
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "product",
+      "target": "facts",
+      "label": "商品事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          140.3904,
+          66.81600000000003
+        ],
+        [
+          161.3856,
+          82.27200000000016
+        ],
+        [
+          186.6144,
+          100.70399999999995
+        ],
+        [
+          209.3376,
+          117.31200000000013
+        ],
+        [
+          219.30240000000003,
+          124.60799999999995
+        ],
+        [
+          229.92000000000002,
+          132.288
+        ],
+        [
+          240.20159999999998,
+          139.77600000000007
+        ]
+      ]
+    },
+    {
+      "id": "e2",
+      "source": "reference",
+      "target": "facts",
+      "label": "参考片事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          297.33119999999997,
+          66.91200000000003
+        ],
+        [
+          297.33119999999997,
+          86.7840000000001
+        ],
+        [
+          297.33119999999997,
+          112.22399999999993
+        ],
+        [
+          297.33119999999997,
+          134.11199999999985
+        ]
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "materials",
+      "target": "facts",
+      "label": "素材事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          476.2368,
+          66.91200000000003
+        ],
+        [
+          454.66560000000004,
+          82.56000000000017
+        ],
+        [
+          428.2944,
+          101.37599999999998
+        ],
+        [
+          403.9968,
+          117.31200000000013
+        ],
+        [
+          391.9776,
+          125.18399999999997
+        ],
+        [
+          378.98879999999997,
+          133.34400000000005
+        ],
+        [
+          366.3456,
+          141.02400000000011
+        ]
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "facts",
+      "target": "skeleton",
+      "label": "拆解",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          274.94399999999996,
+          214.84800000000018
+        ],
+        [
+          261.1968,
+          235.48800000000006
+        ],
+        [
+          243.4176,
+          262.17600000000016
+        ],
+        [
+          228.48,
+          284.5440000000001
+        ]
+      ]
+    },
+    {
+      "id": "e5",
+      "source": "skeleton",
+      "target": "script",
+      "label": "结合商品改写",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          208.6464,
+          362.8800000000001
+        ],
+        [
+          214.61759999999998,
+          382.94399999999996
+        ],
+        [
+          222.27839999999998,
+          408.672
+        ],
+        [
+          228.81600000000003,
+          430.75199999999995
+        ]
+      ]
+    },
+    {
+      "id": "e6",
+      "source": "script",
+      "target": "agent",
+      "label": "逐镜目标",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          259.5552,
+          510.65279999999996
+        ],
+        [
+          267.552,
+          526.1664
+        ],
+        [
+          277.3728,
+          544.8
+        ],
+        [
+          286.6656,
+          561.2927999999999
+        ],
+        [
+          290.08320000000003,
+          567.3599999999999
+        ],
+        [
+          293.76959999999997,
+          573.6864
+        ],
+        [
+          297.4464,
+          579.9072000000001
+        ]
+      ]
+    },
+    {
+      "id": "e7",
+      "source": "facts",
+      "target": "agent",
+      "label": "当前镜头状态",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          318.1728,
+          215.03999999999996
+        ],
+        [
+          330.71999999999997,
+          237.2159999999999
+        ],
+        [
+          345.7056,
+          267.2639999999999
+        ],
+        [
+          353.3376,
+          295.9680000000001
+        ],
+        [
+          383.67359999999996,
+          410.11199999999997
+        ],
+        [
+          404.37120000000004,
+          448.46399999999994
+        ],
+        [
+          369.33119999999997,
+          561.2927999999999
+        ],
+        [
+          367.3152,
+          567.8016
+        ],
+        [
+          364.368,
+          574.2431999999999
+        ],
+        [
+          360.9504,
+          580.3776
+        ]
+      ]
+    },
+    {
+      "id": "e8",
+      "source": "agent",
+      "target": "rules",
+      "label": "查规则",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          300.8256,
+          658.8768
+        ],
+        [
+          285.77279999999996,
+          679.4976
+        ],
+        [
+          266.31359999999995,
+          706.1664000000001
+        ],
+        [
+          249.96480000000003,
+          728.5728
+        ]
+      ]
+    },
+    {
+      "id": "e9",
+      "source": "rules",
+      "target": "tools",
+      "label": "keep / edit / generate",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          189.6096,
+          806.9376
+        ],
+        [
+          183.49439999999998,
+          816.2208
+        ],
+        [
+          177.8784,
+          826.6848
+        ],
+        [
+          174.6624,
+          837.2928
+        ],
+        [
+          171.12,
+          849.0048
+        ],
+        [
+          170.736,
+          862.0224000000001
+        ],
+        [
+          171.84,
+          874.2432
+        ]
+      ]
+    },
+    {
+      "id": "e10",
+      "source": "tools",
+      "target": "gates",
+      "label": "镜头产物",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          211.4112,
+          954.8736
+        ],
+        [
+          229.2192,
+          975.6864
+        ],
+        [
+          252.30720000000002,
+          1002.6624
+        ],
+        [
+          271.584,
+          1025.184
+        ]
+      ]
+    },
+    {
+      "id": "e11",
+      "source": "gates",
+      "target": "compose",
+      "label": "通过",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          309.33119999999997,
+          1102.8768
+        ],
+        [
+          309.33119999999997,
+          1122.7392
+        ],
+        [
+          309.33119999999997,
+          1148.2176
+        ],
+        [
+          309.33119999999997,
+          1170.0864000000001
+        ]
+      ]
+    },
+    {
+      "id": "e12",
+      "source": "gates",
+      "target": "agent",
+      "label": "失败：回判",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "dashed",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          340.0608,
+          1035.4848
+        ],
+        [
+          357.4368,
+          1014.0288
+        ],
+        [
+          377.472,
+          984.7008000000001
+        ],
+        [
+          386.66880000000003,
+          954.624
+        ],
+        [
+          416.81280000000004,
+          856.0224000000001
+        ],
+        [
+          375.792,
+          736.0416
+        ],
+        [
+          347.712,
+          671.5872
+        ]
+      ]
+    },
+    {
+      "id": "e13",
+      "source": "compose",
+      "target": "deliver",
+      "label": "全片组装",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          309.33119999999997,
+          1250.8704
+        ],
+        [
+          309.33119999999997,
+          1270.7424
+        ],
+        [
+          309.33119999999997,
+          1296.2208
+        ],
+        [
+          309.33119999999997,
+          1318.08672
+        ]
+      ]
+    }
+  ],
+  "groups": []
+}

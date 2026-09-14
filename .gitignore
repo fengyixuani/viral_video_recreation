@@ -1,0 +1,16 @@
+# 产出目录：15G 视频素材，含 20 个 >100MB 文件，超出 GitHub 上限
+output/
+
+# Python 缓存
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# 本地配置（含密钥，勿提交）
+config.env
+
+# 第三方依赖落地目录（yt-dlp 2026.8.19 的 pip 安装产物）
+# 其源码里 extractor/shahid.py 含 AWS 形态常量，会被 GitHub 推送保护拦截；
+# 需要时用 pip install yt-dlp==2026.8.19 -t .tools 重新装回来
+.tools/

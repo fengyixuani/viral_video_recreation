@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+<style>@font-face {font-family: ViralForgeCJK;src: url('file:///usr/share/fonts/google-droid/DroidSansFallback.ttf');font-style: normal;font-weight: 100 900;}</style>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#17324D" flood-opacity="0.10"/></filter>
+<marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#1F5AA6"/></marker>
+<marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#F28C28"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#FFFFFF"/>
+<rect x="70" y="42" width="5" height="82" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="100" y="68" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="36" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">爆款如何拆解，并映射成新商品剧本</text>
+<text x="100" y="110" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">复刻的对象不是原片画面，而是每一镜背后的时长、镜头语言和叙事作用</text>
+<line x1="70" y1="150" x2="1850" y2="150" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<line x1="1385" y1="68" x2="1435" y2="68" stroke="#F28C28" stroke-width="3" stroke-linecap="round"/>
+<text x="1850" y="68" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="600" fill="#0B2A5B" text-anchor="end" dominant-baseline="middle" letter-spacing="0.4">按镜拆，才能逐镜匹配与验收</text>
+<rect x="245" y="185" width="1605" height="220" rx="14" fill="#F7F9FC" fill-opacity="1.0" stroke="#E6ECF3" stroke-width="1"/>
+<text x="72" y="213" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">A</text>
+<line x1="72" y1="235" x2="210" y2="235" stroke="#D7E1ED" stroke-width="1" stroke-linecap="round"/>
+<text x="72" y="267" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="22" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考片</text>
+<text x="72" y="301" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">把原片切成</text>
+<text x="72" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">连续镜头</text>
+<rect x="245" y="430" width="1605" height="225" rx="14" fill="#F7F9FC" fill-opacity="1.0" stroke="#E6ECF3" stroke-width="1"/>
+<text x="72" y="458" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">B</text>
+<line x1="72" y1="480" x2="210" y2="480" stroke="#D7E1ED" stroke-width="1" stroke-linecap="round"/>
+<text x="72" y="512" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="22" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">结构映射</text>
+<text x="72" y="546" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">明确哪些保留</text>
+<text x="72" y="567" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">哪些替换</text>
+<rect x="245" y="680" width="1605" height="245" rx="14" fill="#F7F9FC" fill-opacity="1.0" stroke="#E6ECF3" stroke-width="1"/>
+<text x="72" y="708" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">C</text>
+<line x1="72" y1="730" x2="210" y2="730" stroke="#D7E1ED" stroke-width="1" stroke-linecap="round"/>
+<text x="72" y="762" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="22" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新剧本</text>
+<text x="72" y="796" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜</text>
+<text x="72" y="817" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">逐镜写新内容</text>
+<rect x="270" y="220" width="280" height="150" rx="6" fill="#FFFFFF" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="294" y="238" width="44" height="3" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="294" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">1</text>
+<text x="328" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考镜 01</text>
+<text x="294" y="298" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">开场钩子</text>
+<text x="294" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">1.2s · 商品特写</text>
+<line x1="558" y1="295" x2="573" y2="295" stroke="#D7E1ED" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<rect x="583" y="220" width="280" height="150" rx="6" fill="#FFFFFF" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="607" y="238" width="44" height="3" rx="0" fill="#1F5AA6" fill-opacity="1.0" stroke="#1F5AA6" stroke-width="1.4"/>
+<text x="607" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#1F5AA6" text-anchor="start" dominant-baseline="middle" letter-spacing="0">2</text>
+<text x="641" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考镜 02</text>
+<text x="607" y="298" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">痛点铺垫</text>
+<text x="607" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">2.4s · 中景跟拍</text>
+<line x1="871" y1="295" x2="886" y2="295" stroke="#D7E1ED" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<rect x="896" y="220" width="280" height="150" rx="6" fill="#FFFFFF" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="920" y="238" width="44" height="3" rx="0" fill="#1F5AA6" fill-opacity="1.0" stroke="#1F5AA6" stroke-width="1.4"/>
+<text x="920" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#1F5AA6" text-anchor="start" dominant-baseline="middle" letter-spacing="0">3</text>
+<text x="954" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考镜 03</text>
+<text x="920" y="298" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">功能演示</text>
+<text x="920" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">3.0s · 近景推镜</text>
+<line x1="1184" y1="295" x2="1199" y2="295" stroke="#D7E1ED" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<rect x="1209" y="220" width="280" height="150" rx="6" fill="#FFFFFF" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="1233" y="238" width="44" height="3" rx="0" fill="#1F5AA6" fill-opacity="1.0" stroke="#1F5AA6" stroke-width="1.4"/>
+<text x="1233" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#1F5AA6" text-anchor="start" dominant-baseline="middle" letter-spacing="0">4</text>
+<text x="1267" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考镜 04</text>
+<text x="1233" y="298" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">效果证明</text>
+<text x="1233" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">2.2s · 对比切换</text>
+<line x1="1497" y1="295" x2="1512" y2="295" stroke="#D7E1ED" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<rect x="1522" y="220" width="280" height="150" rx="6" fill="#FFFFFF" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="1546" y="238" width="44" height="3" rx="0" fill="#1F5AA6" fill-opacity="1.0" stroke="#1F5AA6" stroke-width="1.4"/>
+<text x="1546" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#1F5AA6" text-anchor="start" dominant-baseline="middle" letter-spacing="0">5</text>
+<text x="1580" y="263" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考镜 05</text>
+<text x="1546" y="298" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">行动引导</text>
+<text x="1546" y="322" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="15" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">1.6s · 正面定镜</text>
+<rect x="270" y="470" width="735" height="145" rx="6" fill="#EAF1FB" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="294" y="488" width="44" height="3" rx="0" fill="#1F5AA6" fill-opacity="1.0" stroke="#1F5AA6" stroke-width="1.4"/>
+<text x="294" y="513" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">保留：爆款的传播骨架</text>
+<text x="294" y="548" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">分镜数量与时长 · 景别与运镜</text>
+<text x="294" y="576" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">转场与节奏 · 钩子/铺垫/反转/转化</text>
+<rect x="1085" y="470" width="715" height="145" rx="6" fill="#FFF1E3" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="1109" y="488" width="44" height="3" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="1109" y="513" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">替换：你的商品内容</text>
+<text x="1109" y="548" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">人物与场景 · 商品与卖点</text>
+<text x="1109" y="576" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">商品相关台词 · 需要表达的具体动作</text>
+<line x1="1008" y1="542" x2="1077" y2="542" stroke="#0B2A5B" stroke-width="1.5" stroke-linecap="round"/>
+<text x="1043" y="524" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="700" fill="#0B2A5B" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">逐镜对应</text>
+<rect x="270" y="720" width="280" height="165" rx="6" fill="#F3F7FC" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="294" y="738" width="44" height="3" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="294" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">1</text>
+<text x="328" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新镜头 01</text>
+<text x="294" y="798" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜 01</text>
+<text x="294" y="821" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新商品钩子</text>
+<text x="294" y="844" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">仍为 1.2s · 特写</text>
+<line x1="410.0" y1="390" x2="410.0" y2="430" stroke="#AFC2DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8"/>
+<line x1="410.0" y1="655" x2="410.0" y2="704" stroke="#3778C2" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+<rect x="583" y="720" width="280" height="165" rx="6" fill="#F3F7FC" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="607" y="738" width="44" height="3" rx="0" fill="#3778C2" fill-opacity="1.0" stroke="#3778C2" stroke-width="1.4"/>
+<text x="607" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#3778C2" text-anchor="start" dominant-baseline="middle" letter-spacing="0">2</text>
+<text x="641" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新镜头 02</text>
+<text x="607" y="798" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜 02</text>
+<text x="607" y="821" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">目标用户痛点</text>
+<text x="607" y="844" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">仍为 2.4s · 跟拍</text>
+<line x1="723.0" y1="390" x2="723.0" y2="430" stroke="#AFC2DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8"/>
+<line x1="723.0" y1="655" x2="723.0" y2="704" stroke="#3778C2" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+<rect x="896" y="720" width="280" height="165" rx="6" fill="#F3F7FC" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="920" y="738" width="44" height="3" rx="0" fill="#3778C2" fill-opacity="1.0" stroke="#3778C2" stroke-width="1.4"/>
+<text x="920" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#3778C2" text-anchor="start" dominant-baseline="middle" letter-spacing="0">3</text>
+<text x="954" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新镜头 03</text>
+<text x="920" y="798" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜 03</text>
+<text x="920" y="821" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新功能演示</text>
+<text x="920" y="844" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">仍为 3.0s · 推镜</text>
+<line x1="1036.0" y1="390" x2="1036.0" y2="430" stroke="#AFC2DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8"/>
+<line x1="1036.0" y1="655" x2="1036.0" y2="704" stroke="#3778C2" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+<rect x="1209" y="720" width="280" height="165" rx="6" fill="#F3F7FC" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="1233" y="738" width="44" height="3" rx="0" fill="#3778C2" fill-opacity="1.0" stroke="#3778C2" stroke-width="1.4"/>
+<text x="1233" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#3778C2" text-anchor="start" dominant-baseline="middle" letter-spacing="0">4</text>
+<text x="1267" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新镜头 04</text>
+<text x="1233" y="798" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜 04</text>
+<text x="1233" y="821" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新效果证明</text>
+<text x="1233" y="844" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">仍为 2.2s · 对比</text>
+<line x1="1349.0" y1="390" x2="1349.0" y2="430" stroke="#AFC2DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8"/>
+<line x1="1349.0" y1="655" x2="1349.0" y2="704" stroke="#3778C2" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+<rect x="1522" y="720" width="280" height="165" rx="6" fill="#F3F7FC" fill-opacity="1.0" stroke="#D7E1ED" stroke-width="1"/>
+<rect x="1546" y="738" width="44" height="3" rx="0" fill="#3778C2" fill-opacity="1.0" stroke="#3778C2" stroke-width="1.4"/>
+<text x="1546" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#3778C2" text-anchor="start" dominant-baseline="middle" letter-spacing="0">5</text>
+<text x="1580" y="763" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新镜头 05</text>
+<text x="1546" y="798" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">对应参考镜 05</text>
+<text x="1546" y="821" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">新转化文案</text>
+<text x="1546" y="844" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">仍为 1.6s · 定镜</text>
+<line x1="1662.0" y1="390" x2="1662.0" y2="430" stroke="#AFC2DA" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8"/>
+<line x1="1662.0" y1="655" x2="1662.0" y2="704" stroke="#3778C2" stroke-width="2" stroke-linecap="round" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+<line x1="70" y1="962" x2="1850" y2="962" stroke="#D7E1ED" stroke-width="1" stroke-linecap="round"/>
+<rect x="70" y="988" width="5" height="34" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="96" y="1005" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#D86F0B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">核心结论</text>
+<text x="220" y="1005" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="600" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">严格复刻保留镜头骨架并替换内容；创意仿写保留传播机制，允许剧情变化。</text>
+</svg>

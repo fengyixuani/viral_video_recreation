@@ -1,0 +1,377 @@
+{
+  "metadata": {
+    "title": "爆款复刻总览",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.48,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "reference",
+      "label": "爆款参考片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "decompose",
+      "label": "逐镜拆解",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "skeleton",
+      "label": "传播骨架",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "rewrite",
+      "label": "新剧本映射",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "materials",
+      "label": "用户素材库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "match",
+      "label": "逐镜匹配",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "state",
+      "label": "任务状态",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "agent",
+      "label": "Agent中枢",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "decision",
+      "label": "rules决策",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "crop",
+      "label": "直接裁剪",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "edit",
+      "label": "素材编辑",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "generate",
+      "label": "AI补片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#60758C",
+        "background_color": "#F1F4F8",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "compose",
+      "label": "组装成片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "review",
+      "label": "质检交付",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "reference",
+      "target": "decompose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e2",
+      "source": "decompose",
+      "target": "skeleton",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e3",
+      "source": "skeleton",
+      "target": "rewrite",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e4",
+      "source": "rewrite",
+      "target": "match",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e5",
+      "source": "materials",
+      "target": "match",
+      "label": "优先使用",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6",
+      "source": "match",
+      "target": "agent",
+      "label": "事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6a",
+      "source": "state",
+      "target": "agent",
+      "label": "当前步骤",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6b",
+      "source": "agent",
+      "target": "decision",
+      "label": "查规则",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e7",
+      "source": "decision",
+      "target": "crop",
+      "label": "≥0.80",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e8",
+      "source": "decision",
+      "target": "edit",
+      "label": "0.55≤s<0.80",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e9",
+      "source": "decision",
+      "target": "generate",
+      "label": "<0.55",
+      "style": {
+        "stroke_color": "#60758C",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e10",
+      "source": "crop",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e11",
+      "source": "edit",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e12",
+      "source": "generate",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e13",
+      "source": "compose",
+      "target": "review",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    }
+  ]
+}

@@ -184,8 +184,25 @@ def _shot_text(shot: dict) -> str:
     return "" if text in ("", "无", "-") else text
 
 
+def _force_dub(clip: dict) -> dict:
+    """把「用户切片处理」的判定盖成「静音后使用 + 重新配音」（options.dub_all_cuts）。
+
+    这是参数强制，不是新规则：原判定原样留在返回值里（规则表、命中行、原动作都保着），
+    只有动作和需要配音被覆盖，对账时能看出「本来会保原声、是参数把它静音的」。
+    「不使用」不盖：那条切片的画面本来就不直接出镜，静音与否都无意义。
+    """
+    if not clip or clip.get("动作") == "不使用":
+        return clip
+    if clip.get("动作") == "静音后使用" and clip.get("需要配音"):
+        return clip                      # 本来就要重配，不必留强制痕迹
+    return dict(clip, 动作="静音后使用", 需要配音=True, 原动作=clip.get("动作"),
+                强制="参数 dub_all_cuts：用户素材一律静音后重配音",
+                说明="参数强制静音后重配音（原判定：%s）" % (clip.get("说明") or ""))
+
+
 def step_match(rec: dict) -> dict:
     tid = rec["task_id"]
+    force_dub = bool(rec["options"].get("dub_all_cuts"))
     with open(_p(tid, "script", "script.json"), encoding="utf-8") as fh:
         script = json.load(fh)
     with open(_p(tid, "assets", "material_index.json"), encoding="utf-8") as fh:
@@ -215,6 +232,8 @@ def step_match(rec: dict) -> dict:
         # 「用户切片处理」表先判这条切片能不能原样出镜（门槛 + 音轨怎么处理）。
         # 判成「不使用」的不做直接裁剪，但画面够用时仍可当素材编辑的参考视频。
         clip = rules.decide("用户切片处理", _clip_facts(seg, hit)) if seg else None
+        if force_dub:
+            clip = _force_dub(clip)
         strategy = _strategy(score)
         if clip and clip["动作"] == "不使用" and strategy == "直接裁剪":
             strategy = "素材编辑"
@@ -237,6 +256,10 @@ def step_match(rec: dict) -> dict:
         if row.get("切片动作"):
             clip_stat[row["切片动作"]] = clip_stat.get(row["切片动作"], 0) + 1
     result.update({"统计": stat, "切片处理统计": clip_stat})
+    forced = [r for r in result["分镜匹配"] if (r.get("切片判定") or {}).get("原动作")]
+    if forced:
+        result["强制重配音"] = [{"序号": r["序号"], "原动作": r["切片判定"]["原动作"]}
+                               for r in forced]
     yields = [r for r in result["分镜匹配"] if r.get("分配说明")]
     if yields:
         result["片段独占让位"] = [{"序号": r["序号"], "说明": r["分配说明"]} for r in yields]
@@ -246,7 +269,12 @@ def step_match(rec: dict) -> dict:
     log(rec, "素材匹配：%s" % ("、".join("%s%d镜" % (k, v) for k, v in stat.items()) or "无分镜"))
     if clip_stat:
         log(rec, "切片处理：%s" % "、".join("%s%d条" % (k, v) for k, v in clip_stat.items()))
+    if force_dub:
+        log(rec, "  参数「用户素材全部重配音」已开：%s"
+            % ("%d 镜本来能保原声，已改为静音后重配（%s）"
+               % (len(forced), "、".join(sorted({r["切片判定"]["原动作"] for r in forced})))
+               if forced else "所有切片本来就要重配，判定没有变化"))
     for row in yields:
         log(rec, "  镜%s %s" % (row["序号"], row["分配说明"]))
     return {"artifact": _rel(tid, path), "stat": stat, "clip_stat": clip_stat,
-            "片段独占让位": len(yields)}
+            "强制重配音": len(forced), "片段独占让位": len(yields)}

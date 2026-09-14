@@ -1,0 +1,742 @@
+{
+  "metadata": {
+    "title": "爆款复刻总览",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.72,
+    "nodesep": 0.48,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "reference",
+      "label": "爆款参考片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": -0.0019199999999983675,
+      "y": -0.02112000000009573,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "decompose",
+      "label": "逐镜拆解",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 10.668480000000002,
+      "y": 137.35487999999987,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "skeleton",
+      "label": "传播骨架",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 10.668480000000002,
+      "y": 274.63487999999984,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "rewrite",
+      "label": "新剧本映射",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": -0.0019199999999983675,
+      "y": 411.98208,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "materials",
+      "label": "用户素材库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 206.664,
+      "y": 411.98208,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "match",
+      "label": "逐镜匹配",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 145.3344,
+      "y": 567.98208,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "state",
+      "label": "任务状态",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 330.672,
+      "y": 567.98208,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "agent",
+      "label": "Agent中枢",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 226.6608,
+      "y": 723.9820799999999,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "decision",
+      "label": "rules决策",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 226.6608,
+      "y": 879.9820799999999,
+      "width": 160.0032,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "crop",
+      "label": "直接裁剪",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 52.00320000000001,
+      "y": 1035.98208,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "edit",
+      "label": "素材编辑",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 237.3312,
+      "y": 1035.98208,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "generate",
+      "label": "AI补片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#60758C",
+        "background_color": "#F1F4F8",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 422.664,
+      "y": 1035.98208,
+      "width": 133.33440000000002,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "compose",
+      "label": "组装成片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 237.3312,
+      "y": 1173.31008,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    },
+    {
+      "id": "review",
+      "label": "质检交付",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      },
+      "group": null,
+      "x": 237.3312,
+      "y": 1310.6457599999999,
+      "width": 138.6624,
+      "height": 66.66623999999999
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "reference",
+      "target": "decompose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          79.99968,
+          66.91199999999981
+        ],
+        [
+          79.99968,
+          83.90399999999977
+        ],
+        [
+          79.99968,
+          104.73599999999988
+        ],
+        [
+          79.99968,
+          123.2639999999999
+        ]
+      ]
+    },
+    {
+      "id": "e2",
+      "source": "decompose",
+      "target": "skeleton",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          79.99968,
+          204.288
+        ],
+        [
+          79.99968,
+          221.18399999999997
+        ],
+        [
+          79.99968,
+          242.01599999999985
+        ],
+        [
+          79.99968,
+          260.6399999999999
+        ]
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "skeleton",
+      "target": "rewrite",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          79.99968,
+          341.568
+        ],
+        [
+          79.99968,
+          358.55999999999995
+        ],
+        [
+          79.99968,
+          379.39199999999994
+        ],
+        [
+          79.99968,
+          397.91999999999985
+        ]
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "rewrite",
+      "target": "match",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          108.89280000000001,
+          478.7807999999999
+        ],
+        [
+          128.77439999999999,
+          501.8111999999999
+        ],
+        [
+          155.376,
+          532.6271999999999
+        ],
+        [
+          176.928,
+          557.5967999999998
+        ]
+      ]
+    },
+    {
+      "id": "e5",
+      "source": "materials",
+      "target": "match",
+      "label": "优先使用",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          271.2192,
+          478.7807999999999
+        ],
+        [
+          260.88,
+          501.18719999999985
+        ],
+        [
+          247.1232,
+          530.9856
+        ],
+        [
+          235.776,
+          555.5808
+        ]
+      ]
+    },
+    {
+      "id": "e6",
+      "source": "match",
+      "target": "agent",
+      "label": "事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          234.4032,
+          634.7807999999999
+        ],
+        [
+          247.74720000000002,
+          657.3983999999998
+        ],
+        [
+          265.5168,
+          687.5328
+        ],
+        [
+          280.0992,
+          712.2528
+        ]
+      ]
+    },
+    {
+      "id": "e6a",
+      "source": "state",
+      "target": "agent",
+      "label": "当前步骤",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          379.9776,
+          634.7807999999999
+        ],
+        [
+          366.4416,
+          657.3983999999998
+        ],
+        [
+          348.4128,
+          687.5328
+        ],
+        [
+          333.6192,
+          712.2528
+        ]
+      ]
+    },
+    {
+      "id": "e6b",
+      "source": "agent",
+      "target": "decision",
+      "label": "查规则",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          306.6624,
+          790.7807999999999
+        ],
+        [
+          306.6624,
+          812.8799999999999
+        ],
+        [
+          306.6624,
+          842.1696
+        ],
+        [
+          306.6624,
+          866.5631999999999
+        ]
+      ]
+    },
+    {
+      "id": "e7",
+      "source": "decision",
+      "target": "crop",
+      "label": "≥0.80",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          266.9088,
+          946.7807999999999
+        ],
+        [
+          238.9344,
+          970.3199999999999
+        ],
+        [
+          201.2928,
+          1002.0095999999999
+        ],
+        [
+          171.2928,
+          1027.2576
+        ]
+      ]
+    },
+    {
+      "id": "e8",
+      "source": "decision",
+      "target": "edit",
+      "label": "0.55≤s<0.80",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          305.08799999999997,
+          946.8575999999998
+        ],
+        [
+          304.64639999999997,
+          957.8303999999998
+        ],
+        [
+          304.224,
+          970.0895999999999
+        ],
+        [
+          304.0032,
+          981.3119999999999
+        ],
+        [
+          303.7344,
+          994.6943999999999
+        ],
+        [
+          303.9648,
+          1009.2191999999999
+        ],
+        [
+          304.3776,
+          1022.5439999999999
+        ]
+      ]
+    },
+    {
+      "id": "e9",
+      "source": "decision",
+      "target": "generate",
+      "label": "<0.55",
+      "style": {
+        "stroke_color": "#60758C",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          386.736,
+          946.7423999999999
+        ],
+        [
+          404.17920000000004,
+          956.2943999999999
+        ],
+        [
+          421.68,
+          967.8431999999999
+        ],
+        [
+          436.0032,
+          981.3119999999999
+        ],
+        [
+          448.70400000000006,
+          993.2639999999999
+        ],
+        [
+          459.4752,
+          1008.9119999999999
+        ],
+        [
+          467.94239999999996,
+          1023.6768
+        ]
+      ]
+    },
+    {
+      "id": "e10",
+      "source": "crop",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          166.6752,
+          1102.9055999999998
+        ],
+        [
+          191.9136,
+          1121.616
+        ],
+        [
+          223.5552,
+          1145.0592
+        ],
+        [
+          250.37759999999997,
+          1164.9312
+        ]
+      ]
+    },
+    {
+      "id": "e11",
+      "source": "edit",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          306.6624,
+          1102.9055999999998
+        ],
+        [
+          306.6624,
+          1119.8687999999997
+        ],
+        [
+          306.6624,
+          1140.7296
+        ],
+        [
+          306.6624,
+          1159.2864
+        ]
+      ]
+    },
+    {
+      "id": "e12",
+      "source": "generate",
+      "target": "compose",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          444.6528,
+          1102.9055999999998
+        ],
+        [
+          419.87520000000006,
+          1121.5295999999998
+        ],
+        [
+          388.85760000000005,
+          1144.8575999999998
+        ],
+        [
+          362.496,
+          1164.672
+        ]
+      ]
+    },
+    {
+      "id": "e13",
+      "source": "compose",
+      "target": "review",
+      "label": "",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      },
+      "points": [
+        [
+          306.6624,
+          1240.2432
+        ],
+        [
+          306.6624,
+          1257.1968
+        ],
+        [
+          306.6624,
+          1278.0575999999999
+        ],
+        [
+          306.6624,
+          1296.6153599999998
+        ]
+      ]
+    }
+  ],
+  "groups": []
+}

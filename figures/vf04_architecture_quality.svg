@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+<style>@font-face {font-family: ViralForgeCJK;src: url('file:///usr/share/fonts/google-droid/DroidSansFallback.ttf');font-style: normal;font-weight: 100 900;}</style>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#17324D" flood-opacity="0.10"/></filter>
+<marker id="arrow-blue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#1F5AA6"/></marker>
+<marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 z" fill="#F28C28"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#FFFFFF"/>
+<rect x="70" y="42" width="5" height="82" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="100" y="68" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="36" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">通用爆款复刻 Agent：决策与能力调度</text>
+<text x="100" y="110" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">一个稳定控制面，向上接收事实、向右调用能力、向下沉淀可复用的设计基线</text>
+<line x1="70" y1="150" x2="1850" y2="150" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<line x1="1385" y1="68" x2="1435" y2="68" stroke="#F28C28" stroke-width="3" stroke-linecap="round"/>
+<text x="1850" y="68" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="600" fill="#0B2A5B" text-anchor="end" dominant-baseline="middle" letter-spacing="0.4">POLICY-DRIVEN · TOOL-AUGMENTED · VERIFIABLE</text>
+<text x="70" y="192" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">01 / FACT LAYER</text>
+<text x="70" y="226" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="24" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">统一事实输入</text>
+<text x="70" y="258" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">变化的任务，被归一为稳定字段</text>
+<rect x="300" y="180" width="1550" height="120" rx="4" fill="#F7F9FC" fill-opacity="1.0" stroke="#F7F9FC" stroke-width="1.4"/>
+<text x="330" y="218" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">参考片事实</text>
+<text x="330" y="258" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">分镜 / 节奏 / 钩子 / 音轨</text>
+<line x1="475" y1="300" x2="475" y2="334" stroke="#CFD7E2" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="690" y1="202" x2="690" y2="278" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="710" y="218" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">商品事实</text>
+<text x="710" y="258" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">商品图 / 卖点 / 限制 / 推断</text>
+<line x1="855" y1="300" x2="855" y2="334" stroke="#CFD7E2" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1070" y1="202" x2="1070" y2="278" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="1090" y="218" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">素材事实</text>
+<text x="1090" y="258" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">人物 / 口播 / BGM / 匹配度</text>
+<line x1="1235" y1="300" x2="1235" y2="334" stroke="#CFD7E2" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="1450" y1="202" x2="1450" y2="278" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="1470" y="218" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="18" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">运行事实</text>
+<text x="1470" y="258" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">步骤状态 / 工具探活 / 失败记录</text>
+<line x1="1615" y1="300" x2="1615" y2="334" stroke="#CFD7E2" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="220" y="350" width="1120" height="380" rx="6" fill="#0B2A5B" fill-opacity="1.0" stroke="#0B2A5B" stroke-width="1.4"/>
+<text x="255" y="385" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="700" fill="#9DB2CF" text-anchor="start" dominant-baseline="middle" letter-spacing="0">02 / CONTROL PLANE</text>
+<text x="255" y="428" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="30" font-weight="700" fill="#FFFFFF" text-anchor="start" dominant-baseline="middle" letter-spacing="0">通用爆款复刻 Agent</text>
+<text x="255" y="466" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="14" font-weight="400" fill="#C7D5E7" text-anchor="start" dominant-baseline="middle" letter-spacing="0">固定九步主链承载状态；模型提供事实，规则决定动作，工具负责执行</text>
+<line x1="320" y1="555" x2="1200" y2="555" stroke="#577599" stroke-width="2" stroke-linecap="round"/>
+<circle cx="320" cy="555" r="9" fill="#DCE7F5" stroke="#DCE7F5" stroke-width="1.5"/>
+<text x="320" y="520" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">感知事实</text>
+<text x="320" y="590" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#9DB2CF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">LLM / VLM</text>
+<circle cx="540" cy="555" r="9" fill="#F28C28" stroke="#F28C28" stroke-width="1.5"/>
+<text x="540" y="520" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">rules 决策</text>
+<text x="540" y="590" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#9DB2CF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">动作名 + 痕迹</text>
+<circle cx="760" cy="555" r="9" fill="#DCE7F5" stroke="#DCE7F5" stroke-width="1.5"/>
+<text x="760" y="520" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">状态计划</text>
+<text x="760" y="590" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#9DB2CF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">pipeline / task</text>
+<circle cx="980" cy="555" r="9" fill="#DCE7F5" stroke="#DCE7F5" stroke-width="1.5"/>
+<text x="980" y="520" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">tools 调度</text>
+<text x="980" y="590" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#9DB2CF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">action / registry</text>
+<circle cx="1200" cy="555" r="9" fill="#72B69E" stroke="#72B69E" stroke-width="1.5"/>
+<text x="1200" y="520" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">gates 验收</text>
+<text x="1200" y="590" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#9DB2CF" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">media metrics</text>
+<polyline points="1200,616 1200,650 540,650 540,616" fill="none" stroke="#F28C28" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 8" marker-end="url(#arrow-orange)"/>
+<text x="870" y="674" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="600" fill="#FFD5AA" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">未通过：修正事实  &gt;  重新决策  &gt;  重试或降级</text>
+<text x="255" y="706" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#B8C7DB" text-anchor="start" dominant-baseline="middle" letter-spacing="0">受控边界：模型不自由尝试任意工具；所有调用、命中规则和降级路径均留痕。</text>
+<rect x="1415" y="350" width="435" height="380" rx="4" fill="#F7F9FC" fill-opacity="1.0" stroke="#F7F9FC" stroke-width="1.4"/>
+<text x="1450" y="385" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">03 / CAPABILITY RACK</text>
+<text x="1450" y="428" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="27" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">可插拔 Tools</text>
+<text x="1450" y="462" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">动作名稳定，底层实现可替换</text>
+<text x="1450" y="510" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#17324D" text-anchor="start" dominant-baseline="middle" letter-spacing="0">理解模型</text>
+<text x="1815" y="510" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="end" dominant-baseline="middle" letter-spacing="0">Gemini / Qwen</text>
+<line x1="1450" y1="537" x2="1815" y2="537" stroke="#E1E6ED" stroke-width="1" stroke-linecap="round"/>
+<text x="1450" y="565" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#17324D" text-anchor="start" dominant-baseline="middle" letter-spacing="0">生成模型</text>
+<text x="1815" y="565" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="end" dominant-baseline="middle" letter-spacing="0">Seedream / Seedance</text>
+<line x1="1450" y1="592" x2="1815" y2="592" stroke="#E1E6ED" stroke-width="1" stroke-linecap="round"/>
+<text x="1450" y="620" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#17324D" text-anchor="start" dominant-baseline="middle" letter-spacing="0">媒体工具</text>
+<text x="1815" y="620" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="end" dominant-baseline="middle" letter-spacing="0">ffmpeg / demucs</text>
+<line x1="1450" y1="647" x2="1815" y2="647" stroke="#E1E6ED" stroke-width="1" stroke-linecap="round"/>
+<text x="1450" y="675" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="17" font-weight="700" fill="#17324D" text-anchor="start" dominant-baseline="middle" letter-spacing="0">外挂能力</text>
+<text x="1815" y="675" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="end" dominant-baseline="middle" letter-spacing="0">TTS / 字幕 / ASR</text>
+<text x="1378" y="462" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="11" font-weight="700" fill="#D86F0B" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">调用</text>
+<line x1="1340" y1="482" x2="1402" y2="482" stroke="#F28C28" stroke-width="1.8" stroke-linecap="round" marker-end="url(#arrow-orange)"/>
+<text x="1378" y="620" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="11" font-weight="700" fill="#1F5AA6" text-anchor="middle" dominant-baseline="middle" letter-spacing="0">结果</text>
+<line x1="1402" y1="640" x2="1340" y2="640" stroke="#1F5AA6" stroke-width="1.8" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<line x1="70" y1="780" x2="1850" y2="780" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="70" y="812" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="700" fill="#F28C28" text-anchor="start" dominant-baseline="middle" letter-spacing="0">04 / DESIGN BASELINE</text>
+<text x="70" y="850" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="24" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">通用性的来源</text>
+<text x="360" y="836" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="19" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">统一事实协议</text>
+<text x="360" y="876" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">不同商品与素材，归一成相同字段</text>
+<line x1="705" y1="812" x2="705" y2="904" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="730" y="836" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="19" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">规则可配置</text>
+<text x="730" y="876" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">阈值、优先级和兜底独立演进</text>
+<line x1="1075" y1="812" x2="1075" y2="904" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="1100" y="836" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="19" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">工具可插拔</text>
+<text x="1100" y="876" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">能力实现替换，不改上层动作语义</text>
+<line x1="1445" y1="812" x2="1445" y2="904" stroke="#DDE3EB" stroke-width="1" stroke-linecap="round"/>
+<text x="1470" y="836" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="19" font-weight="700" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">任务可追溯</text>
+<text x="1470" y="876" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="12" font-weight="400" fill="#60758C" text-anchor="start" dominant-baseline="middle" letter-spacing="0">状态、决策、调用、门禁完整留痕</text>
+<line x1="70" y1="962" x2="1850" y2="962" stroke="#D7E1ED" stroke-width="1" stroke-linecap="round"/>
+<rect x="70" y="988" width="5" height="34" rx="0" fill="#F28C28" fill-opacity="1.0" stroke="#F28C28" stroke-width="1.4"/>
+<text x="96" y="1005" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="13" font-weight="700" fill="#D86F0B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">核心结论</text>
+<text x="220" y="1005" font-family="ViralForgeCJK, 'Droid Sans Fallback', sans-serif" font-size="20" font-weight="600" fill="#0B2A5B" text-anchor="start" dominant-baseline="middle" letter-spacing="0">通用性不来自“万能模型”，而来自稳定流程、可配置 rules、可插拔 tools 和可验证闭环。</text>
+</svg>

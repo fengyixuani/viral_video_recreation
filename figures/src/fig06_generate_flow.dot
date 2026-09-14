@@ -1,0 +1,41 @@
+// 图：⑧ generate 段内出片流程
+digraph generate {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.45, ranksep=0.4, compound=true];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=11,
+        color="#9AA0A6", penwidth=1.1, margin="0.15,0.08"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  prep [fillcolor="#E8F0FE", label=<<b>开工前三项全局准备</b><br/><font point-size="10">素材编辑降级检查（素材含真人 / 太短 → 降回直接裁剪）<br/>补片模特策略（查「切片缺失补片」表：直接生成 / 抽帧转线稿 / 共用线稿图 / 文字描述）<br/>全片音色基准（查「音色优先级」表：用户原声 &gt; AI 片段；实测 &gt; −38dB 才许当克隆基准）</font>>];
+
+  blocks [fillcolor="#E8F0FE", label=<<b>每段（≤15s）按「能不能直接裁素材」并成连续块</b><br/><font point-size="10">连续可裁镜头 → 裁剪块　·　连续裁不动镜头 → 生成块<br/>必须并块：生成模型最短出 4s，0.4s 的快切镜头单独生成会被撑成 4s</font>>];
+
+  subgraph cluster_cut {
+    label=<<b>裁剪块——用户素材路线（先配音、后裁画面）</b>>; fontsize=12; fontcolor="#188038";
+    style="rounded"; color="#CEEAD6"; bgcolor="#FBFFFC"; margin=10;
+    c1 [fillcolor="#E6F4EA", label=<<b>1　台词先合成念白</b>（克隆音色）<br/><font point-size="10">分镜时长照的是参考片语速，TTS 念得慢——<br/>先按计划裁画面再贴音必然砍半句话</font>>];
+    c2 [fillcolor="#E6F4EA", label=<<b>2　念白装不下？</b><br/><font point-size="10">先加速念白（≤1.4×，再快失真）<br/>→ 仍不够放长画面（≤1.5×，优先多取没用过的真素材）</font>>];
+    c3 [fillcolor="#E6F4EA", label=<<b>3　逐镜裁剪</b><br/><font point-size="10">素材短了放慢补足（≤1.6×），长了截断；统一分辨率帧率<br/>取用窗口管理：每刀接着上一刀取，防成片同画面出现两次</font>>];
+    c4 [fillcolor="#E6F4EA", label=<<b>4　音轨按⑦定好的切片动作</b><br/><font point-size="10">保留原声 / 静音轨占位 / 分离 BGM 只留人声</font>>];
+    c5 [fillcolor="#E6F4EA", label=<<b>5　贴回念白</b><br/><font point-size="10">短了补静音；长了先加速再截断（截断秒数留痕，质检必报）</font>>];
+    c1 -> c2 -> c3 -> c4 -> c5;
+  }
+
+  subgraph cluster_gen {
+    label=<<b>生成块——AI 补片路线</b>>; fontsize=12; fontcolor="#C5221F";
+    style="rounded"; color="#FAD2CF"; bgcolor="#FFFCFB"; margin=10;
+    g1 [fillcolor="#FCE8E6", label=<<b>1　组提示词</b><br/><font point-size="10">块内镜头自己的描述（不抄段级词，防已裁镜头被 AI 重演）<br/>→ 按 Skills 规范重写 → 强制前缀「保持无字幕。无bgm。」<br/>→ 出口机械清洗音乐标记</font>>];
+    g2 [fillcolor="#FCE8E6", label=<<b>2　备参考素材</b><br/><font point-size="10">人物线稿图 + 商品原图（≤9 张）<br/>可用素材片段（无真人且 ≥5s）当参考视频做「素材编辑」<br/>+ 全片基准参考音（保证各段同一把嗓子）</font>>];
+    g3 [fillcolor="#FCE8E6", label=<<b>3　调用生成 gen_video_safe</b><br/><font point-size="10">人脸风控三级降级（见 4.1 线稿替身链路）；两条定向重试：<br/>参考音被拒 → 丢音保画面重试<br/>参考视频被真人风控拒且素材本可出镜 → 抛回改裁素材</font>>];
+    g4 [fillcolor="#FCE8E6", label=<<b>4　裁回计划时长</b><br/><font point-size="10">模型最短出 4s，短块会多出一截</font>>];
+    g5 [fillcolor="#FCE8E6", label=<<b>5　静音检测补配音</b><br/><font point-size="10">有台词的块实测 ≤ −45dB → 克隆音色补上这句话<br/>（音色略差可接受，凭空少一句话不行）</font>>];
+    g1 -> g2 -> g3 -> g4 -> g5;
+  }
+
+  merge [fillcolor="#FFF8E1", color="#F9AB00", label=<<b>汇总：块按段归位、归一化拼接成 seg_*.mp4</b><br/><font point-size="10">任一段失败 → 整步失败，错误逐段列出（绝不静默缺段）<br/>统计「用户素材镜头数 vs AI 补片镜头数」写进任务档案</font>>];
+
+  prep -> blocks;
+  blocks -> c1 [label="裁剪块", color="#188038", fontcolor="#188038"];
+  blocks -> g1 [label="生成块", color="#C5221F", fontcolor="#C5221F"];
+  c5 -> merge; g5 -> merge;
+}

@@ -1,0 +1,31 @@
+{
+  "source": "/root/jmzhang/baidu/ViralForge/Agent_tools/caption_clone/tests/samples/字幕克隆后.mp4",
+  "duration": 36.7,
+  "covered_seconds": 13.0,
+  "density": "sparse",
+  "styles": {
+    "narration": {
+      "role": "narration",
+      "color": "&H00FFFFFF",
+      "outline": "&H00000000",
+      "fill_hex": "#FFFFFF",
+      "outline_hex": "#000000",
+      "fill_hex_hint": "#FFFFFF",
+      "outline_hex_hint": "#000000",
+      "calib_share": 0.222,
+      "size": 66,
+      "size_kw": "normal",
+      "an": 2,
+      "position": "bottom",
+      "slant": 0,
+      "effects": [],
+      "annotations": [],
+      "count": 9,
+      "share": 1.0
+    }
+  },
+  "highlight_color": "&H001EDCFF",
+  "calibrated": true,
+  "note": "像素级取色校准; 校准色优先、VLM 目测兜底。",
+  "_fingerprint": "d0e09cafd5bfe211"
+}

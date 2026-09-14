@@ -1,0 +1,56 @@
+// 图：九步复刻全景流程
+digraph pipeline {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.3, ranksep=0.32, splines=spline, compound=true];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.16,0.09"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  IN [fillcolor="#FFF8E1", color="#F9AB00", label=<
+    <b>输入</b><br/>
+    <font point-size="11">爆款参考视频（必选）　商品图 / 名称 / 卖点<br/>用户素材视频（可选）　BGM（可选）</font>
+  >];
+
+  subgraph cluster_u {
+    label=<<b>理解阶段——先把原料读懂</b>>; fontsize=13; fontcolor="#1A73E8";
+    style="rounded"; color="#C6DAFC"; bgcolor="#FBFCFF"; margin=10;
+    S1 [fillcolor="#E8F0FE", label=<<b>① ingest　素材入库校验</b><br/><font point-size="10">文件登记 · 探测时长分辨率 · 外挂工具探活</font>>];
+    S2 [fillcolor="#E8F0FE", label=<<b>② reference　爆款参考片拆解</b><br/><font point-size="10">大模型逐镜拆：景别 / 运镜 / 台词 / 情绪 / 结构骨架</font><br/><font point-size="10" color="#80868B">产物：分镜拆解报告</font>>];
+    S3 [fillcolor="#E8F0FE", label=<<b>③ audio　参考片音频判定</b><br/><font point-size="10">实测有没有音乐和口播（AI 说了不算，量过才算）</font><br/><font point-size="10" color="#80868B">产物：成片音轨策略</font>>];
+    S4 [fillcolor="#E8F0FE", label=<<b>④ materials　用户素材切片</b><br/><font point-size="10">切成带时间码 + 17 个语义字段 + 5 个判定布尔的片段</font><br/><font point-size="10" color="#80868B">产物：可检索素材库</font>>];
+    S5 [fillcolor="#E8F0FE", label=<<b>⑤ product　商品事实卡</b><br/><font point-size="10">看图 + 用户填写 → 标准档案；推断字段单列，不编造事实</font>>];
+    S1 -> S2 -> S3 -> S4 -> S5;
+  }
+
+  subgraph cluster_c {
+    label=<<b>创作阶段——为你的商品重写</b>>; fontsize=13; fontcolor="#188038";
+    style="rounded"; color="#CEEAD6"; bgcolor="#FBFFFC"; margin=10;
+    S6 [fillcolor="#E6F4EA", label=<<b>⑥ script　剧本与分段</b><br/><font point-size="10">照参考片一镜对一镜仿写（strict）或保结构重写（creative）<br/>人物 / 场景设定图（线稿脸防风控） · 动态规划切 ≤15s 生成段</font><br/><font point-size="10" color="#80868B">产物：新剧本 + 设定图 + 分段计划</font>>];
+    S7 [fillcolor="#E6F4EA", label=<<b>⑦ match　分镜素材匹配</b><br/><font point-size="10">每镜三选一：直接裁剪 / 素材编辑 / AI 生成</font><br/><font point-size="10" color="#80868B">原则：能用真素材绝不 AI 重演</font>>];
+    S6 -> S7;
+  }
+
+  subgraph cluster_p {
+    label=<<b>生产阶段——把片子做出来</b>>; fontsize=13; fontcolor="#C5221F";
+    style="rounded"; color="#FAD2CF"; bgcolor="#FFFCFB"; margin=10;
+    S8 [fillcolor="#FCE8E6", label=<<b>⑧ generate　分段出片（3 段并发）</b><br/><font point-size="10">裁用户素材 + AI 补片 + 克隆音色配音</font><br/><font point-size="10" color="#80868B">任一段失败 → 整步失败，绝不静默缺段</font>>];
+    S9 [fillcolor="#FCE8E6", label=<<b>⑨ compose　拼接与音轨字幕</b><br/><font point-size="10">归一化拼接 · 铺 BGM / 原声 · 字幕烧录（可克隆参考片样式）</font>>];
+    S8 -> S9;
+  }
+
+  OUT [fillcolor="#FFF8E1", color="#F9AB00", label=<
+    <b>输出　render/final.mp4</b><br/>
+    <font point-size="10">+ 全部中间产物落盘（每个决策带痕迹，全程可追溯）</font>
+  >];
+
+  QC [fillcolor="#F1F3F4", color="#5F6368", label=<
+    <b>质检　review_case.py</b><br/>
+    <font point-size="10">素材利用率 / 逐片声音 / 字幕 / 门禁对账（不调大模型，尺子不漂移）</font>
+  >];
+
+  IN -> S1 [lhead=cluster_u];
+  S5 -> S6 [ltail=cluster_u, lhead=cluster_c];
+  S7 -> S8 [ltail=cluster_c, lhead=cluster_p];
+  S9 -> OUT [ltail=cluster_p];
+  OUT -> QC [label="每轮出片后"];
+}

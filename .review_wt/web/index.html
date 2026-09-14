@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ViralForge · 爆款复刻</title>
+<style>
+:root{
+  --bg:#f6f7fb; --panel:#fff; --line:#e7e9f2; --text:#1b1e2b; --muted:#77809a;
+  --accent:#5b6cff; --accent-soft:#eef0ff; --ok:#12b981; --warn:#f59e0b; --err:#ef4444;
+  --radius:14px; --shadow:0 1px 2px rgba(20,24,50,.04),0 8px 24px rgba(20,24,50,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,
+  "Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}
+header{position:sticky;top:0;z-index:9;background:rgba(246,247,251,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;gap:16px}
+header h1{margin:0;font-size:16px;letter-spacing:.3px}
+header h1 span{color:var(--muted);font-weight:400;margin-left:8px;font-size:13px}
+.grow{flex:1}
+main{max-width:1240px;margin:24px auto;padding:0 24px 64px;display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px}
+@media(max-width:980px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px}
+.card h2{margin:0 0 4px;font-size:14px}
+.card p.hint{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+label.field,.field{display:block;margin-bottom:12px}
+label.field>span,.field>span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+input[type=text],textarea,select{width:100%;padding:9px 11px;border:1px solid var(--line);
+  border-radius:10px;background:#fbfbfe;font:inherit;color:inherit;outline:none;transition:.15s}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--accent);background:#fff;
+  box-shadow:0 0 0 3px var(--accent-soft)}
+textarea{resize:vertical;min-height:76px}
+button{font:inherit;border:1px solid var(--line);background:#fff;color:var(--text);
+  padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+button:hover{border-color:#cfd4e8}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{filter:brightness(1.06)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.drop{border:1.5px dashed #d6dae9;border-radius:12px;padding:14px;text-align:center;color:var(--muted);
+  cursor:pointer;transition:.15s;background:#fbfbfe;font-size:12.5px}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.files{list-style:none;margin:8px 0 0;padding:0;font-size:12.5px}
+.files li{display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--line);
+  border-radius:8px;margin-bottom:6px;background:#fbfbfe}
+.files li b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.files li em{color:var(--muted);font-style:normal;font-size:11.5px}
+.files li button{padding:2px 8px;border-radius:6px;font-size:11.5px;color:var(--muted)}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.opt:first-of-type{border-top:none}
+.opt .txt{flex:1}
+.opt .txt b{font-weight:500;font-size:13px}
+.opt .txt i{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:2px}
+.switch{position:relative;width:40px;height:22px;flex:0 0 40px;margin-top:2px}
+.switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;background:#dfe3f0;border-radius:22px;transition:.2s;pointer-events:none}
+.switch i::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;
+  background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked + i{background:var(--accent)}
+.switch input:checked + i::after{transform:translateX(18px)}
+.seg{display:flex;gap:6px;background:#f1f2f8;padding:4px;border-radius:10px}
+.seg button{flex:1;border:none;background:transparent;border-radius:8px;padding:7px 10px;font-size:13px;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--text);box-shadow:var(--shadow)}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed var(--line)}
+.steps li:first-child{border-top:none}
+.dot{width:9px;height:9px;border-radius:50%;background:#d7dbe9;margin-top:7px;flex:0 0 9px}
+.dot.run{background:var(--accent);animation:pulse 1.1s infinite}
+.dot.done{background:var(--ok)}.dot.fail{background:var(--err)}
+@keyframes pulse{50%{opacity:.35}}
+.steps b{font-weight:500;font-size:13px}
+.steps em{font-style:normal;color:var(--muted);font-size:12px;margin-left:6px}
+.steps .msg{color:var(--err);font-size:12px;margin-top:2px;word-break:break-all}
+pre.log{margin:0;background:#141827;color:#c9d2f0;border-radius:12px;padding:12px 14px;font-size:12px;
+  max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;background:var(--accent-soft);
+  color:var(--accent)}
+.badge.ok{background:#e6f9f1;color:var(--ok)}.badge.err{background:#fdecec;color:var(--err)}
+.badge.idle{background:#f1f2f8;color:var(--muted)}
+video{width:100%;border-radius:12px;background:#000;display:block}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:12.5px}
+.links a{border:1px solid var(--line);padding:6px 11px;border-radius:9px;background:#fbfbfe}
+.links a:hover{border-color:var(--accent);background:var(--accent-soft)}
+.kv{font-size:12.5px;color:var(--muted)}
+.kv b{color:var(--text);font-weight:500}
+.toast{position:fixed;right:20px;bottom:20px;background:#141827;color:#fff;padding:11px 16px;
+  border-radius:10px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
+  transition:.2s;pointer-events:none;max-width:420px}
+.toast.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>ViralForge<span>通用爆款复刻</span></h1>
+  <div class="grow"></div>
+  <select id="taskPick" style="width:260px"><option value="">— 新建任务 —</option></select>
+  <input type="text" id="token" placeholder="访问口令（未设置可留空）" style="width:180px" />
+  <button id="btnNew">新建任务</button>
+</header>
+
+<main>
+  <section>
+    <div class="card">
+      <h2>1 · 素材上传</h2>
+      <p class="hint">爆款参考视频必填；商品图、卖点、自有素材越全，成片越贴合。</p>
+      <div id="uploads"></div>
+    </div>
+
+    <div class="card">
+      <h2>2 · 商品信息</h2>
+      <p class="hint">留空的字段会由模型看图补全，用户填写的内容不会被改写。</p>
+      <label class="field"><span>商品名称</span><input type="text" id="pName" placeholder="例：格力锅铲" /></label>
+      <label class="field"><span>品类</span><input type="text" id="pCat" placeholder="例：厨房用具 / 锅铲" /></label>
+      <label class="field"><span>卖点（一行一条）</span><textarea id="pPoints"
+        placeholder="柔韧铲头不伤不粘锅涂层&#10;铲面镂空顺手滤油"></textarea></label>
+      <label class="field"><span>补充说明</span><textarea id="pDesc" style="min-height:56px"
+        placeholder="人群、使用场景、必须提到或必须避免的说法"></textarea></label>
+    </div>
+
+    <div class="card">
+      <h2>3 · 复刻参数</h2>
+      <p class="hint">复刻强度决定大模型能不能改剧本；音轨与字幕由后处理统一控制。</p>
+      <label class="field"><span>复刻强度</span>
+        <div class="seg" id="modeSeg">
+          <button data-v="strict" class="on">严格复刻 · 只换人物/商品/场景</button>
+          <button data-v="creative">创意仿写 · 大模型改写剧本</button>
+        </div>
+      </label>
+      <div id="opts"></div>
+      <div class="row" style="margin-top:16px">
+        <button class="primary" id="btnRun">保存并开始复刻</button>
+        <button id="btnSave">仅保存</button>
+        <span class="kv" id="fontHint"></span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <div class="row"><h2 style="margin:0">运行状态</h2><div class="grow"></div>
+        <span class="badge idle" id="status">未开始</span></div>
+      <p class="hint" id="taskMeta" style="margin-top:6px">先新建任务并上传参考视频。</p>
+      <ul class="steps" id="steps"></ul>
+      <div class="row" style="margin-top:12px">
+        <select id="resetStep" style="width:200px"></select>
+        <button id="btnReset">从该步骤重跑</button>
+      </div>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none">
+      <h2>成片</h2>
+      <p class="hint" id="resultMeta"></p>
+      <video id="player" controls preload="metadata"></video>
+      <div class="links" id="links"></div>
+    </div>
+
+    <div class="card">
+      <h2>日志</h2>
+      <p class="hint">每步的模型链路、降级、失败原因都会记录在任务目录的 task.json 里。</p>
+      <pre class="log" id="log">等待任务…</pre>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<script>
+const KINDS = [
+  {key:"reference_video", label:"爆款参考视频", tip:"必填，单个 mp4/mov", multiple:false},
+  {key:"product_images", label:"商品图", tip:"可多张，第一张作为主图；不传会自动从素材视频里抽商品帧并生成白底图", multiple:true},
+  {key:"user_videos", label:"自有素材视频", tip:"可多条，会被切片后优先复用", multiple:true},
+  {key:"bgm", label:"背景音乐（可选）", tip:"上传后优先于参考片音轨", multiple:false},
+];
+const OPTS = [
+  {key:"copy_bgm", label:"复刻 BGM", tip:"只有BGM则整轨复用；BGM+口播则分离伴奏；没有BGM则不使用（默认开）"},
+  {key:"copy_reference_audio", label:"复刻参考视频原声", tip:"成片音轨整体换成参考片原声（默认关）"},
+  {key:"copy_subtitles", label:"复刻字幕", tip:"按剧本台词生成 SRT 并烧进画面（默认关）"},
+  {key:"use_user_materials", label:"优先使用我的素材", tip:"有素材时先检索复用，缺口才生成"},
+];
+let meta = null, task = null, timer = null, mode = "strict";
+const $ = (id) => document.getElementById(id);
+
+function toast(msg, ms=2600){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("show"), ms);
+}
+function token(){ return $("token").value.trim(); }
+async function api(path, opts={}){
+  const headers = Object.assign({}, opts.headers||{});
+  if(token()) headers["Authorization"] = "Bearer " + token();
+  if(opts.json){ headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(opts.json); }
+  const res = await fetch("/api" + path, Object.assign({}, opts, {headers}));
+  const data = await res.json().catch(()=>({error:"返回不是 JSON"}));
+  if(!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+  return data;
+}
+function fileUrl(path){
+  const q = token() ? "&token=" + encodeURIComponent(token()) : "";
+  return "/api/tasks/" + task.task_id + "/file?path=" + encodeURIComponent(path) + q;
+}
+
+function renderUploads(){
+  // 不能用 <label> 包住 file input：label 会把区域内任何点击都转发给 input，
+  // 和显式 input.click() 撞在一起会让文件选择框开两次，选中的文件反而丢掉。
+  $("uploads").innerHTML = KINDS.map(k => `
+    <div class="field"><span>${k.label} · ${k.tip}</span>
+      <div class="drop" data-kind="${k.key}">点击选择，或把文件拖到这里</div>
+      <input type="file" hidden data-input="${k.key}" ${k.multiple?"multiple":""} />
+      <ul class="files" data-list="${k.key}"></ul>
+    </div>`).join("");
+  KINDS.forEach(k => {
+    const drop = document.querySelector(`.drop[data-kind="${k.key}"]`);
+    const input = document.querySelector(`input[data-input="${k.key}"]`);
+    drop.onclick = () => input.click();
+    input.onchange = () => { if(input.files.length) send(k.key, input.files); input.value=""; };
+    drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+    drop.ondragleave = () => drop.classList.remove("over");
+    drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over");
+      if(e.dataTransfer.files.length) send(k.key, e.dataTransfer.files); };
+  });
+}
+
+function renderFiles(){
+  KINDS.forEach(k => {
+    const box = document.querySelector(`ul[data-list="${k.key}"]`);
+    const cur = task ? task.inputs[k.key] : (k.multiple ? [] : "");
+    const list = k.multiple ? (cur||[]) : (cur ? [cur] : []);
+    box.innerHTML = list.map(p => `<li><b>${p.split("/").pop()}</b><span class="grow"></span>
+      <button data-del="${k.key}" data-path="${p}">移除</button></li>`).join("");
+    box.querySelectorAll("button[data-del]").forEach(b => b.onclick = async (e) => {
+      e.preventDefault(); e.stopPropagation();
+      await api(`/tasks/${task.task_id}/remove`, {method:"POST",
+        json:{kind:b.dataset.del, path:b.dataset.path}});
+      await refresh();
+    });
+  });
+}
+function renderOpts(){
+  $("opts").innerHTML = OPTS.map(o => `
+    <div class="opt"><div class="txt"><b>${o.label}</b><i>${o.tip}</i></div>
+      <label class="switch"><input type="checkbox" data-opt="${o.key}" /><i></i></label></div>`).join("");
+  const src = task ? task.options : (meta ? meta.default_options : {});
+  OPTS.forEach(o => { const el = document.querySelector(`input[data-opt="${o.key}"]`);
+    el.checked = !!src[o.key]; el.onchange = () => { if(task) save(); }; });
+}
+function currentOptions(){
+  const out = {rewrite_mode: mode};
+  OPTS.forEach(o => out[o.key] = document.querySelector(`input[data-opt="${o.key}"]`).checked);
+  return out;
+}
+function currentProduct(){
+  return {name:$("pName").value.trim(), category:$("pCat").value.trim(),
+    description:$("pDesc").value.trim(),
+    selling_points:$("pPoints").value.split("\n").map(s=>s.trim()).filter(Boolean)};
+}
+function setMode(v){
+  mode = v;
+  document.querySelectorAll("#modeSeg button").forEach(b =>
+    b.classList.toggle("on", b.dataset.v === v));
+}
+
+async function ensureTask(){
+  if(task) return task;
+  task = await api("/tasks", {method:"POST", json:{product: currentProduct(),
+    options: currentOptions(), title: currentProduct().name || "未命名复刻任务"}});
+  await loadTaskList();
+  $("taskPick").value = task.task_id;
+  render();
+  return task;
+}
+async function send(kind, files){
+  await ensureTask();
+  const names = [...files].map(f=>f.name).join("、");
+  try{
+    await upload(kind, files);
+    await refresh();
+    toast("已上传：" + names);
+  }catch(e){ toast("上传失败：" + e.message, 6000); }
+}
+// 视频动辄上百 MB，用 XHR 才能给上传进度，fetch 没有 upload 事件
+function upload(kind, files){
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append("kind", kind);
+    [...files].forEach(f => fd.append("file", f));
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `/api/tasks/${task.task_id}/upload`);
+    if(token()) xhr.setRequestHeader("Authorization", "Bearer " + token());
+    xhr.upload.onprogress = e => { if(e.lengthComputable)
+      toast(`上传中 ${Math.round(e.loaded/e.total*100)}%`, 1500); };
+    xhr.onload = () => {
+      let body = {}; try{ body = JSON.parse(xhr.responseText || "{}"); }catch(_){}
+      xhr.status < 300 ? resolve(body) : reject(new Error(body.error || ("HTTP " + xhr.status)));
+    };
+    xhr.onerror = () => reject(new Error("网络中断或文件超过上限"));
+    xhr.send(fd);
+  });
+}
+
+async function save(){
+  await ensureTask();
+  task = await api(`/tasks/${task.task_id}`, {method:"PATCH",
+    json:{product: currentProduct(), options: currentOptions(),
+          title: currentProduct().name || task.title}});
+  render();
+}
+async function refresh(){
+  if(!task) return null;
+  task = await api(`/tasks/${task.task_id}`);
+  render();
+  return task;
+}
+function statusBadge(){
+  const el = $("status"), s = task ? task.status : "idle";
+  const map = {draft:["idle","待运行"], running:["", "运行中"], completed:["ok","已完成"],
+               failed:["err","失败"]};
+  const [cls, text] = map[s] || ["idle", s];
+  el.className = "badge " + cls;
+  el.textContent = task && task.running ? "运行中" : text;
+}
+function render(){
+  renderFiles(); statusBadge();
+  if(!task){ $("steps").innerHTML = ""; return; }
+  $("taskMeta").textContent = `${task.task_id} ｜ 建于 ${task.created_at} ｜ 复刻强度 ` +
+    (task.options.rewrite_mode === "strict" ? "严格复刻" : "创意仿写");
+  const steps = meta ? meta.steps : [];
+  $("steps").innerHTML = steps.map(s => {
+    const st = task.steps[s.key] || {};
+    const cls = st.status === "done" ? "done" : st.status === "failed" ? "fail" :
+      st.status === "running" ? "run" : "";
+    const info = st.status === "done" ? summary(s.key, st) : st.status === "running" ? "进行中…" : "";
+    return `<li><span class="dot ${cls}"></span><div><b>${s.title}</b>
+      <em>${info}${st.sec?` · ${st.sec}s`:""}</em>
+      ${st.error?`<div class="msg">${st.error}</div>`:""}</div></li>`;
+  }).join("");
+  if($("resetStep").options.length !== steps.length)
+    $("resetStep").innerHTML = steps.map(s=>`<option value="${s.key}">重跑：${s.title}</option>`).join("");
+  $("log").textContent = (task.logs||[]).slice(-120).join("\n") || "等待任务…";
+  $("log").scrollTop = 1e6;
+  renderResult();
+}
+function summary(key, st){
+  if(key === "reference") return `${st.shots} 镜 / ${st.duration_sec}s`;
+  if(key === "audio") return `${st.策略}（BGM ${st.有背景音乐?"有":"无"} · 口播 ${st.有人声口播?"有":"无"}）`;
+  if(key === "product") return st.product ? `${st.product}${st.images?` · 商品图 ${st.images} 张`:""}${st.harvested?"（素材抽帧补齐）":""}` : "";
+  if(key === "materials") return `${st.segments} 个可用片段`;
+  if(key === "script") return `${st.shots} 镜 / ${st.segments} 段`;
+  if(key === "match") return Object.entries(st.stat||{}).map(([k,v])=>`${k}${v}镜`).join("、");
+  if(key === "generate") return `${st.generated}/${st.planned} 段 · ${(st.modes||[]).join("/")}`;
+  if(key === "compose") return `成片 ${st.duration_sec}s`;
+  return "";
+}
+function renderResult(){
+  const r = task && task.result;
+  $("resultCard").style.display = r ? "block" : "none";
+  if(!r) return;
+  const p = $("player");
+  const url = fileUrl(r.final);
+  if(p.dataset.src !== url){ p.dataset.src = url; p.src = url; }
+  $("resultMeta").textContent = `${r.duration_sec}s ｜ 用到 ${r.segments_used}/${r.segments_planned} 段` +
+    ` ｜ 音轨：${r.audio.note}` + (r.subtitles.enabled ?
+      ` ｜ 字幕：${r.subtitles.burned ? "已烧入 " + r.subtitles.lines + " 条" : (r.subtitles.note||"仅 SRT")}` : "");
+  const links = [["成片 mp4", r.final], ["参考片拆解", "reference/analysis.md"],
+    ["剧本", "script/script.md"], ["分镜素材匹配", "edit/asset_matches.json"],
+    ["商品事实卡", "product/fact_card.json"], ["任务记录", "task.json"]];
+  if(r.subtitles && r.subtitles.srt) links.push(["字幕 SRT", r.subtitles.srt]);
+  $("links").innerHTML = links.map(([t,p2]) =>
+    `<a href="${fileUrl(p2)}" target="_blank" rel="noopener">${t}</a>`).join("");
+}
+
+async function loadTaskList(){
+  const list = await api("/tasks");
+  const pick = $("taskPick");
+  pick.innerHTML = `<option value="">— 新建任务 —</option>` + list.map(t =>
+    `<option value="${t.task_id}">${t.title} · ${t.status} · ${t.created_at.slice(5,16)}</option>`).join("");
+  if(task) pick.value = task.task_id;
+}
+function fillForm(){
+  if(!task) return;
+  $("pName").value = task.product.name || "";
+  $("pCat").value = task.product.category || "";
+  $("pDesc").value = task.product.description || "";
+  $("pPoints").value = (task.product.selling_points||[]).join("\n");
+  setMode(task.options.rewrite_mode || "strict");
+  renderOpts();
+}
+function startPolling(){
+  clearInterval(timer);
+  timer = setInterval(async () => {
+    if(!task) return;
+    try{
+      const before = task.status;
+      await refresh();
+      if(before !== task.status && task.status === "completed") toast("成片已生成");
+      if(task.status !== "running" && !task.running) { /* 保持轮询，成本极低 */ }
+    }catch(e){ console.error("轮询/渲染出错", e); }
+  }, 2500);
+}
+
+$("btnNew").onclick = async () => {
+  task = null; $("taskPick").value = "";
+  ["pName","pCat","pDesc","pPoints"].forEach(id => $(id).value = "");
+  setMode("strict"); renderOpts(); render(); toast("已清空，上传素材即建任务");
+};
+$("taskPick").onchange = async (e) => {
+  if(!e.target.value){ $("btnNew").onclick(); return; }
+  task = await api("/tasks/" + e.target.value);
+  fillForm(); render();
+};
+document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => {
+  setMode(b.dataset.v); if(task) save();
+});
+$("btnSave").onclick = async () => { await save(); toast("已保存"); };
+$("btnRun").onclick = async () => {
+  try{
+    await save();
+    if(!task.inputs.reference_video){ toast("请先上传爆款参考视频"); return; }
+    await api(`/tasks/${task.task_id}/run`, {method:"POST", json:{}});
+    toast("已开始，整条链路通常需要几分钟");
+    await refresh();
+  }catch(e){ toast("启动失败：" + e.message, 5000); }
+};
+$("btnReset").onclick = async () => {
+  if(!task) return;
+  try{
+    task = await api(`/tasks/${task.task_id}/reset`, {method:"POST", json:{step:$("resetStep").value}});
+    render(); toast("已重置，可重新开始复刻");
+  }catch(e){ toast(e.message, 5000); }
+};
+$("token").onchange = () => localStorage.setItem("vf_token", token());
+// 前端出错时必须让用户看见，否则页面只是「点了没反应」
+window.addEventListener("error", e => toast("前端异常：" + (e.message || e.type), 6000));
+window.addEventListener("unhandledrejection", e =>
+  toast("请求失败：" + ((e.reason && e.reason.message) || e.reason), 6000));
+
+(async function init(){
+  // 支持把口令直接写在链接里：http://<host>:<port>/?token=xxx
+  const fromUrl = new URLSearchParams(location.search).get("token");
+  if(fromUrl) localStorage.setItem("vf_token", fromUrl);
+  $("token").value = fromUrl || localStorage.getItem("vf_token") || "";
+  try{ meta = await api("/meta"); }catch(e){ toast("无法连接后端：" + e.message, 6000); return; }
+  setMode(meta.default_options.rewrite_mode);
+  renderUploads(); renderOpts();
+  $("fontHint").textContent = meta.subtitle_font ? "字幕字体已就绪" : "未找到中文字体，字幕只会产出 SRT";
+  await loadTaskList();
+  const last = localStorage.getItem("vf_task");
+  if(last){ try{ task = await api("/tasks/" + last); $("taskPick").value = last; fillForm(); }catch(e){} }
+  render(); startPolling();
+  setInterval(() => { if(task) localStorage.setItem("vf_task", task.task_id); }, 1500);
+})();
+
+</script>
+
+</body>
+</html>

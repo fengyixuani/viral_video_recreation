@@ -1,0 +1,327 @@
+{
+  "metadata": {
+    "title": "爆款复刻 Agent 的业务决策链",
+    "diagram_type": "flowchart",
+    "direction": "TB",
+    "ranksep": 0.62,
+    "nodesep": 0.45,
+    "background_color": "#FFFFFF",
+    "output_dir": "/root/jmzhang/baidu/ViralForge/figures/src"
+  },
+  "nodes": [
+    {
+      "id": "product",
+      "label": "商品信息卡",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "reference",
+      "label": "爆款参考片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "materials",
+      "label": "用户素材片段库",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "facts",
+      "label": "多模态事实层",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "skeleton",
+      "label": "爆款骨架与逐镜分镜表",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "background_color": "#EAF1FB",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "script",
+      "label": "新商品剧本",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "agent",
+      "label": "Agent：逐镜复刻决策",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "rules",
+      "label": "rules：动作选择",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "tools",
+      "label": "工具调用：复用 / 编辑 / 补片",
+      "shape": "cylinder",
+      "style": {
+        "stroke_color": "#D86F0B",
+        "background_color": "#FFF1E3",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "gates",
+      "label": "gates：真实产物验收",
+      "shape": "diamond",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "compose",
+      "label": "组装成片",
+      "shape": "rounded_rect",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "background_color": "#DCE8F7",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    },
+    {
+      "id": "deliver",
+      "label": "可追溯复刻成片",
+      "shape": "ellipse",
+      "style": {
+        "stroke_color": "#278A67",
+        "background_color": "#E8F6F0",
+        "fill_style": "solid",
+        "stroke_width": 2,
+        "font_size": 16,
+        "text_color": "#17324D"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "product",
+      "target": "facts",
+      "label": "商品事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e2",
+      "source": "reference",
+      "target": "facts",
+      "label": "参考片事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e3",
+      "source": "materials",
+      "target": "facts",
+      "label": "素材事实",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e4",
+      "source": "facts",
+      "target": "skeleton",
+      "label": "拆解",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e5",
+      "source": "skeleton",
+      "target": "script",
+      "label": "结合商品改写",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e6",
+      "source": "script",
+      "target": "agent",
+      "label": "逐镜目标",
+      "style": {
+        "stroke_color": "#0B2A5B",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e7",
+      "source": "facts",
+      "target": "agent",
+      "label": "当前镜头状态",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e8",
+      "source": "agent",
+      "target": "rules",
+      "label": "查规则",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e9",
+      "source": "rules",
+      "target": "tools",
+      "label": "keep / edit / generate",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e10",
+      "source": "tools",
+      "target": "gates",
+      "label": "镜头产物",
+      "style": {
+        "stroke_color": "#1F5AA6",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e11",
+      "source": "gates",
+      "target": "compose",
+      "label": "通过",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e12",
+      "source": "gates",
+      "target": "agent",
+      "label": "失败：回判",
+      "style": {
+        "stroke_color": "#F28C28",
+        "stroke_width": 2,
+        "stroke_style": "dashed",
+        "end_arrowhead": "arrow"
+      }
+    },
+    {
+      "id": "e13",
+      "source": "compose",
+      "target": "deliver",
+      "label": "全片组装",
+      "style": {
+        "stroke_color": "#278A67",
+        "stroke_width": 2,
+        "stroke_style": "solid",
+        "end_arrowhead": "arrow"
+      }
+    }
+  ]
+}

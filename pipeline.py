@@ -22,6 +22,8 @@
 - 成片人声一律是 voice_dub 克隆音色后 TTS 出来的，绝不整轨照搬参考片原声
 - rewrite_mode 默认 creative（允许大模型改写剧本）；strict 只替换人物/商品/场景。
   命令行入口不吃这个默认值：它总是显式传 strict，要创意模式得加 --creative
+- dub_all_cuts 默认 False：直接用的用户素材按「用户切片处理」表逐条判音轨（口播对得上
+  又没 BGM 的保留原声）。开成 True 时一律静音 + 克隆音色重配，整片只剩一把嗓子
 - 传了商品视频就一定切片并优先复用，没有开关：素材是用户自己的实拍，比生成的可信
 """
 import argparse
@@ -89,9 +91,13 @@ def step_ingest(rec: dict) -> dict:
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(registry, fh, ensure_ascii=False, indent=2)
     tools = agent_tools.probe()
-    log(rec, "外挂工具：声音克隆%s，字幕风格克隆%s，词级ASR%s"
+    log(rec, "外挂工具：声音克隆%s，字幕风格克隆%s，词级ASR%s，补片人声校对%s"
         % tuple("可用" if tools[k] else "未就绪"
-                for k in ("tts_clone", "caption_clone", "caption_asr")))
+                for k in ("tts_clone", "caption_clone", "caption_asr", "firered_asr")))
+    # 补片人声校对的模型加载要十几秒，而它到 generate 步才用得上。这里就把常驻 worker
+    # 拉起来（非阻塞），等用到时模型已经热了，不占 generate 的时间。
+    if tools["firered_asr"]:
+        agent_tools.prewarm_asr()
     log(rec, "参考片 %.1fs，商品图 %d 张，用户素材 %d 条，人物参考图 %d 张"
         % (registry["reference_video"]["duration_sec"], len(registry["product_images"]),
            len(registry["user_videos"]), len(registry["person_images"])))
@@ -127,7 +133,10 @@ def step_materials(rec: dict) -> dict:
 
         with cf.ThreadPoolExecutor(min(3, len(videos))) as ex:
             for out in ex.map(one, videos):
-                index["素材"].append({k: out.get(k) for k in ("素材ID", "视频", "总时长秒", "整体")})
+                # 「主角人声」必须一起带出来：它是 voice_dub 挑克隆基准音的第一优先候选，
+                # 留在 analyze() 的返回值里就丢了（下游只读 material_index.json）
+                index["素材"].append({k: out.get(k) for k in
+                                      ("素材ID", "视频", "总时长秒", "整体", "主角人声")})
                 index["片段"].extend(out["片段"])
     path = _p(rec["task_id"], "assets", "material_index.json")
     with open(path, "w", encoding="utf-8") as fh:
@@ -368,6 +377,8 @@ def main(argv=None):
     ap.add_argument("--no-bgm", action="store_true", help="不复刻参考片音乐")
     ap.add_argument("--subtitles", action="store_true", help="强制烧字幕")
     ap.add_argument("--no-subtitles", action="store_true", help="强制不烧字幕（默认跟随参考片）")
+    ap.add_argument("--dub-all-cuts", action="store_true",
+                    help="用户素材一律静音后用克隆音色重配（默认按规则表逐条判，可保原声）")
     ap.add_argument("--creative", action="store_true", help="creative 模式（允许改写剧本）")
     args = ap.parse_args(argv)
 
@@ -387,6 +398,7 @@ def main(argv=None):
         options = {"copy_bgm": not args.no_bgm,
                    "copy_subtitles": ("force" if args.subtitles
                                       else False if args.no_subtitles else None),
+                   "dub_all_cuts": args.dub_all_cuts,
                    "rewrite_mode": "creative" if args.creative else "strict"}
         # 任务目录用可读名：日期_用例_参考X生成Y（重名由 create_task 自动加 _2/_3）
         ref_topic = os.path.splitext(os.path.basename(ref))[0].split("_", 1)[-1]

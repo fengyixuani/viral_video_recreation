@@ -1,0 +1,37 @@
+// 图：⑨ compose 音轨与字幕决策
+digraph compose {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.4, ranksep=0.42];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=11,
+        color="#9AA0A6", penwidth=1.1, margin="0.15,0.08"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  n0 [fillcolor="#E8F0FE", label=<<b>归一化拼接（produce_video.concat）</b><br/><font point-size="10">每段统一到 720×1280 · 30fps · H.264 · 44.1kHz 双声道（缺音轨补静音轨）<br/>声道数中途变化会让流复制拼接随机报错——所以连声道数都强制统一</font>>];
+
+  qa [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<音轨怎么铺？<br/><font point-size="10">按第③步判定结果执行</font>>];
+  aa [fillcolor="#E6F4EA", label=<<b>整条替换为参考片原声</b><br/><font point-size="10">复刻原声开关打开时</font>>];
+  ab [fillcolor="#E6F4EA", label=<<b>BGM 循环铺底 + 成片人声混音</b><br/><font point-size="10">normalize=0（默认混音两路各砍半，人声会突然变轻）<br/>+ 限幅器 0.95（防两路叠加爆音）；BGM 不压低、原声直取</font>>];
+  ac [fillcolor="#E6F4EA", label=<<b>保留各段自带声音</b><br/><font point-size="10">人声与画面内音效</font>>];
+
+  qs [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<字幕？<br/><font point-size="10">查「字幕复刻」表</font>>];
+  sb [fillcolor="#F1F3F4", label=<<b>逐片检测画面是否自带字幕</b>（按文件指纹缓存）<br/><font point-size="10">AI 片有时自己带字，自带的片跳过，防「上下两行同一句」<br/>按片不按段：段内一块带字不能连累整段素材没字幕<br/>台词时间轴按每片实际时长摊，不按剧本计划时长</font>>];
+  qs2 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<caption_clone<br/>工具可用？>];
+  sc [fillcolor="#E6F4EA", color="#34A853", label=<<b>风格克隆</b><br/><font point-size="10">参考片抽帧读字幕样式 → 风格档（跨任务缓存）<br/>成片跑词级 ASR 拿逐字时间（不可用退化为线性铺字）<br/>大模型按风格档拆块配色配位置 → ASS 烧录</font>>];
+  sd [fillcolor="#E6F4EA", label=<<b>基础排版</b><br/><font point-size="10">白字底部居中，按成片分辨率自算折行、自己写 ASS<br/>（SRT 直烧会按 384×288 解释字号，字冲出画面）<br/>找不到中文字体 → 只产出 SRT 文件不烧</font>>];
+  sa [fillcolor="#F1F3F4", label=<<b>不烧字幕</b>>];
+
+  out [fillcolor="#FFF8E1", color="#F9AB00", label=<<b>render/final.mp4</b><br/><font point-size="10">中间版本也保留：stitched.mp4（纯拼接）· with_audio.mp4（加完音轨）</font>>];
+
+  n0 -> qa;
+  qa -> aa [label="复刻原声 开"];
+  qa -> ab [label="复刻 BGM 开\n且③已备好音轨"];
+  qa -> ac [label="都关"];
+  aa -> qs; ab -> qs; ac -> qs;
+  qs -> sa [label="关"];
+  qs -> sb [label="开"];
+  sb -> qs2;
+  qs2 -> sc [label="是", color="#188038", fontcolor="#188038"];
+  qs2 -> sd [label="否"];
+  sc -> sd [style=dashed, label="克隆失败自动回退"];
+  sa -> out; sc -> out; sd -> out;
+}

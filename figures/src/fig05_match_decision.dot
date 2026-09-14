@@ -1,0 +1,37 @@
+// 图：⑦ match 分镜素材匹配三分法
+digraph match {
+  graph [dpi=150, bgcolor="white", fontname="Droid Sans", rankdir=TB,
+         nodesep=0.4, ranksep=0.45];
+  node [shape=box, style="rounded,filled", fontname="Droid Sans", fontsize=12,
+        color="#9AA0A6", penwidth=1.1, margin="0.16,0.09"];
+  edge [fontname="Droid Sans", fontsize=10, color="#5F6368", arrowsize=0.8];
+
+  start [fillcolor="#E8F0FE", label=<<b>一次大模型评审：所有分镜 × 所有素材片段</b><br/><font point-size="10">每镜产出三个判断：<b>匹配度 0~1</b>（动作 / 叙事功能 / 商品清晰度 / 景别运镜 / 时长）<br/><b>画面匹配</b>（布尔，从宽判：主体对得上、不与台词矛盾就算过）<br/><b>口播内容匹配</b>（布尔，只决定声音怎么处理，不影响画面取舍）</font>>];
+
+  q1 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<匹配度？<br/><font point-size="10">查「素材匹配策略」表</font>>];
+  q2 [shape=diamond, fillcolor="#FEF7E0", color="#F9AB00", label=<画面匹配？>];
+
+  useA [fillcolor="#E6F4EA", color="#34A853", penwidth=1.4, label=<<b>直接裁剪</b><br/><font point-size="10">素材直接出镜，⑧ 裁剪块处理<br/>（这就是「素材利用率」的分子）</font>>];
+  useB [fillcolor="#FEF7E0", color="#F9AB00", label=<<b>素材编辑</b><br/><font point-size="10">画面可用但要改造（换商品 / 换背景 / 延长）<br/>素材当「参考视频」交给生成模型</font>>];
+  useC [fillcolor="#FCE8E6", color="#EA4335", label=<<b>重新生成</b><br/><font point-size="10">宁可 AI 重拍，不硬凑<br/>⑧ 生成块处理</font>>];
+
+  sound [fillcolor="#F1F3F4", label=<<b>再查「用户切片处理」表定音轨动作</b><br/>
+<font point-size="10">素材无真人口播　→　静音使用 + 克隆配音<br/>
+有人说话但不是这句台词　→　静音使用 + 克隆配音<br/>
+口播对得上 · 无 BGM　→　原声直接使用<br/>
+口播对得上 · 混着 BGM　→　分离后只留人声<br/>
+音轨情况判不出　→　兜底：静音 + 配音</font>>];
+
+  lesson [shape=note, fillcolor="#FFFDF5", color="#B06000", fontsize=10, label=<教训：早期把「口播对不上」当一票否决，<br/>12 镜全被弃用、成片 0 帧用户素材。<br/>修正口径：<b>画面过关就用画面，声音的问题交给声音解决</b>>];
+
+  start -> q1;
+  q1 -> q2   [label="≥ 0.80", color="#188038", fontcolor="#188038"];
+  q1 -> useB [label="0.55 ~ 0.80"];
+  q1 -> useC [label="< 0.55", color="#C5221F", fontcolor="#C5221F"];
+  q2 -> useA [label="是", color="#188038", fontcolor="#188038"];
+  q2 -> useB [label="否（画面还够当参考）"];
+  useA -> sound;
+  useB -> useA [style=dashed, constraint=false, color="#188038", fontcolor="#188038",
+                label="⑧ 开工前反向降级：素材含真人（必被风控拒）\n或放慢到极限仍不足 5s，但画面已过关\n→ 降回直接裁剪（真素材优先于 AI 重演）"];
+  sound -> lesson [style=dashed, arrowhead=none];
+}

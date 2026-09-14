@@ -1,0 +1,65 @@
+# 构建系统配置
+# PEP 517 规定的构建系统配置，指定构建工具和后端
+[build-system]
+# 构建时需要的依赖
+requires = ["setuptools>=61.0"]
+# 构建后端，使用 setuptools 替代 hatchling（平铺脚本结构用 py-modules 打包）
+build-backend = "setuptools.build_meta"
+
+# 项目元数据配置
+# PEP 621 规定的项目核心元数据
+[project]
+# 项目名称，将用于发布和安装
+name = "viral_video_recreation"
+# 项目版本
+version = "0.1.0"
+# 项目简介，不支持非英文字符
+description = "ViralForge: viral video recreation agent (flat script modules)"
+# README 文件路径，用于生成长描述
+readme = "README.md"
+# Python 版本要求
+requires-python = ">=3.12"
+# 许可证信息
+license = { text = "MIT" }
+# 作者信息列表
+authors = [
+    { name = "fangmuyuan", email = "fangmuyuan@baidu.com" }
+]
+# 关键词
+keywords = ["baidu", "video", "recreation", "agent"]
+# 项目分类
+classifiers = [
+    "Private :: Do Not Upload",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3"
+]
+# 项目依赖列表
+dependencies = [
+    # 网关调用：LLM / VLM / 生图 / 生视频
+    "requests>=2.28.0",
+    # BOS 上传：本地素材 → 公网预签名 URL（网关只能拉公网 URL）
+    "bce-python-sdk>=0.9.0",
+    # 自带 ffmpeg 二进制，不依赖系统安装
+    "imageio-ffmpeg>=0.6.0",
+    # Web 服务（server.py / start_web.sh）
+    "flask>=3.0.0"
+]
+
+# 项目相关 URL 配置
+[project.urls]
+# 项目主页
+Homepage = "http://icode.baidu.com/repos/baidu/wk-strategy/viral_video_recreation/tree/master"
+
+# 平铺脚本结构：顶层 .py 模块直接作为 py-modules 打包
+[tool.setuptools]
+py-modules = [
+    "aigc", "analyze_materials", "analyze_reference", "compose_video",
+    "config", "_fix_sys_tmp", "gates", "line_art", "media", "pipeline",
+    "produce_video", "product_facts", "product_images", "recut", "ref_audio",
+    "report", "review_case", "rules", "segment_build", "server", "shot_match",
+    "storage", "task_store", "voice_dub", "write_script"
+]
+
+# 数据文件与子包一起打进 wheel
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.env", "*.html", "*.sh", "*.json"]
